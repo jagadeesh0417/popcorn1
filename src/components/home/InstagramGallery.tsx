@@ -34,18 +34,26 @@ export function InstagramGallery() {
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
               transition={{ delay: index * 0.05 }}
-              className="relative aspect-square overflow-hidden group cursor-pointer"
+              whileHover={{ scale: 1.02 }}
+              className="relative aspect-square overflow-hidden group cursor-pointer shadow-[0_2px_10px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_25px_rgba(0,0,0,0.1)] transition-all duration-500"
             >
               {/* TODO: connect Instagram API — replace placeholder images with live feed */}
               <Image
                 src={src}
                 alt={`Instagram post ${index + 1}`}
                 fill
-                className="object-cover group-hover:scale-110 transition-transform duration-500"
+                className="object-cover transition-all duration-500 ease-out group-hover:scale-110"
                 sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
               />
-              <div className="absolute inset-0 bg-[#B71C1C]/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                <Camera className="h-6 w-6 text-white" />
+              <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/30 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <div className="absolute inset-0 bg-[#B71C1C]/40 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center">
+                <motion.div
+                  initial={{ scale: 0 }}
+                  whileHover={{ scale: 1 }}
+                  className="w-14 h-14 rounded-full border-2 border-white/80 flex items-center justify-center"
+                >
+                  <Camera className="h-6 w-6 text-white" />
+                </motion.div>
               </div>
             </motion.div>
           ))}

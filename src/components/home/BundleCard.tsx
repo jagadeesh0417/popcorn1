@@ -31,7 +31,8 @@ export function BundleCard() {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-100px" }}
-          className="border-2 border-[rgba(183,28,28,0.12)] p-8 md:p-12 text-center"
+          whileHover={{ y: -4 }}
+          className="border-2 border-[rgba(183,28,28,0.12)] p-8 md:p-12 text-center shadow-[0_4px_20px_rgba(183,28,28,0.04)] hover:shadow-[0_12px_35px_rgba(0,0,0,0.08)] transition-all duration-300"
         >
           <div className="flex justify-center mb-4">
             <div className="gold-rule" />
@@ -78,17 +79,19 @@ export function BundleCard() {
             </motion.div>
           )}
 
-          <Button
-            onClick={handleAddBundle}
-            disabled={!selectedBundle}
-            className={`mt-8 btn-small-caps px-10 h-12 transition-all duration-200 ${
-              selectedBundle
-                ? "bg-[#B71C1C] hover:bg-[#8E1414] text-white"
-                : "bg-[#E0E0E0] text-[#999999] cursor-not-allowed"
-            }`}
-          >
-            <ShoppingBag className="h-3.5 w-3.5 mr-2" /> Add Bundle to Cart
-          </Button>
+          <motion.div whileTap={{ scale: 0.97 }}>
+            <Button
+              onClick={handleAddBundle}
+              disabled={!selectedBundle}
+              className={`mt-8 btn-small-caps px-10 h-12 transition-all duration-200 ${
+                selectedBundle
+                  ? "bg-[#B71C1C] hover:bg-[#8E1414] text-white shadow-lg shadow-[#B71C1C]/20 hover:shadow-[#B71C1C]/30"
+                  : "bg-[#E0E0E0] text-[#999999] cursor-not-allowed"
+              }`}
+            >
+              <ShoppingBag className="h-3.5 w-3.5 mr-2" /> Add Bundle to Cart
+            </Button>
+          </motion.div>
         </motion.div>
       </div>
     </section>

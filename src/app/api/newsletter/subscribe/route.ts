@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { email, whatsappNumber: _whatsappNumber, consent } = body;
+    const { email, whatsappNumber, consent } = body;
 
     if (!email || !consent) {
       return NextResponse.json({ error: "Email and consent are required" }, { status: 400 });
@@ -17,6 +17,7 @@ export async function POST(request: Request) {
     //   consent: true,
     //   createdAt: new Date(),
     // });
+    void whatsappNumber;
 
     return NextResponse.json({ success: true, message: "Subscribed successfully" });
   } catch {

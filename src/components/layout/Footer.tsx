@@ -28,7 +28,7 @@ export function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Instagram"
-                className="w-10 h-10 flex items-center justify-center bg-white/10 hover:bg-[#F9D976]/30 hover:scale-110 transition-all duration-300"
+                className="w-10 h-10 flex items-center justify-center bg-white/10 hover:bg-[#F9D976]/30 transition-all duration-300 hover:scale-110 hover:rotate-[4deg] hover:shadow-[0_0_20px_rgba(249,217,118,0.3)]"
               >
                 <Camera className="h-4 w-4" />
               </a>
@@ -37,7 +37,7 @@ export function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="YouTube"
-                className="w-10 h-10 flex items-center justify-center bg-white/10 hover:bg-[#F9D976]/30 hover:scale-110 transition-all duration-300"
+                className="w-10 h-10 flex items-center justify-center bg-white/10 hover:bg-[#F9D976]/30 transition-all duration-300 hover:scale-110 hover:rotate-[4deg] hover:shadow-[0_0_20px_rgba(249,217,118,0.3)]"
               >
                 <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor"><path d="M23.5 6.2c-.3-1.1-1.1-1.9-2.2-2.2C19.4 3.5 12 3.5 12 3.5s-7.4 0-9.3.5C1.6 4.3.8 5.1.5 6.2 0 8.1 0 12 0 12s0 3.9.5 5.8c.3 1.1 1.1 1.9 2.2 2.2 1.9.5 9.3.5 9.3.5s7.4 0 9.3-.5c1.1-.3 1.9-1.1 2.2-2.2.5-1.9.5-5.8.5-5.8s0-3.9-.5-5.8zM9.6 15.6V8.4l6.2 3.6-6.2 3.6z"/></svg>
               </a>
@@ -46,7 +46,7 @@ export function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="WhatsApp"
-                className="w-10 h-10 flex items-center justify-center bg-white/10 hover:bg-[#F9D976]/30 hover:scale-110 transition-all duration-300"
+                className="w-10 h-10 flex items-center justify-center bg-white/10 hover:bg-[#F9D976]/30 transition-all duration-300 hover:scale-110 hover:rotate-[4deg] hover:shadow-[0_0_20px_rgba(249,217,118,0.3)]"
               >
                 <MessageCircle className="h-4 w-4" />
               </a>

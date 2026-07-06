@@ -55,9 +55,15 @@ export function TrustBar() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.08 }}
-              className="flex items-center gap-3"
+              whileHover={{ scale: 1.05 }}
+              className="flex items-center gap-3 group cursor-default"
             >
-              <span className="text-[#F9D976] shrink-0">{item.svg}</span>
+              <motion.span
+                whileHover={{ scale: 1.08 }}
+                className="text-[#F9D976] shrink-0 p-2 rounded-full transition-shadow duration-300 group-hover:shadow-[0_0_20px_rgba(249,217,118,0.3)]"
+              >
+                {item.svg}
+              </motion.span>
               <span className="text-[#1A1A1A] text-xs uppercase tracking-[0.06em] font-medium">{item.label}</span>
             </motion.div>
           ))}

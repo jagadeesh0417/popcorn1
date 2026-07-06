@@ -13,6 +13,21 @@ const countryCodes = [
   { code: "+971", label: "AE +971" },
 ];
 
+const FloatingPopcorn = ({ delay = 0, left = "10%", top = "10%", size = "text-xl" }) => (
+  <motion.span
+    className={`absolute pointer-events-none ${size} opacity-20`}
+    style={{ left, top }}
+    animate={{
+      y: [0, -15, 0],
+      rotate: [0, 10, -5, 0],
+      opacity: [0.15, 0.25, 0.15],
+    }}
+    transition={{ duration: 5, delay, repeat: Infinity, ease: "easeInOut" }}
+  >
+    🍿
+  </motion.span>
+);
+
 export function Newsletter() {
   const [email, setEmail] = useState("");
   const [countryCode, setCountryCode] = useState("+91");
@@ -41,19 +56,36 @@ export function Newsletter() {
 
   if (submitted) {
     return (
-      <section className="py-24 bg-[#FFF8F0]">
-        <div className="max-w-lg mx-auto px-4 text-center">
-          <div className="w-16 h-16 mx-auto flex items-center justify-center border-2 border-green-500 text-green-500 text-2xl mb-4">✓</div>
-          <h2 className="text-2xl text-[#1A1A1A]" style={{ fontFamily: "var(--font-playfair)" }}>You&apos;re in!</h2>
-          <p className="text-[#666666] text-xs mt-2">We&apos;ll keep you posted on new drops and limited batches.</p>
+      <section className="py-24 bg-[#FFF8F0] relative overflow-hidden">
+        <FloatingPopcorn delay={0} left="15%" top="20%" />
+        <FloatingPopcorn delay={1.5} left="80%" top="15%" />
+        <FloatingPopcorn delay={3} left="70%" top="70%" />
+        <FloatingPopcorn delay={0.8} left="10%" top="75%" />
+        <div className="max-w-lg mx-auto px-4 text-center relative">
+          <motion.div
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ type: "spring", damping: 15 }}
+          >
+            <div className="w-16 h-16 mx-auto flex items-center justify-center border-2 border-green-500 text-green-500 text-2xl mb-4">✓</div>
+            <h2 className="text-2xl text-[#1A1A1A]" style={{ fontFamily: "var(--font-playfair)" }}>You&apos;re in!</h2>
+            <p className="text-[#666666] text-xs mt-2">We&apos;ll keep you posted on new drops and limited batches.</p>
+          </motion.div>
         </div>
       </section>
     );
   }
 
   return (
-    <section className="py-24 bg-[#FFF8F0]">
-      <div className="max-w-lg mx-auto px-4 sm:px-6 lg:px-8">
+    <section className="py-24 bg-[#FFF8F0] relative overflow-hidden">
+      <FloatingPopcorn delay={0} left="8%" top="15%" />
+      <FloatingPopcorn delay={1.2} left="85%" top="10%" />
+      <FloatingPopcorn delay={2.5} left="75%" top="75%" />
+      <FloatingPopcorn delay={0.5} left="12%" top="80%" />
+      <FloatingPopcorn delay={3.5} left="50%" top="5%" />
+      <FloatingPopcorn delay={4} left="90%" top="60%" />
+
+      <div className="max-w-lg mx-auto px-4 sm:px-6 lg:px-8 relative">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -122,17 +154,19 @@ export function Newsletter() {
             </span>
           </label>
 
-          <Button
-            type="submit"
-            disabled={!consent}
-            className={`w-full btn-small-caps h-12 transition-all duration-200 ${
-              consent
-                ? "bg-[#B71C1C] hover:bg-[#8E1414] text-white"
-                : "bg-[#E0E0E0] text-[#999999] cursor-not-allowed"
-            }`}
-          >
-            Sign me up
-          </Button>
+          <motion.div whileTap={{ scale: 0.97 }}>
+            <Button
+              type="submit"
+              disabled={!consent}
+              className={`w-full btn-small-caps h-12 transition-all duration-200 ${
+                consent
+                  ? "bg-[#B71C1C] hover:bg-[#8E1414] text-white shadow-lg shadow-[#B71C1C]/20 hover:shadow-[#B71C1C]/30"
+                  : "bg-[#E0E0E0] text-[#999999] cursor-not-allowed"
+              }`}
+            >
+              Sign me up
+            </Button>
+          </motion.div>
 
           <p className="text-[#999999] text-[10px] text-center">
             One or two messages a month. Unsubscribe anytime.

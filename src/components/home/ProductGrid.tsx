@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { ShoppingBag } from "lucide-react";
+import { ShoppingBag, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/lib/store";
 import { trioProducts } from "@/lib/data";
@@ -61,10 +61,18 @@ export function ProductGrid() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-50px" }}
                 transition={{ delay: index * 0.1 }}
-                className="border border-[rgba(183,28,28,0.08)] bg-white"
+                whileHover={{ y: -6 }}
+                className="bg-white border border-[rgba(183,28,28,0.08)] shadow-[0_2px_15px_rgba(183,28,28,0.04)] hover:shadow-[0_12px_35px_rgba(0,0,0,0.08)] transition-all duration-300"
               >
-                <div className="aspect-[4/3] bg-[#FFF8F0] flex items-center justify-center text-5xl border-b border-[rgba(183,28,28,0.08)]">
-                  🍿
+                <div className="aspect-[4/3] bg-[#FFF8F0] flex items-center justify-center text-5xl border-b border-[rgba(183,28,28,0.08)] relative overflow-hidden group">
+                  <motion.div
+                    className="text-6xl"
+                    whileHover={{ scale: 1.05 }}
+                    transition={{ duration: 0.5, ease: "easeOut" }}
+                  >
+                    🍿
+                  </motion.div>
+                  <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
                 </div>
                 <div className="p-6">
                   <h3 className="text-xl text-[#1A1A1A]" style={{ fontFamily: "var(--font-playfair)" }}>
@@ -100,23 +108,25 @@ export function ProductGrid() {
                     )}
                   </div>
 
-                  <Button
-                    onClick={() => handleAddToCart(product)}
-                    disabled={!selectedSize}
-                    className={`w-full mt-4 btn-small-caps h-11 transition-all duration-200 ${
-                      addedFeedback[product.id]
-                        ? "bg-green-600 text-white"
-                        : selectedSize
-                          ? "bg-[#B71C1C] hover:bg-[#8E1414] text-white"
-                          : "bg-[#E0E0E0] text-[#999999] cursor-not-allowed"
-                    }`}
-                  >
-                    {addedFeedback[product.id] ? (
-                      <>Added ✓</>
-                    ) : (
-                      <><ShoppingBag className="h-3.5 w-3.5 mr-2" /> Add to Cart</>
-                    )}
-                  </Button>
+                  <motion.div whileTap={{ scale: 0.97 }}>
+                    <Button
+                      onClick={() => handleAddToCart(product)}
+                      disabled={!selectedSize}
+                      className={`w-full mt-4 btn-small-caps h-11 transition-all duration-200 ${
+                        addedFeedback[product.id]
+                          ? "bg-green-600 text-white shadow-lg shadow-green-600/20"
+                          : selectedSize
+                            ? "bg-[#B71C1C] hover:bg-[#8E1414] text-white shadow-lg shadow-[#B71C1C]/20 hover:shadow-[#B71C1C]/30"
+                            : "bg-[#E0E0E0] text-[#999999] cursor-not-allowed"
+                      }`}
+                    >
+                      {addedFeedback[product.id] ? (
+                        <><Check className="h-3.5 w-3.5 mr-2" /> Added!</>
+                      ) : (
+                        <><ShoppingBag className="h-3.5 w-3.5 mr-2" /> Add to Cart</>
+                      )}
+                    </Button>
+                  </motion.div>
                 </div>
               </motion.div>
             );
