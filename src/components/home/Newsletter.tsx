@@ -13,21 +13,6 @@ const countryCodes = [
   { code: "+971", label: "AE +971" },
 ];
 
-const FloatingPopcorn = ({ delay = 0, left = "10%", top = "10%", size = "text-xl" }) => (
-  <motion.span
-    className={`absolute pointer-events-none ${size} opacity-20`}
-    style={{ left, top }}
-    animate={{
-      y: [0, -15, 0],
-      rotate: [0, 10, -5, 0],
-      opacity: [0.15, 0.25, 0.15],
-    }}
-    transition={{ duration: 5, delay, repeat: Infinity, ease: "easeInOut" }}
-  >
-    🍿
-  </motion.span>
-);
-
 export function Newsletter() {
   const [email, setEmail] = useState("");
   const [countryCode, setCountryCode] = useState("+91");
@@ -56,12 +41,8 @@ export function Newsletter() {
 
   if (submitted) {
     return (
-      <section className="py-20 bg-gradient-to-b from-white to-[#FFFDF9] relative overflow-hidden">
-        <FloatingPopcorn delay={0} left="15%" top="20%" />
-        <FloatingPopcorn delay={1.5} left="80%" top="15%" />
-        <FloatingPopcorn delay={3} left="70%" top="70%" />
-        <FloatingPopcorn delay={0.8} left="10%" top="75%" />
-        <div className="max-w-lg mx-auto px-4 text-center relative">
+      <section className="py-24 bg-[#FFF8F0]">
+        <div className="max-w-lg mx-auto px-4 text-center">
           <motion.div
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
@@ -77,15 +58,8 @@ export function Newsletter() {
   }
 
   return (
-    <section className="py-20 bg-gradient-to-b from-white to-[#FFFDF9] relative overflow-hidden">
-      <FloatingPopcorn delay={0} left="8%" top="15%" />
-      <FloatingPopcorn delay={1.2} left="85%" top="10%" />
-      <FloatingPopcorn delay={2.5} left="75%" top="75%" />
-      <FloatingPopcorn delay={0.5} left="12%" top="80%" />
-      <FloatingPopcorn delay={3.5} left="50%" top="5%" />
-      <FloatingPopcorn delay={4} left="90%" top="60%" />
-
-      <div className="max-w-lg mx-auto px-4 sm:px-6 lg:px-8 relative">
+    <section className="py-24 bg-[#FFF8F0]">
+      <div className="max-w-lg mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}

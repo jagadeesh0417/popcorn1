@@ -38,7 +38,7 @@ export function BundleCard() {
   const prevImage = () => setCurrentImage((prev) => (prev - 1 + bundleImages.length) % bundleImages.length);
 
   return (
-    <section id="bundles" className="py-16 md:py-20 bg-gradient-to-b from-white to-[#FFFDF9]">
+    <section id="bundles" className="py-24 bg-[#FFF8F0]">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-center mb-8">
           <div className="gold-rule" />

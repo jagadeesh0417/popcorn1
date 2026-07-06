@@ -4,57 +4,13 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 
-const FloatingParticle = ({ children, duration = 6, delay = 0, xRange = 15, yRange = 10, className = "" }: {
-  children: React.ReactNode;
-  duration?: number;
-  delay?: number;
-  xRange?: number;
-  yRange?: number;
-  className?: string;
-}) => (
-  <motion.div
-    className={`absolute pointer-events-none ${className}`}
-    initial={{ opacity: 0 }}
-    animate={{
-      opacity: [0, 0.5, 0.5, 0],
-      x: [0, xRange, -xRange, 0],
-      y: [0, -yRange, yRange * 0.5, 0],
-    }}
-    transition={{
-      duration,
-      delay,
-      repeat: Infinity,
-      ease: "linear",
-    }}
-  >
-    {children}
-  </motion.div>
-);
-
 export function HeroSectionV2() {
   return (
-    <section className="relative flex items-center justify-center overflow-hidden bg-gradient-to-br from-[#B71C1C] via-[#C62828] to-[#D84315]" style={{ minHeight: "70vh" }}>
+    <section className="relative flex items-center justify-center overflow-hidden" style={{ minHeight: "70vh", background: "linear-gradient(135deg, #B71C1C 0%, #C62828 40%, #D84315 100%)" }}>
       <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMiIvPjwvZz48L2c+PC9zdmc+')] opacity-30" />
 
-      {/* Floating particles — scaled down ~85% */}
-      <FloatingParticle duration={5} delay={0} xRange={16} yRange={10} className="top-[10%] left-[6%] text-xl opacity-[.85]">
-        🍿
-      </FloatingParticle>
-      <FloatingParticle duration={7} delay={1.2} xRange={14} yRange={8} className="top-[20%] right-[10%] text-lg opacity-[.85]">
-        🌶️
-      </FloatingParticle>
-      <FloatingParticle duration={6} delay={0.6} xRange={12} yRange={11} className="bottom-[25%] left-[12%] text-base opacity-[.85]">
-        🍃
-      </FloatingParticle>
-      <FloatingParticle duration={8} delay={2} xRange={18} yRange={6} className="top-[35%] right-[6%] text-lg opacity-[.85]">
-        ☕
-      </FloatingParticle>
-      <FloatingParticle duration={5.5} delay={0.3} xRange={10} yRange={13} className="bottom-[15%] right-[18%] text-xl opacity-[.85]">
-        🍿
-      </FloatingParticle>
-      <FloatingParticle duration={6.5} delay={1.8} xRange={13} yRange={9} className="top-[55%] left-[4%] text-base opacity-[.85]">
-        🌶️
-      </FloatingParticle>
+      {/* Soft radial glow */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-white/5 blur-3xl pointer-events-none" />
 
       {/* Glowing circles */}
       <motion.div

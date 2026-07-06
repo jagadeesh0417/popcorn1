@@ -51,8 +51,12 @@ const points = [
 
 export function WhyChooseUs() {
   return (
-    <section className="py-24 bg-gradient-to-b from-[#FFFDF9] to-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section className="py-24 bg-[#FFF5EC] relative overflow-hidden">
+      <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{
+        backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23B71C1C' fill-opacity='0.4'%3E%3Ccircle cx='30' cy='30' r='1.5'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+        backgroundSize: "60px 60px",
+      }} />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -78,9 +82,10 @@ export function WhyChooseUs() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.08 }}
-              className="flex gap-5"
+              whileHover={{ y: -3 }}
+              className="flex gap-5 p-5 bg-white/60 hover:bg-white/90 transition-all duration-300 shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:shadow-[0_8px_25px_rgba(0,0,0,0.06)]"
             >
-              <div className="w-11 h-11 flex items-center justify-center shrink-0 text-[#F9D976] border border-[#F9D976]/30">
+              <div className="w-12 h-12 flex items-center justify-center shrink-0 text-[#F9D976] bg-[#F9D976]/10 rounded-full border border-[#F9D976]/20">
                 {point.svg}
               </div>
               <div>

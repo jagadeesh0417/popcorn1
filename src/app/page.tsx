@@ -7,17 +7,29 @@ import { DeliveryInfo } from "@/components/home/DeliveryInfo";
 import { InstagramGallery } from "@/components/home/InstagramGallery";
 import { Newsletter } from "@/components/home/Newsletter";
 
+function SectionDivider() {
+  return (
+    <div className="w-full h-px bg-gradient-to-r from-transparent via-[#F9D976]/20 to-transparent" />
+  );
+}
+
 export default function HomePage() {
   return (
     <>
       <HeroSwitch />
+      <SectionDivider />
       <TrustBar />
-      <WhyChooseUs />
+      <SectionDivider />
       <ProductGrid />
-      <div className="mt-8" />
+      <SectionDivider />
       <BundleCard />
+      <SectionDivider />
       <DeliveryInfo />
+      <SectionDivider />
+      <WhyChooseUs />
+      <SectionDivider />
       <InstagramGallery />
+      <SectionDivider />
       <Newsletter />
     </>
   );

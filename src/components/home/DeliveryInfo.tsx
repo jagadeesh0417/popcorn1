@@ -5,7 +5,7 @@ import { MapPin, Truck } from "lucide-react";
 
 export function DeliveryInfo() {
   return (
-    <section className="py-20 bg-gradient-to-b from-[#FFFDF9] to-white">
+    <section className="py-24 bg-white">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
