@@ -9,10 +9,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { useCart } from "@/lib/store";
+import { useShipping } from "@/lib/shipping-settings";
 import { coupons } from "@/lib/data";
 
 export default function CartPage() {
-  const { state, updateQuantity, removeItem, getSubtotal, getDiscount, getShipping, getTotal, getItemCount, applyCoupon } = useCart();
+  const { state, updateQuantity, removeItem, getSubtotal, getDiscount, getItemCount, applyCoupon } = useCart();
+  const shippingCtx = useShipping();
+  const sub = getSubtotal();
+  const remains = shippingCtx.freeShippingRemaining(sub);
+  const isFree = shippingCtx.qualifiesForFree(sub);
   const [couponInput, setCouponInput] = useState("");
   const [couponMsg, setCouponMsg] = useState("");
 
@@ -58,6 +63,19 @@ export default function CartPage() {
               <ArrowLeft className="mr-2 h-4 w-4" /> Continue Shopping
             </Button>
           </Link>
+        </div>
+
+        {/* Free shipping banner */}
+        <div className={`mb-6 p-4 text-sm font-medium flex items-center gap-2.5 border ${
+          isFree
+            ? "bg-green-50 border-green-200 text-green-700"
+            : "bg-[#FFF8F0] border-[rgba(183,28,28,0.12)] text-[#1A1A1A]"
+        }`}>
+          {isFree ? (
+            <span>🎉 Congratulations! Your order qualifies for FREE delivery.</span>
+          ) : (
+            <span>Add <span className="font-bold text-[#B71C1C]">₹{remains}</span> more to unlock <span className="font-bold">free shipping</span>!</span>
+          )}
         </div>
 
         <div className="grid lg:grid-cols-3 gap-10">
@@ -118,15 +136,15 @@ export default function CartPage() {
                 )}
                 <div className="flex justify-between">
                   <span className="text-[#666666]">Shipping</span>
-                  <span className="font-medium text-[#1A1A1A]">{getShipping() === 0 ? "FREE" : `₹${getShipping()}`}</span>
+                  <span className="font-medium text-[#1A1A1A]">{isFree ? "FREE" : `₹${shippingCtx.settings.panIndiaShippingFee}`}</span>
                 </div>
-                {getShipping() > 0 && (
-                  <p className="text-xs text-[#666666]">Free shipping on orders above ₹300</p>
+                {!isFree && (
+                  <p className="text-xs text-[#666666]">Free shipping on orders above ₹{shippingCtx.settings.freeShippingThreshold}</p>
                 )}
                 <Separator className="bg-[rgba(183,28,28,0.08)]" />
                 <div className="flex justify-between text-lg">
                   <span className="font-bold text-[#1A1A1A]">Total</span>
-                  <span className="font-bold text-[#B71C1C]">₹{getTotal()}</span>
+                  <span className="font-bold text-[#B71C1C]">₹{getSubtotal() - getDiscount() + (isFree ? 0 : shippingCtx.settings.panIndiaShippingFee)}</span>
                 </div>
               </div>
 
@@ -149,7 +167,7 @@ export default function CartPage() {
 
               <Link href="/checkout">
                 <Button className="w-full mt-4 bg-[#B71C1C] hover:bg-[#8E1414] text-white rounded-xl h-12 text-base shadow-lg shadow-[#B71C1C]/20">
-                  Proceed to Checkout — ₹{getTotal()}
+                  Proceed to Checkout — ₹{getSubtotal() - getDiscount() + (isFree ? 0 : shippingCtx.settings.panIndiaShippingFee)}
                 </Button>
               </Link>
             </div>

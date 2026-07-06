@@ -3,12 +3,13 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
-import { Package, ShoppingBag, Users, Percent, Box, TrendingUp, LayoutDashboard, Mail } from "lucide-react";
+import { Package, ShoppingBag, Users, Percent, Box, TrendingUp, LayoutDashboard, Mail, Gift, Truck, CreditCard } from "lucide-react";
 
 const navItems = [
   { icon: LayoutDashboard, label: "Dashboard", href: "/admin" },
   { icon: Package, label: "Orders", href: "/admin/orders" },
   { icon: ShoppingBag, label: "Products", href: "/admin/products" },
+  { icon: Gift, label: "Bundle", href: "/admin/bundle" },
   { icon: Users, label: "Customers", href: "/admin/customers" },
   { icon: Mail, label: "Subscribers", href: "/admin/subscribers" },
   { icon: Percent, label: "Coupons", href: "/admin/coupons" },
@@ -58,6 +59,36 @@ export function AdminSidebar() {
             </Link>
           );
         })}
+          <div className="pt-4 pb-1 px-4">
+            <span className="text-[#F9D976]/60 text-[10px] uppercase tracking-[0.15em] font-semibold">Settings</span>
+          </div>
+          {[
+            { icon: Truck, label: "Shipping", href: "/admin/settings/shipping" },
+            { icon: CreditCard, label: "Payments", href: "/admin/settings/payments" },
+          ].map((item) => {
+            const isActive = pathname === item.href;
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`relative flex items-center gap-3 px-4 py-3 text-sm font-medium transition-all duration-200 ${
+                  isActive
+                    ? "bg-[#F9D976]/20 text-[#F9D976] shadow-sm"
+                    : "text-white/70 hover:text-white hover:bg-white/10"
+                }`}
+              >
+                {isActive && (
+                  <motion.span
+                    layoutId="activeIndicator"
+                    className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-6 bg-[#F9D976]"
+                    transition={{ type: "spring", damping: 20, stiffness: 300 }}
+                  />
+                )}
+                <item.icon className={`h-5 w-5 ${isActive ? "text-[#F9D976]" : ""}`} />
+                <span>{item.label}</span>
+              </Link>
+            );
+          })}
       </nav>
 
       <div className="p-4 border-t border-white/10">

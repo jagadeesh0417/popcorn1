@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Playfair_Display, Jost, Geist_Mono } from "next/font/google";
 import { Toaster } from "sonner";
 import { CartProvider } from "@/lib/store";
+import { ShippingProvider } from "@/lib/shipping-settings";
 import { AnnouncementBar } from "@/components/layout/AnnouncementBar";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
@@ -69,14 +70,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body className="min-h-full flex flex-col">
-        <CartProvider>
-          <AnnouncementBar />
-          <Header />
-          <main className="flex-1">{children}</main>
-          <Footer />
-          <WhatsAppButton />
-          <CartDrawer />
-        </CartProvider>
+        <ShippingProvider>
+          <CartProvider>
+            <AnnouncementBar />
+            <Header />
+            <main className="flex-1">{children}</main>
+            <Footer />
+            <WhatsAppButton />
+            <CartDrawer />
+          </CartProvider>
+        </ShippingProvider>
         <Toaster position="top-right" richColors />
       </body>
     </html>

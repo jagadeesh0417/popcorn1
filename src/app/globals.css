@@ -49,7 +49,7 @@
 }
 
 :root {
-  --background: #ffffff;
+  --background: #FFFDF9;
   --foreground: #1a1a1a;
   --card: #ffffff;
   --card-foreground: #1a1a1a;
@@ -86,7 +86,8 @@
 @layer base {
   * { @apply border-border outline-ring/50; }
   body {
-    @apply bg-background text-foreground font-sans;
+    @apply text-foreground font-sans;
+    background: linear-gradient(180deg, #FFFFFF, #FFFDF9);
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   }
   html { @apply scroll-smooth; }

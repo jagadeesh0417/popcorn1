@@ -56,7 +56,7 @@ export function Newsletter() {
 
   if (submitted) {
     return (
-      <section className="py-24 bg-[#FFF8F0] relative overflow-hidden">
+      <section className="py-20 bg-gradient-to-b from-white to-[#FFFDF9] relative overflow-hidden">
         <FloatingPopcorn delay={0} left="15%" top="20%" />
         <FloatingPopcorn delay={1.5} left="80%" top="15%" />
         <FloatingPopcorn delay={3} left="70%" top="70%" />
@@ -77,7 +77,7 @@ export function Newsletter() {
   }
 
   return (
-    <section className="py-24 bg-[#FFF8F0] relative overflow-hidden">
+    <section className="py-20 bg-gradient-to-b from-white to-[#FFFDF9] relative overflow-hidden">
       <FloatingPopcorn delay={0} left="8%" top="15%" />
       <FloatingPopcorn delay={1.2} left="85%" top="10%" />
       <FloatingPopcorn delay={2.5} left="75%" top="75%" />

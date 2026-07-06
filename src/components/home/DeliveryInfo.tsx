@@ -5,7 +5,7 @@ import { MapPin, Truck } from "lucide-react";
 
 export function DeliveryInfo() {
   return (
-    <section className="py-24 bg-[#FFF8F0]">
+    <section className="py-20 bg-gradient-to-b from-[#FFFDF9] to-white">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -26,30 +26,38 @@ export function DeliveryInfo() {
             initial={{ opacity: 0, x: -20 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
-            className="bg-white p-8 border border-[rgba(183,28,28,0.08)]"
+            whileHover={{ y: -4, boxShadow: "0 12px 35px rgba(0,0,0,0.06)" }}
+            className="bg-[#FFFDF9] p-8 border border-[rgba(0,0,0,0.05)] shadow-[0_4px_20px_rgba(0,0,0,0.03)] transition-all duration-300"
           >
-            <div className="w-11 h-11 flex items-center justify-center mb-4 text-[#B71C1C] border border-[#B71C1C]/20">
-              <MapPin className="h-5 w-5" />
+            <div className="w-12 h-12 flex items-center justify-center mb-5 bg-[#FFF8F0] border border-[rgba(183,28,28,0.1)]">
+              <MapPin className="h-5 w-5 text-[#B71C1C]" />
             </div>
             <h3 className="font-semibold text-sm uppercase tracking-[0.06em] text-[#1A1A1A]">Local to Mysuru?</h3>
             <p className="text-[#666666] text-xs mt-3 leading-relaxed">
-              Skip shipping. Pick up your order from our kitchen in Vijayanagar 4th Stage. Select &quot;Mysuru pickup&quot; at checkout.
+              Skip shipping. Pick up your order from our kitchen in Vijayanagar 4th Stage. Select &quot;Mysuru pickup&quot; at checkout and we&apos;ll have your popcorn ready.
             </p>
+            <div className="mt-5 pt-4 border-t border-[rgba(0,0,0,0.05)]">
+              <p className="text-[#999999] text-[10px] uppercase tracking-[0.08em]">Poprika Kitchen · Vijayanagar 4th Stage · Mysuru</p>
+            </div>
           </motion.div>
 
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
-            className="bg-white p-8 border border-[rgba(183,28,28,0.08)]"
+            whileHover={{ y: -4, boxShadow: "0 12px 35px rgba(0,0,0,0.06)" }}
+            className="bg-[#FFFDF9] p-8 border border-[rgba(0,0,0,0.05)] shadow-[0_4px_20px_rgba(0,0,0,0.03)] transition-all duration-300"
           >
-            <div className="w-11 h-11 flex items-center justify-center mb-4 text-[#B71C1C] border border-[#B71C1C]/20">
-              <Truck className="h-5 w-5" />
+            <div className="w-12 h-12 flex items-center justify-center mb-5 bg-[#FFF8F0] border border-[rgba(183,28,28,0.1)]">
+              <Truck className="h-5 w-5 text-[#B71C1C]" />
             </div>
-            <h3 className="font-semibold text-sm uppercase tracking-[0.06em] text-[#1A1A1A]">Everywhere else</h3>
+            <h3 className="font-semibold text-sm uppercase tracking-[0.06em] text-[#1A1A1A]">Everywhere else in India</h3>
             <p className="text-[#666666] text-xs mt-3 leading-relaxed">
-              We ship pan-India via India Post. Orders go out within 2 working days. Delivery usually takes 3-7 days depending on where you are.
+              We ship pan-India via India Post. Orders go out within 2 working days. Delivery usually takes 3-7 days depending on your location.
             </p>
+            <div className="mt-5 pt-4 border-t border-[rgba(0,0,0,0.05)]">
+              <p className="text-[#999999] text-[10px] uppercase tracking-[0.08em]">Free shipping on orders over ₹399</p>
+            </div>
           </motion.div>
         </div>
       </div>
