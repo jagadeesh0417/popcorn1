@@ -1,20 +1,23 @@
 import type { Metadata } from "next";
-import { Poppins, Inter, Geist_Mono } from "next/font/google";
+import { Playfair_Display, Jost, Geist_Mono } from "next/font/google";
 import { Toaster } from "sonner";
 import { CartProvider } from "@/lib/store";
+import { AnnouncementBar } from "@/components/layout/AnnouncementBar";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
+import { WhatsAppButton } from "@/components/layout/WhatsAppButton";
+import { CartDrawer } from "@/components/layout/CartDrawer";
 import "./globals.css";
 
-const poppins = Poppins({
-  variable: "--font-poppins",
+const playfair = Playfair_Display({
+  variable: "--font-playfair",
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700", "800"],
+  weight: ["400", "500", "600", "700"],
   display: "swap",
 });
 
-const inter = Inter({
-  variable: "--font-inter",
+const jost = Jost({
+  variable: "--font-jost",
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700"],
   display: "swap",
@@ -26,19 +29,19 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Poprika - Premium Artisanal Popcorn from Mysuru",
-  description: "Handcrafted gourmet popcorn made in small batches in Mysuru. 100% natural ingredients, no palm oil. Ghee & Black Pepper, Coffee Chikki, and more.",
-  keywords: "premium popcorn, gourmet popcorn, handcrafted snacks, Mysuru popcorn, artisanal popcorn, ghee popcorn, Indian gourmet snacks",
+  title: "Poprika — Small-Batch Gourmet Popcorn from Mysuru",
+  description: "Handcrafted gourmet popcorn made in small batches in Mysuru. No palm oil, no preservatives, no artificial anything. Just real spices, real ghee, and popcorn done properly.",
+  keywords: "premium popcorn, gourmet popcorn, Mysuru popcorn, artisanal popcorn, ghee popcorn, small batch popcorn, Indian gourmet snacks",
   openGraph: {
-    title: "Poprika - Premium Artisanal Popcorn from Mysuru",
-    description: "Handcrafted gourmet popcorn made in small batches in Mysuru.",
+    title: "Poprika — Small-Batch Gourmet Popcorn from Mysuru",
+    description: "Handcrafted gourmet popcorn made in small batches in Mysuru. No palm oil, no preservatives, no artificial anything.",
     type: "website",
     siteName: "Poprika",
     locale: "en_IN",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Poprika - Premium Artisanal Popcorn",
+    title: "Poprika — Small-Batch Gourmet Popcorn",
     description: "Handcrafted gourmet popcorn made in small batches in Mysuru.",
   },
   robots: "index, follow",
@@ -47,7 +50,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${poppins.variable} ${inter.variable} ${geistMono.variable} h-full antialiased`}>
+    <html lang="en" className={`${playfair.variable} ${jost.variable} ${geistMono.variable} h-full antialiased`}>
       <head>
         <script
           type="application/ld+json"
@@ -56,7 +59,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               "@context": "https://schema.org",
               "@type": "FoodService",
               name: "Poprika",
-              description: "Premium artisanal popcorn brand from Mysuru",
+              description: "Small-batch gourmet popcorn brand from Mysuru",
               url: "https://poprika.in",
               servesCuisine: "Popcorn",
               address: { "@type": "PostalAddress", addressLocality: "Mysuru", addressCountry: "IN" },
@@ -67,9 +70,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="min-h-full flex flex-col">
         <CartProvider>
+          <AnnouncementBar />
           <Header />
           <main className="flex-1">{children}</main>
           <Footer />
+          <WhatsAppButton />
+          <CartDrawer />
         </CartProvider>
         <Toaster position="top-right" richColors />
       </body>

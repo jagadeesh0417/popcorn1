@@ -1,85 +1,70 @@
 "use client";
 
 import Link from "next/link";
-import { Globe, Camera, MessageCircle, Video, Mail, Phone, MapPin, ArrowUpRight } from "lucide-react";
+import { Camera, MessageCircle, Mail, MapPin } from "lucide-react";
 
-const quickLinks = [
-  { name: "About Us", href: "/about" },
-  { name: "Shop All Flavours", href: "/shop" },
-  { name: "Best Sellers", href: "/#best-sellers" },
-  { name: "Order Tracking", href: "/order-tracking" },
-];
-
-const supportLinks = [
-  { name: "FAQ", href: "/faq" },
-  { name: "Shipping Policy", href: "/shipping" },
-  { name: "Return Policy", href: "/returns" },
-  { name: "Contact Us", href: "/#contact" },
-];
-
-const policyLinks = [
-  { name: "Privacy Policy", href: "/privacy" },
-  { name: "Terms of Service", href: "/terms" },
-  { name: "Refund Policy", href: "/refund" },
-];
-
-const socialLinks = [
-  { icon: Globe, href: "#", label: "Facebook" },
-  { icon: Camera, href: "#", label: "Instagram" },
-  { icon: MessageCircle, href: "#", label: "Twitter" },
-  { icon: Video, href: "#", label: "Youtube" },
-];
+const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "919999999999";
+const fssaiNumber = process.env.NEXT_PUBLIC_FSSAI_NUMBER || "[FSSAI_NUMBER]";
+const gstin = process.env.NEXT_PUBLIC_GSTIN || "[GSTIN]";
 
 export function Footer() {
   return (
-    <footer className="bg-[#8E1414] text-white relative overflow-hidden">
-      <div className="absolute inset-0 opacity-[0.02]">
-        <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <pattern id="footer-spice" x="0" y="0" width="60" height="60" patternUnits="userSpaceOnUse">
-              <circle cx="30" cy="30" r="1" fill="white" />
-              <circle cx="10" cy="10" r="0.8" fill="white" />
-              <circle cx="50" cy="50" r="0.6" fill="white" />
-            </pattern>
-          </defs>
-          <rect width="100%" height="100%" fill="url(#footer-spice)" />
-        </svg>
-      </div>
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 relative">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10">
-          <div className="lg:col-span-2">
+    <footer className="bg-[#8E1414] text-white">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
+          <div>
             <div className="flex items-center gap-2.5 mb-4">
-              <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-lg">
-                <span className="text-[#8E1414] font-bold text-lg">P</span>
+              <div className="w-9 h-9 bg-white flex items-center justify-center">
+                <span className="text-[#8E1414] font-bold text-base">P</span>
               </div>
-              <span className="font-bold text-xl">Poprika</span>
+              <span className="font-semibold text-lg" style={{ fontFamily: "var(--font-playfair)" }}>Poprika</span>
             </div>
-            <p className="text-white/70 text-sm leading-relaxed mb-6 max-w-xs">
-              Handcrafted gourmet popcorn from Mysuru. Made in small batches with 100% natural ingredients.
+            <p className="text-white/60 text-xs leading-relaxed mb-5 max-w-xs">
+              Small-batch popcorn. Bold Indian flavors. Made in Mysuru.
             </p>
             <div className="flex gap-3">
-              {socialLinks.map((social) => (
-                <a
-                  key={social.label}
-                  href={social.href}
-                  aria-label={social.label}
-                  className="w-11 h-11 rounded-full bg-white/10 flex items-center justify-center hover:bg-[#F9D976]/30 hover:scale-110 transition-all duration-300 border border-white/10"
-                >
-                  <social.icon className="h-4 w-4" />
-                </a>
-              ))}
+              <a
+                href="https://instagram.com/poprika"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Instagram"
+                className="w-10 h-10 flex items-center justify-center bg-white/10 hover:bg-[#F9D976]/30 hover:scale-110 transition-all duration-300"
+              >
+                <Camera className="h-4 w-4" />
+              </a>
+              <a
+                href="https://youtube.com/@poprika"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="YouTube"
+                className="w-10 h-10 flex items-center justify-center bg-white/10 hover:bg-[#F9D976]/30 hover:scale-110 transition-all duration-300"
+              >
+                <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor"><path d="M23.5 6.2c-.3-1.1-1.1-1.9-2.2-2.2C19.4 3.5 12 3.5 12 3.5s-7.4 0-9.3.5C1.6 4.3.8 5.1.5 6.2 0 8.1 0 12 0 12s0 3.9.5 5.8c.3 1.1 1.1 1.9 2.2 2.2 1.9.5 9.3.5 9.3.5s7.4 0 9.3-.5c1.1-.3 1.9-1.1 2.2-2.2.5-1.9.5-5.8.5-5.8s0-3.9-.5-5.8zM9.6 15.6V8.4l6.2 3.6-6.2 3.6z"/></svg>
+              </a>
+              <a
+                href={`https://wa.me/${whatsappNumber}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="WhatsApp"
+                className="w-10 h-10 flex items-center justify-center bg-white/10 hover:bg-[#F9D976]/30 hover:scale-110 transition-all duration-300"
+              >
+                <MessageCircle className="h-4 w-4" />
+              </a>
             </div>
           </div>
 
           <div>
-            <h3 className="font-semibold text-sm uppercase tracking-wider mb-5 text-[#F9D976]">Quick Links</h3>
-            <ul className="space-y-3">
-              {quickLinks.map((link) => (
+            <h3 className="text-xs uppercase tracking-[0.12em] font-medium mb-5 text-[#F9D976]">Quick Links</h3>
+            <ul className="space-y-2.5">
+              {[
+                { name: "About", href: "/about" },
+                { name: "Shop", href: "/shop" },
+                { name: "Bundles", href: "/shop#bundles" },
+                { name: "Track your order", href: "/order-tracking" },
+              ].map((link) => (
                 <li key={link.name}>
-                  <Link href={link.href} className="text-white/60 text-sm hover:text-white transition-colors flex items-center gap-1.5 group">
+                  <Link href={link.href} className="text-white/50 text-xs hover:text-white transition-colors">
                     {link.name}
-                    <ArrowUpRight className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity" />
                   </Link>
                 </li>
               ))}
@@ -87,46 +72,69 @@ export function Footer() {
           </div>
 
           <div>
-            <h3 className="font-semibold text-sm uppercase tracking-wider mb-5 text-[#F9D976]">Support</h3>
-            <ul className="space-y-3">
-              {supportLinks.map((link) => (
+            <h3 className="text-xs uppercase tracking-[0.12em] font-medium mb-5 text-[#F9D976]">Support</h3>
+            <ul className="space-y-2.5">
+              {[
+                { name: "FAQ", href: "/faq" },
+                { name: "Shipping & delivery", href: "/shipping" },
+                { name: "Returns & refunds", href: "/returns" },
+                { name: "Privacy policy", href: "/privacy" },
+                { name: "Terms of service", href: "/terms" },
+                { name: "Contact", href: "/contact" },
+              ].map((link) => (
                 <li key={link.name}>
-                  <Link href={link.href} className="text-white/60 text-sm hover:text-white transition-colors">{link.name}</Link>
-                </li>
-              ))}
-              {policyLinks.map((link) => (
-                <li key={link.name}>
-                  <Link href={link.href} className="text-white/60 text-sm hover:text-white transition-colors">{link.name}</Link>
+                  <Link href={link.href} className="text-white/50 text-xs hover:text-white transition-colors">
+                    {link.name}
+                  </Link>
                 </li>
               ))}
             </ul>
           </div>
 
           <div>
-            <h3 className="font-semibold text-sm uppercase tracking-wider mb-5 text-[#F9D976]">Contact</h3>
-            <ul className="space-y-4">
-              <li className="flex items-start gap-3">
-                <MapPin className="h-5 w-5 text-[#F9D976]/60 shrink-0 mt-0.5" />
-                <span className="text-white/60 text-sm">42 Gourmet Street, Mysuru, Karnataka 570001</span>
-              </li>
-              <li className="flex items-center gap-3">
-                <Phone className="h-5 w-5 text-[#F9D976]/60 shrink-0" />
-                <span className="text-white/60 text-sm">+91 98765 43210</span>
-              </li>
-              <li className="flex items-center gap-3">
-                <Mail className="h-5 w-5 text-[#F9D976]/60 shrink-0" />
-                <span className="text-white/60 text-sm">hello@poprika.in</span>
-              </li>
-            </ul>
+            <h3 className="text-xs uppercase tracking-[0.12em] font-medium mb-5 text-[#F9D976]">Contact</h3>
+            <div className="space-y-3 text-white/50 text-xs leading-relaxed">
+              <div className="flex items-start gap-2">
+                <MapPin className="h-3.5 w-3.5 text-[#F9D976]/60 shrink-0 mt-0.5" />
+                <span>
+                  Poprika Kitchen<br />
+                  Vijayanagar 4th Stage<br />
+                  Mysuru, Karnataka 570017
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <MessageCircle className="h-3.5 w-3.5 text-[#F9D976]/60 shrink-0" />
+                <a href={`https://wa.me/${whatsappNumber}`} target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">
+                  WhatsApp: +91 {whatsappNumber}
+                </a>
+              </div>
+              <div className="flex items-center gap-2">
+                <Mail className="h-3.5 w-3.5 text-[#F9D976]/60 shrink-0" />
+                <a href="mailto:hello@poprika.in" className="hover:text-white transition-colors">
+                  hello@poprika.in
+                </a>
+              </div>
+              <p className="pt-1">
+                Kitchen hours: <span className="text-white/40">[TODO — confirm with client]</span>
+              </p>
+            </div>
           </div>
         </div>
 
-        <div className="border-t border-[#F9D976]/20 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-white/40 text-xs">&copy; {new Date().getFullYear()} Poprika. All rights reserved.</p>
-          <div className="flex gap-6">
-            <Link href="/privacy" className="text-white/40 text-xs hover:text-white transition-colors">Privacy</Link>
-            <Link href="/terms" className="text-white/40 text-xs hover:text-white transition-colors">Terms</Link>
-            <Link href="/shipping" className="text-white/40 text-xs hover:text-white transition-colors">Shipping</Link>
+        <div className="border-t border-[#F9D976]/20 mt-12 pt-6 flex flex-col md:flex-row justify-between items-center gap-4 text-white/40 text-[10px]">
+          <p>&copy; 2026 Poprika. Made with ghee and patience in Mysuru.</p>
+          <div className="flex flex-wrap items-center gap-3">
+            <span>FSSAI Lic. No. {fssaiNumber}</span>
+            <span className="hidden md:inline">·</span>
+            <span>GSTIN: {gstin}</span>
+            <span className="hidden md:inline">·</span>
+            <span className="flex items-center gap-1">
+              <span>UPI</span>
+              <span className="text-white/30">·</span>
+              <span>Cards</span>
+              <span className="text-white/30">·</span>
+              <span>Netbanking</span>
+            </span>
           </div>
         </div>
       </div>

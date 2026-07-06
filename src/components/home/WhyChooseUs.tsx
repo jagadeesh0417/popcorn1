@@ -1,70 +1,92 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Wheat, Flame, Gift, Truck, Shield } from "lucide-react";
 
-const features = [
-  { icon: Wheat, title: "Fresh Ingredients", description: "We source the finest premium kernels and real, natural ingredients for every batch." },
-  { icon: Flame, title: "Handcrafted Daily", description: "Each flavour is freshly handcrafted daily in small batches for peak perfection." },
-  { icon: Gift, title: "Premium Packaging", description: "Elegant, resealable packaging that keeps your popcorn fresh and makes gifting effortless." },
-  { icon: Truck, title: "Fast Delivery", description: "Freshly popped and packed, delivered to your doorstep within 24-48 hours." },
-  { icon: Shield, title: "100% Quality", description: "Every batch undergoes strict quality checks to ensure you get only the best." },
+const points = [
+  {
+    title: "No palm oil. Ever.",
+    description: "We use cow ghee amul butter. That's it. No hydrogenated fats, no cheap substitutes.",
+    svg: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6">
+        <path d="M12 2a8 8 0 0 0-8 8c0 4 8 10 8 10s8-6 8-10a8 8 0 0 0-8-8z" />
+        <line x1="4" y1="12" x2="20" y2="12" />
+        <line x1="10" y1="3" x2="8" y2="8" />
+      </svg>
+    ),
+  },
+  {
+    title: "Real spices, not preservatives",
+    description: "No flavor mixes, no seasoning powders, no anti-caking agents. Bold Indian flavors built from single spices, the way they're meant to be tasted.",
+    svg: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6">
+        <path d="M12 2L2 7l10 5 10-5-10-5z" />
+        <path d="M2 17l10 5 10-5" />
+        <path d="M2 12l10 5 10-5" />
+      </svg>
+    ),
+  },
+  {
+    title: "Popped in small batches",
+    description: "Every batch is handmade in small batches in our Mysuru kitchen. What you get was made this week, not last quarter.",
+    svg: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6">
+        <circle cx="12" cy="12" r="10" />
+        <path d="M8 14s1.5 2 4 2 4-2 4-2" />
+        <line x1="9" y1="9" x2="9.01" y2="9" />
+        <line x1="15" y1="9" x2="15.01" y2="9" />
+      </svg>
+    ),
+  },
+  {
+    title: "Made in Mysuru",
+    description: "Founder-led, one kitchen, one team. When you order, you're ordering from us — not a factory.",
+    svg: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6">
+        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+        <circle cx="12" cy="10" r="3" />
+      </svg>
+    ),
+  },
 ];
 
 export function WhyChooseUs() {
   return (
-    <section className="py-24 relative overflow-hidden">
-      <div
-        className="absolute inset-0"
-        style={{
-          background: "linear-gradient(180deg, #FFF8F0, #FFFFFF)",
-        }}
-      />
-      <div className="absolute inset-0 opacity-[0.03]">
-        <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <pattern id="spice-dots" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
-              <circle cx="20" cy="20" r="1.5" fill="#B71C1C" opacity="0.5" />
-              <circle cx="5" cy="5" r="1" fill="#F9D976" opacity="0.4" />
-              <circle cx="35" cy="35" r="1" fill="#B71C1C" opacity="0.3" />
-            </pattern>
-          </defs>
-          <rect width="100%" height="100%" fill="url(#spice-dots)" />
-        </svg>
-      </div>
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section className="py-24 bg-[#FFF8F0]">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-100px" }}
           className="text-center mb-16"
         >
-          <span className="text-[#B71C1C] font-semibold text-sm uppercase tracking-[0.2em]">Why Poprika</span>
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mt-3 text-[#1A1A1A]">
-            Crafted with Purpose
+          <div className="flex justify-center mb-4">
+            <div className="gold-rule" />
+          </div>
+          <h2 className="text-3xl md:text-4xl lg:text-5xl text-[#1A1A1A]" style={{ fontFamily: "var(--font-playfair)" }}>
+            Why Poprika
           </h2>
-          <p className="text-[#666666] mt-4 max-w-xl mx-auto leading-relaxed">
-            Every kernel tells a story of tradition, quality, and love for real food.
+          <p className="text-[#666666] mt-3 text-sm uppercase tracking-[0.08em]">
+            Most popcorn brands cut corners. We don&apos;t.
           </p>
         </motion.div>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-5">
-          {features.map((feature, index) => (
+        <div className="grid sm:grid-cols-2 gap-8 max-w-4xl mx-auto">
+          {points.map((point, i) => (
             <motion.div
-              key={feature.title}
-              initial={{ opacity: 0, y: 30 }}
+              key={point.title}
+              initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-50px" }}
-              transition={{ delay: index * 0.1 }}
-              whileHover={{ y: -6 }}
-              className="bg-white p-6 rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 border border-[rgba(183,28,28,0.08)] text-center group relative overflow-hidden"
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.08 }}
+              className="flex gap-5"
             >
-              <div className="absolute -top-8 -right-8 w-16 h-16 bg-[#B71C1C]/5 rounded-full group-hover:scale-150 transition-transform duration-500" />
-              <div className="w-14 h-14 mx-auto rounded-2xl bg-[#B71C1C]/5 flex items-center justify-center mb-4 group-hover:bg-[#B71C1C]/10 transition-colors relative">
-                <feature.icon className="h-7 w-7 text-[#B71C1C]" />
+              <div className="w-11 h-11 flex items-center justify-center shrink-0 text-[#F9D976] border border-[#F9D976]/30">
+                {point.svg}
               </div>
-              <h3 className="font-bold text-sm text-[#1A1A1A] mb-2">{feature.title}</h3>
-              <p className="text-[#666666] text-xs leading-relaxed">{feature.description}</p>
+              <div>
+                <h3 className="font-semibold text-sm text-[#1A1A1A] uppercase tracking-[0.06em]">{point.title}</h3>
+                <p className="text-[#666666] text-xs mt-1.5 leading-relaxed">{point.description}</p>
+              </div>
             </motion.div>
           ))}
         </div>

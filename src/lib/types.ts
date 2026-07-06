@@ -1,3 +1,9 @@
+export interface ProductSize {
+  label: string;
+  grams: number;
+  price: number;
+}
+
 export interface Product {
   _id?: string;
   id: string;
@@ -5,8 +11,10 @@ export interface Product {
   slug: string;
   description: string;
   shortDescription: string;
+  tagline?: string;
   price: number;
   originalPrice?: number;
+  sizes?: ProductSize[];
   images: string[];
   category: string;
   tags: string[];

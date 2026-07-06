@@ -15,39 +15,57 @@ export function InstagramGallery() {
           viewport={{ once: true, margin: "-100px" }}
           className="text-center mb-12"
         >
-          <span className="text-[#B71C1C] font-semibold text-sm uppercase tracking-[0.2em]">Follow Us</span>
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mt-3 text-[#1A1A1A]">@poprika on Instagram</h2>
-          <p className="text-[#666666] mt-4 max-w-xl mx-auto leading-relaxed">
-            Tag us in your Poprika moments for a chance to be featured
+          <div className="flex justify-center mb-4">
+            <div className="gold-rule" />
+          </div>
+          <h2 className="text-3xl md:text-4xl text-[#1A1A1A]" style={{ fontFamily: "var(--font-playfair)" }}>
+            @poprika on Instagram
+          </h2>
+          <p className="text-[#666666] mt-3 text-xs uppercase tracking-[0.08em]">
+            Follow the build — batch days, new flavors, and behind-the-scenes from the Mysuru kitchen.
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:grid-rows-2">
-          {galleryImages.map((src, index) => {
-            return (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, scale: 0.95 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.05 }}
-                className={`relative overflow-hidden rounded-2xl group cursor-pointer shadow-sm hover:shadow-md transition-shadow duration-300 ${index === 0 || index === 5 ? "row-span-2" : ""}`}
-                style={{ minHeight: index === 0 || index === 5 ? "400px" : "190px" }}
-              >
-                <Image
-                  src={src}
-                  alt={`Instagram post ${index + 1}`}
-                  fill
-                  className="object-cover group-hover:scale-110 transition-transform duration-500"
-                  sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 20vw"
-                />
-                <div className="absolute inset-0 bg-[#B71C1C]/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center backdrop-blur-[2px]">
-                  <Camera className="h-8 w-8 text-white" />
-                </div>
-              </motion.div>
-            );
-          })}
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+          {galleryImages.map((src, index) => (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, scale: 0.95 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ delay: index * 0.05 }}
+              className="relative aspect-square overflow-hidden group cursor-pointer"
+            >
+              {/* TODO: connect Instagram API — replace placeholder images with live feed */}
+              <Image
+                src={src}
+                alt={`Instagram post ${index + 1}`}
+                fill
+                className="object-cover group-hover:scale-110 transition-transform duration-500"
+                sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+              />
+              <div className="absolute inset-0 bg-[#B71C1C]/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                <Camera className="h-6 w-6 text-white" />
+              </div>
+            </motion.div>
+          ))}
         </div>
+
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          className="text-center mt-10"
+        >
+          <a
+            href="https://instagram.com/poprika"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-[#B71C1C] text-xs uppercase tracking-[0.12em] font-medium hover:text-[#8E1414] transition-colors inline-flex items-center gap-1.5"
+          >
+            Follow us on Instagram <span className="text-sm">→</span>
+          </a>
+        </motion.div>
       </div>
     </section>
   );

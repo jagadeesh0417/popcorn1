@@ -1,10 +1,9 @@
 import { HeroSection } from "@/components/home/HeroSection";
 import { TrustBar } from "@/components/home/TrustBar";
-import { FeaturedProducts } from "@/components/home/FeaturedProducts";
+import { ProductGrid } from "@/components/home/ProductGrid";
 import { WhyChooseUs } from "@/components/home/WhyChooseUs";
-import { BestSellers } from "@/components/home/BestSellers";
-import { Testimonials } from "@/components/home/Testimonials";
-import { DeliverySection } from "@/components/home/DeliverySection";
+import { BundleCard } from "@/components/home/BundleCard";
+import { DeliveryInfo } from "@/components/home/DeliveryInfo";
 import { InstagramGallery } from "@/components/home/InstagramGallery";
 import { Newsletter } from "@/components/home/Newsletter";
 
@@ -13,11 +12,10 @@ export default function HomePage() {
     <>
       <HeroSection />
       <TrustBar />
-      <FeaturedProducts />
+      <ProductGrid />
       <WhyChooseUs />
-      <BestSellers />
-      <Testimonials />
-      <DeliverySection />
+      <BundleCard />
+      <DeliveryInfo />
       <InstagramGallery />
       <Newsletter />
     </>

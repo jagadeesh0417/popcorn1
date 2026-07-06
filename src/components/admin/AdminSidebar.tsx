@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Package, ShoppingBag, Users, Percent, Box, TrendingUp, LayoutDashboard } from "lucide-react";
+import { Package, ShoppingBag, Users, Percent, Box, TrendingUp, LayoutDashboard, Mail } from "lucide-react";
 
 const navItems = [
   { icon: LayoutDashboard, label: "Dashboard", href: "/admin" },
   { icon: Package, label: "Orders", href: "/admin/orders" },
   { icon: ShoppingBag, label: "Products", href: "/admin/products" },
   { icon: Users, label: "Customers", href: "/admin/customers" },
+  { icon: Mail, label: "Subscribers", href: "/admin/subscribers" },
   { icon: Percent, label: "Coupons", href: "/admin/coupons" },
   { icon: Box, label: "Inventory", href: "/admin/inventory" },
   { icon: TrendingUp, label: "Analytics", href: "/admin/analytics" },
