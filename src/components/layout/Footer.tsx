@@ -32,26 +32,39 @@ const socialLinks = [
 
 export function Footer() {
   return (
-    <footer className="bg-[#8E1414] text-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <footer className="bg-[#8E1414] text-white relative overflow-hidden">
+      <div className="absolute inset-0 opacity-[0.02]">
+        <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <pattern id="footer-spice" x="0" y="0" width="60" height="60" patternUnits="userSpaceOnUse">
+              <circle cx="30" cy="30" r="1" fill="white" />
+              <circle cx="10" cy="10" r="0.8" fill="white" />
+              <circle cx="50" cy="50" r="0.6" fill="white" />
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#footer-spice)" />
+        </svg>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 relative">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10">
           <div className="lg:col-span-2">
             <div className="flex items-center gap-2.5 mb-4">
               <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-lg">
                 <span className="text-[#8E1414] font-bold text-lg">P</span>
               </div>
-              <span className="font-bold text-xl">Popcorn</span>
+              <span className="font-bold text-xl">Poprika</span>
             </div>
             <p className="text-white/70 text-sm leading-relaxed mb-6 max-w-xs">
-              Freshly popped happiness delivered to your doorstep. Premium gourmet popcorn crafted with love and the finest ingredients.
+              Handcrafted gourmet popcorn from Mysuru. Made in small batches with 100% natural ingredients.
             </p>
-            <div className="flex gap-2.5">
+            <div className="flex gap-3">
               {socialLinks.map((social) => (
                 <a
                   key={social.label}
                   href={social.href}
                   aria-label={social.label}
-                  className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center hover:bg-white/25 transition-all duration-300"
+                  className="w-11 h-11 rounded-full bg-white/10 flex items-center justify-center hover:bg-[#F9D976]/30 hover:scale-110 transition-all duration-300 border border-white/10"
                 >
                   <social.icon className="h-4 w-4" />
                 </a>
@@ -60,7 +73,7 @@ export function Footer() {
           </div>
 
           <div>
-            <h3 className="font-semibold text-sm uppercase tracking-wider mb-5 text-white/80">Quick Links</h3>
+            <h3 className="font-semibold text-sm uppercase tracking-wider mb-5 text-[#F9D976]">Quick Links</h3>
             <ul className="space-y-3">
               {quickLinks.map((link) => (
                 <li key={link.name}>
@@ -74,7 +87,7 @@ export function Footer() {
           </div>
 
           <div>
-            <h3 className="font-semibold text-sm uppercase tracking-wider mb-5 text-white/80">Support</h3>
+            <h3 className="font-semibold text-sm uppercase tracking-wider mb-5 text-[#F9D976]">Support</h3>
             <ul className="space-y-3">
               {supportLinks.map((link) => (
                 <li key={link.name}>
@@ -90,26 +103,26 @@ export function Footer() {
           </div>
 
           <div>
-            <h3 className="font-semibold text-sm uppercase tracking-wider mb-5 text-white/80">Contact</h3>
+            <h3 className="font-semibold text-sm uppercase tracking-wider mb-5 text-[#F9D976]">Contact</h3>
             <ul className="space-y-4">
               <li className="flex items-start gap-3">
-                <MapPin className="h-5 w-5 text-white/40 shrink-0 mt-0.5" />
-                <span className="text-white/60 text-sm">42 Gourmet Street, Culinary District, Mumbai 400001</span>
+                <MapPin className="h-5 w-5 text-[#F9D976]/60 shrink-0 mt-0.5" />
+                <span className="text-white/60 text-sm">42 Gourmet Street, Mysuru, Karnataka 570001</span>
               </li>
               <li className="flex items-center gap-3">
-                <Phone className="h-5 w-5 text-white/40 shrink-0" />
+                <Phone className="h-5 w-5 text-[#F9D976]/60 shrink-0" />
                 <span className="text-white/60 text-sm">+91 98765 43210</span>
               </li>
               <li className="flex items-center gap-3">
-                <Mail className="h-5 w-5 text-white/40 shrink-0" />
-                <span className="text-white/60 text-sm">hello@popcorn.in</span>
+                <Mail className="h-5 w-5 text-[#F9D976]/60 shrink-0" />
+                <span className="text-white/60 text-sm">hello@poprika.in</span>
               </li>
             </ul>
           </div>
         </div>
 
-        <div className="border-t border-white/10 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-white/40 text-xs">&copy; {new Date().getFullYear()} Popcorn. All rights reserved.</p>
+        <div className="border-t border-[#F9D976]/20 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+          <p className="text-white/40 text-xs">&copy; {new Date().getFullYear()} Poprika. All rights reserved.</p>
           <div className="flex gap-6">
             <Link href="/privacy" className="text-white/40 text-xs hover:text-white transition-colors">Privacy</Link>
             <Link href="/terms" className="text-white/40 text-xs hover:text-white transition-colors">Terms</Link>

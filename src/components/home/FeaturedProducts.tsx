@@ -39,7 +39,7 @@ export function FeaturedProducts() {
               viewport={{ once: true, margin: "-50px" }}
               transition={{ delay: index * 0.08 }}
               whileHover={{ y: -8 }}
-              className="group bg-white rounded-[24px] overflow-hidden shadow-[0_2px_20px_rgba(183,28,28,0.06)] hover:shadow-[0_8px_40px_rgba(183,28,28,0.12)] transition-all duration-500 border border-[rgba(183,28,28,0.08)]"
+              className="group bg-white rounded-[28px] overflow-hidden shadow-[0_2px_20px_rgba(0,0,0,0.04)] hover:shadow-[0_10px_40px_rgba(0,0,0,0.06)] transition-all duration-500 border border-[rgba(183,28,28,0.08)]"
             >
               <Link href={`/products/${product.slug}`}>
                 <div className="relative h-56 overflow-hidden bg-[#FFF8F0]">

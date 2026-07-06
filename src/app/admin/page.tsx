@@ -2,16 +2,17 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Package, ShoppingBag, Users, Percent, Box, TrendingUp, IndianRupee, ArrowUp, ArrowDown, LogIn } from "lucide-react";
+import { Package, ShoppingBag, Users, IndianRupee, ArrowUp, ArrowDown, LogIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { AdminSidebar } from "@/components/admin/AdminSidebar";
 
 const stats = [
-  { icon: IndianRupee, label: "Total Revenue", value: "₹1,28,490", change: "+12.5%", up: true, color: "bg-green-500" },
-  { icon: ShoppingBag, label: "Total Orders", value: "486", change: "+8.2%", up: true, color: "bg-blue-500" },
-  { icon: Users, label: "Total Customers", value: "342", change: "+18.7%", up: true, color: "bg-purple-500" },
-  { icon: Package, label: "Products", value: "10", change: "0%", up: true, color: "bg-orange-500" },
+  { icon: IndianRupee, label: "Total Revenue", value: "₹1,28,490", change: "+12.5%", up: true },
+  { icon: ShoppingBag, label: "Total Orders", value: "486", change: "+8.2%", up: true },
+  { icon: Users, label: "Total Customers", value: "342", change: "+18.7%", up: true },
+  { icon: Package, label: "Products", value: "10", change: "0%", up: true },
 ];
 
 const recentOrders = [
@@ -27,18 +28,9 @@ const statusColors: Record<string, string> = {
   cancelled: "bg-red-100 text-red-800",
 };
 
-const navItems = [
-  { icon: Package, label: "Orders", href: "/admin/orders", count: "12" },
-  { icon: ShoppingBag, label: "Products", href: "/admin/products", count: "10" },
-  { icon: Users, label: "Customers", href: "/admin/customers", count: "342" },
-  { icon: Percent, label: "Coupons", href: "/admin/coupons", count: "3" },
-  { icon: Box, label: "Inventory", href: "/admin/inventory" },
-  { icon: TrendingUp, label: "Analytics", href: "/admin/analytics" },
-];
-
 export default function AdminDashboard() {
   const [isLogin, setIsLogin] = useState(true);
-  const [email, setEmail] = useState("admin@popcorn.in");
+  const [email, setEmail] = useState("admin@poprika.in");
   const [password, setPassword] = useState("");
 
   if (isLogin) {
@@ -51,7 +43,7 @@ export default function AdminDashboard() {
                 <span className="text-white font-bold text-2xl">P</span>
               </div>
               <h1 className="text-2xl font-bold text-[#1A1A1A]">Admin Login</h1>
-              <p className="text-[#666666] text-sm mt-1">Sign in to access the dashboard</p>
+              <p className="text-[#666666] text-sm mt-1">Sign in to manage your Poprika store</p>
             </div>
             <div className="space-y-4">
               <div className="space-y-2">
@@ -73,74 +65,80 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="min-h-screen pt-20 bg-[#FFF8F0]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-          <span className="text-[#B71C1C] font-semibold text-sm uppercase tracking-[0.2em]">Admin Panel</span>
-          <h1 className="text-3xl font-bold text-[#1A1A1A] mt-1">Dashboard</h1>
-        </motion.div>
+    <div className="min-h-screen bg-[#FFF8F0] flex">
+      <AdminSidebar />
+      <div className="flex-1 ml-64 pt-20">
+        <div className="px-8 py-8">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+            <span className="text-[#B71C1C] font-semibold text-sm uppercase tracking-[0.2em]">Admin Panel</span>
+            <h1 className="text-3xl font-bold text-[#1A1A1A] mt-1">Dashboard</h1>
+          </motion.div>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-8">
-          {stats.map((stat, i) => (
-            <motion.div key={stat.label} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }}
-              className="bg-white p-6 rounded-2xl shadow-sm border border-[rgba(183,28,28,0.08)]">
-              <div className="flex items-center justify-between mb-4">
-                <div className={`w-12 h-12 rounded-xl ${stat.color} bg-opacity-20 flex items-center justify-center`}>
-                  <stat.icon className="h-6 w-6 text-white" />
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-8">
+            {stats.map((stat, i) => (
+              <motion.div key={stat.label} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }}
+                className="bg-white p-6 rounded-2xl shadow-sm border border-[rgba(183,28,28,0.08)]">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-12 h-12 rounded-xl bg-[#B71C1C]/5 flex items-center justify-center">
+                    <stat.icon className="h-6 w-6 text-[#B71C1C]" />
+                  </div>
+                  <span className={`flex items-center gap-1 text-xs font-medium ${stat.up ? "text-green-600" : "text-red-600"}`}>
+                    {stat.up ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />}{stat.change}
+                  </span>
                 </div>
-                <span className={`flex items-center gap-1 text-xs font-medium ${stat.up ? "text-green-600" : "text-red-600"}`}>
-                  {stat.up ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />}{stat.change}
-                </span>
-              </div>
-              <p className="text-2xl font-bold text-[#1A1A1A]">{stat.value}</p>
-              <p className="text-[#666666] text-sm mt-1">{stat.label}</p>
-            </motion.div>
-          ))}
-        </div>
-
-        <div className="grid lg:grid-cols-3 gap-6 mt-8">
-          <div className="lg:col-span-2 bg-white rounded-2xl p-6 shadow-sm border border-[rgba(183,28,28,0.08)]">
-            <h3 className="font-bold text-lg text-[#1A1A1A] mb-4">Recent Orders</h3>
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-[rgba(183,28,28,0.08)] text-left text-[#666666]">
-                    <th className="pb-3 font-medium">Order</th>
-                    <th className="pb-3 font-medium">Customer</th>
-                    <th className="pb-3 font-medium">Items</th>
-                    <th className="pb-3 font-medium">Total</th>
-                    <th className="pb-3 font-medium">Status</th>
-                    <th className="pb-3 font-medium">Date</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {recentOrders.map((order) => (
-                    <tr key={order.id} className="border-b border-[rgba(183,28,28,0.06)] last:border-0">
-                      <td className="py-3 font-medium text-[#1A1A1A]">{order.id}</td>
-                      <td className="py-3 text-[#666666]">{order.customer}</td>
-                      <td className="py-3 text-[#666666]">{order.items}</td>
-                      <td className="py-3 text-[#B71C1C] font-medium">₹{order.total}</td>
-                      <td className="py-3"><span className={`px-2.5 py-1 rounded-full text-xs font-medium ${statusColors[order.status]}`}>{order.status.charAt(0).toUpperCase() + order.status.slice(1)}</span></td>
-                      <td className="py-3 text-[#666666]">{order.date}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                <p className="text-2xl font-bold text-[#1A1A1A]">{stat.value}</p>
+                <p className="text-[#666666] text-sm mt-1">{stat.label}</p>
+              </motion.div>
+            ))}
           </div>
 
-          <div className="bg-white rounded-2xl p-6 shadow-sm border border-[rgba(183,28,28,0.08)]">
-            <h3 className="font-bold text-lg text-[#1A1A1A] mb-4">Quick Links</h3>
-            <div className="space-y-2">
-              {navItems.map((item) => (
-                <a key={item.label} href={item.href} className="flex items-center justify-between p-3 rounded-xl hover:bg-[#FFF8F0] transition-colors">
-                  <div className="flex items-center gap-3">
-                    <item.icon className="h-5 w-5 text-[#B71C1C]" />
-                    <span className="font-medium text-sm text-[#1A1A1A]">{item.label}</span>
-                  </div>
-                  {item.count && <span className="bg-[#B71C1C]/10 text-[#B71C1C] text-xs font-bold px-2 py-0.5 rounded-full">{item.count}</span>}
-                </a>
-              ))}
+          <div className="grid lg:grid-cols-3 gap-6 mt-8">
+            <div className="lg:col-span-2 bg-white rounded-2xl p-6 shadow-sm border border-[rgba(183,28,28,0.08)]">
+              <h3 className="font-bold text-lg text-[#1A1A1A] mb-4">Recent Orders</h3>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-[rgba(183,28,28,0.08)] text-left text-[#666666]">
+                      <th className="pb-3 font-medium">Order</th>
+                      <th className="pb-3 font-medium">Customer</th>
+                      <th className="pb-3 font-medium">Items</th>
+                      <th className="pb-3 font-medium">Total</th>
+                      <th className="pb-3 font-medium">Status</th>
+                      <th className="pb-3 font-medium">Date</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {recentOrders.map((order) => (
+                      <tr key={order.id} className="border-b border-[rgba(183,28,28,0.06)] last:border-0">
+                        <td className="py-3 font-medium text-[#1A1A1A]">{order.id}</td>
+                        <td className="py-3 text-[#666666]">{order.customer}</td>
+                        <td className="py-3 text-[#666666]">{order.items}</td>
+                        <td className="py-3 text-[#B71C1C] font-medium">₹{order.total}</td>
+                        <td className="py-3"><span className={`px-2.5 py-1 rounded-full text-xs font-medium ${statusColors[order.status]}`}>{order.status.charAt(0).toUpperCase() + order.status.slice(1)}</span></td>
+                        <td className="py-3 text-[#666666]">{order.date}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-2xl p-6 shadow-sm border border-[rgba(183,28,28,0.08)]">
+              <h3 className="font-bold text-lg text-[#1A1A1A] mb-4">Quick Stats</h3>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between p-3 rounded-xl bg-[#FFF8F0]">
+                  <span className="text-sm font-medium text-[#1A1A1A]">Pending Orders</span>
+                  <span className="bg-[#F9D976] text-[#8E1414] text-xs font-bold px-2.5 py-1 rounded-full">12</span>
+                </div>
+                <div className="flex items-center justify-between p-3 rounded-xl bg-[#FFF8F0]">
+                  <span className="text-sm font-medium text-[#1A1A1A]">Low Stock Items</span>
+                  <span className="bg-[#B71C1C] text-white text-xs font-bold px-2.5 py-1 rounded-full">3</span>
+                </div>
+                <div className="flex items-center justify-between p-3 rounded-xl bg-[#FFF8F0]">
+                  <span className="text-sm font-medium text-[#1A1A1A]">New This Month</span>
+                  <span className="text-[#666666] text-xs font-medium">48 customers</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
