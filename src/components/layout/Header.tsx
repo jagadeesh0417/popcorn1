@@ -39,7 +39,7 @@ export function Header() {
             <div className="w-9 h-9 bg-[#B71C1C] flex items-center justify-center">
               <span className="text-white font-bold text-base">P</span>
             </div>
-            <span className={`font-semibold text-lg tracking-tight ${scrolled ? "text-[#1A1A1A]" : "text-white"}`} style={{ fontFamily: "var(--font-playfair)" }}>
+            <span className="font-semibold text-lg tracking-tight text-[#1A1A1A]" style={{ fontFamily: "var(--font-playfair)" }}>
               Poprika
             </span>
           </Link>
@@ -49,9 +49,7 @@ export function Header() {
               <Link
                 key={link.href}
                 href={link.href}
-                className={`text-sm font-medium uppercase tracking-[0.08em] transition-colors duration-200 hover:text-[#B71C1C] ${
-                  scrolled ? "text-[#1A1A1A]" : "text-white/90 hover:text-white"
-                }`}
+                className="text-sm font-medium uppercase tracking-[0.08em] text-[#1A1A1A] transition-colors duration-200 hover:text-[#B71C1C]"
               >
                 {link.name}
               </Link>
@@ -61,9 +59,7 @@ export function Header() {
           <div className="flex items-center gap-3">
             <button
               onClick={openCart}
-              className={`relative p-2 transition-colors ${
-                scrolled ? "text-[#1A1A1A] hover:text-[#B71C1C]" : "text-white/80 hover:text-white"
-              }`}
+              className="relative p-2 text-[#1A1A1A] transition-colors hover:text-[#B71C1C]"
               aria-label="Open cart"
             >
               <ShoppingBag className="h-5 w-5" />
@@ -74,9 +70,7 @@ export function Header() {
               )}
             </button>
             <button
-              className={`p-2 transition-colors md:hidden ${
-                scrolled ? "text-[#1A1A1A]" : "text-white"
-              }`}
+              className="p-2 text-[#1A1A1A] transition-colors md:hidden"
               onClick={() => setIsOpen(!isOpen)}
               aria-label="Toggle menu"
             >
