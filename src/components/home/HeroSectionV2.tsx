@@ -1,12 +1,17 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 
 export function HeroSectionV2() {
   return (
-    <section className="relative flex items-center justify-center overflow-hidden" style={{ minHeight: "70vh", background: "linear-gradient(135deg, #B71C1C 0%, #C62828 40%, #D84315 100%)" }}>
+    <section className="relative flex items-center justify-center overflow-hidden" style={{ minHeight: "70vh" }}>
+      {/* Background image */}
+      <Image src="/banner.jpeg" alt="" fill className="object-cover" sizes="100vw" priority />
+      {/* Gradient overlay */}
+      <div className="absolute inset-0" style={{ background: "linear-gradient(135deg, rgba(183,28,28,0.85) 0%, rgba(198,40,40,0.75) 40%, rgba(216,67,21,0.7) 100%)" }} />
       <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMiIvPjwvZz48L2c+PC9zdmc+')] opacity-30" />
 
       {/* Soft radial glow */}
