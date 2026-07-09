@@ -75,7 +75,7 @@ export default function FAQPage() {
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mb-10">
             <div className="relative max-w-md mx-auto">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-[#666666]" />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-[#444444]" />
               <Input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
@@ -102,7 +102,7 @@ export default function FAQPage() {
                 </button>
                 {openIndex === i && (
                   <div className="px-5 pb-5">
-                    <p className="text-[#666666] text-sm leading-relaxed">{faq.a}</p>
+                    <p className="text-[#444444] text-sm leading-relaxed">{faq.a}</p>
                   </div>
                 )}
               </motion.div>

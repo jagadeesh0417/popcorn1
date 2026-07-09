@@ -35,25 +35,25 @@ export default function AboutPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-16 items-start">
             <motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
-              <p className="text-[#666666] leading-relaxed">
+              <p className="text-[#444444] leading-relaxed">
                 I&apos;ve always loved popcorn. But whenever I picked up a bag from well-known brands, I kept seeing the same ingredients — palm oil, artificial flavours, artificial colours, and other unnecessary additives.
               </p>
-              <p className="text-[#666666] mt-4 leading-relaxed">
+              <p className="text-[#444444] mt-4 leading-relaxed">
                 Then another question came to mind. Why are most popcorn flavours inspired by the West? Caramel. Cheese. Sour Cream &amp; Onion. They&apos;re classics, but I wondered why we weren&apos;t celebrating the flavours we grew up with. Why not Chikki, Filter Coffee, Rasmalai, or the countless flavours that make Indian food so special?
               </p>
-              <p className="text-[#666666] mt-4 leading-relaxed">
+              <p className="text-[#444444] mt-4 leading-relaxed">
                 That&apos;s when I decided to create something different. Poprika was born with a simple idea: make popcorn using real ingredients and create flavours inspired by India.
               </p>
-              <p className="text-[#666666] mt-4 leading-relaxed">
+              <p className="text-[#444444] mt-4 leading-relaxed">
                 The journey wasn&apos;t easy. I knew nothing about starting a food business. Everything — from learning how to pop the perfect corn and developing recipes to packaging, food safety, and building a brand — was learned one step at a time.
               </p>
-              <p className="text-[#666666] mt-4 leading-relaxed">
+              <p className="text-[#444444] mt-4 leading-relaxed">
                 Today, every batch is still made with the same purpose.
               </p>
-              <p className="text-[#666666] mt-4 leading-relaxed">
+              <p className="text-[#444444] mt-4 leading-relaxed">
                 If you&apos;re here today, you&apos;re one of the first people to be part of this journey. Every order supports a small business that&apos;s just getting started, and I&apos;m truly grateful for your trust.
               </p>
-              <p className="text-[#666666] mt-4 leading-relaxed font-medium">
+              <p className="text-[#444444] mt-4 leading-relaxed font-medium">
                 Thank you for being part of Poprika.
               </p>
             </motion.div>
@@ -67,19 +67,19 @@ export default function AboutPage() {
               <ul className="space-y-4">
                 <li className="flex items-start gap-3">
                   <span className="w-1.5 h-1.5 bg-[#DC0218] mt-2 shrink-0" />
-                  <span className="text-[#666666] text-sm leading-relaxed">Real butter, ghee, and quality oils.</span>
+                  <span className="text-[#444444] text-sm leading-relaxed">Real butter, ghee, and quality oils.</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <span className="w-1.5 h-1.5 bg-[#DC0218] mt-2 shrink-0" />
-                  <span className="text-[#666666] text-sm leading-relaxed">No palm oil.</span>
+                  <span className="text-[#444444] text-sm leading-relaxed">No palm oil.</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <span className="w-1.5 h-1.5 bg-[#DC0218] mt-2 shrink-0" />
-                  <span className="text-[#666666] text-sm leading-relaxed">No artificial flavours or colours.</span>
+                  <span className="text-[#444444] text-sm leading-relaxed">No artificial flavours or colours.</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <span className="w-1.5 h-1.5 bg-[#DC0218] mt-2 shrink-0" />
-                  <span className="text-[#666666] text-sm leading-relaxed">Indian-inspired flavours made with care.</span>
+                  <span className="text-[#444444] text-sm leading-relaxed">Indian-inspired flavours made with care.</span>
                 </li>
               </ul>
             </motion.div>
@@ -105,7 +105,7 @@ export default function AboutPage() {
                   <v.icon className="h-7 w-7 text-[#DC0218]" />
                 </div>
                 <h3 className="font-bold text-lg text-[#1A1A1A] mb-2">{v.title}</h3>
-                <p className="text-[#666666] text-sm leading-relaxed">{v.description}</p>
+                <p className="text-[#444444] text-sm leading-relaxed">{v.description}</p>
               </motion.div>
             ))}
           </div>
@@ -118,7 +118,7 @@ export default function AboutPage() {
             <h2 className="text-3xl md:text-4xl font-bold text-[#1A1A1A] mb-4">
               Ready to <span className="text-[#DC0218]">Taste</span> the Difference?
             </h2>
-            <p className="text-[#666666] mb-8 max-w-md mx-auto">Join thousands of happy customers who&apos;ve made the switch to real, handcrafted popcorn.</p>
+            <p className="text-[#444444] mb-8 max-w-md mx-auto">Join thousands of happy customers who&apos;ve made the switch to real, handcrafted popcorn.</p>
             <Link href="/shop">
               <Button size="lg" className="bg-[#DC0218] hover:bg-[#C70015] text-white rounded-2xl px-10 h-14 text-base shadow-lg shadow-[#DC0218]/20">
                 Shop Our Flavours

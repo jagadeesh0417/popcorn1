@@ -22,7 +22,7 @@ export default function AccountPage() {
             </div>
             <div>
               <h1 className="text-2xl font-bold text-[#1A1A1A]">My Account</h1>
-              <p className="text-[#666666] text-sm">Manage your profile and orders</p>
+              <p className="text-[#444444] text-sm">Manage your profile and orders</p>
             </div>
           </div>
 
@@ -36,10 +36,10 @@ export default function AccountPage() {
                     </div>
                     <div>
                       <p className="font-medium text-sm text-[#1A1A1A]">{item.label}</p>
-                      <p className="text-xs text-[#666666]">{item.desc}</p>
+                      <p className="text-xs text-[#444444]">{item.desc}</p>
                     </div>
                   </div>
-                  <ChevronRight className="h-5 w-5 text-[#666666] group-hover:text-[#DC0218] transition-colors" />
+                  <ChevronRight className="h-5 w-5 text-[#444444] group-hover:text-[#DC0218] transition-colors" />
                 </div>
               </Link>
             ))}
@@ -55,14 +55,14 @@ export default function AccountPage() {
                 { label: "Member Since", value: "July 2026" },
               ].map((field) => (
                 <div key={field.label}>
-                  <p className="text-xs text-[#666666]">{field.label}</p>
+                  <p className="text-xs text-[#444444]">{field.label}</p>
                   <p className="font-medium text-sm text-[#1A1A1A]">{field.value}</p>
                 </div>
               ))}
             </div>
           </div>
 
-          <Button variant="outline" className="w-full mt-6 rounded-xl border-[rgba(220,2,24,0.2)] text-[#666666]">
+          <Button variant="outline" className="w-full mt-6 rounded-xl border-[rgba(220,2,24,0.2)] text-[#444444]">
             <LogOut className="h-4 w-4 mr-2" /> Sign Out
           </Button>
         </motion.div>

@@ -50,7 +50,7 @@ export function Newsletter() {
           >
             <div className="w-16 h-16 mx-auto flex items-center justify-center border-2 border-green-500 text-green-500 text-2xl mb-4">✓</div>
             <h2 className="text-2xl text-[#1A1A1A]" style={{ fontFamily: "var(--font-playfair)" }}>You&apos;re in!</h2>
-            <p className="text-[#666666] text-xs mt-2">We&apos;ll keep you posted on new drops and limited batches.</p>
+            <p className="text-[#444444] text-xs mt-2">We&apos;ll keep you posted on new drops and limited batches.</p>
           </motion.div>
         </div>
       </section>
@@ -72,7 +72,7 @@ export function Newsletter() {
           <h2 className="text-3xl md:text-4xl text-[#1A1A1A]" style={{ fontFamily: "var(--font-playfair)" }}>
             First in line
           </h2>
-          <p className="text-[#666666] mt-2 text-xs uppercase tracking-[0.08em]">
+          <p className="text-[#444444] mt-2 text-xs uppercase tracking-[0.08em]">
             New flavors, limited batches, and Mysuru-only tests — hear about them before anyone else.
           </p>
         </motion.div>
@@ -92,7 +92,7 @@ export function Newsletter() {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Email address"
               required
-              className="w-full px-4 py-3 border border-[rgba(220,2,24,0.12)] text-sm text-[#1A1A1A] placeholder:text-[#999999] focus:outline-none focus:border-[#DC0218] transition-colors bg-white"
+              className="w-full px-4 py-3 border border-[rgba(220,2,24,0.12)] text-sm text-[#1A1A1A] placeholder:text-[#666666] focus:outline-none focus:border-[#DC0218] transition-colors bg-white"
             />
           </div>
 
@@ -111,7 +111,7 @@ export function Newsletter() {
               value={whatsapp}
               onChange={(e) => setWhatsapp(e.target.value)}
               placeholder="WhatsApp number"
-              className="flex-1 px-4 py-3 border border-[rgba(220,2,24,0.12)] text-sm text-[#1A1A1A] placeholder:text-[#999999] focus:outline-none focus:border-[#DC0218] transition-colors bg-white"
+              className="flex-1 px-4 py-3 border border-[rgba(220,2,24,0.12)] text-sm text-[#1A1A1A] placeholder:text-[#666666] focus:outline-none focus:border-[#DC0218] transition-colors bg-white"
             />
           </div>
 
@@ -123,7 +123,7 @@ export function Newsletter() {
               className="mt-0.5 accent-[#DC0218]"
               required
             />
-            <span className="text-[#666666] text-xs leading-relaxed">
+            <span className="text-[#444444] text-xs leading-relaxed">
               I&apos;m okay with Poprika sending me updates on new drops and offers. No spam.
             </span>
           </label>
@@ -135,14 +135,14 @@ export function Newsletter() {
               className={`w-full btn-small-caps h-12 transition-all duration-200 ${
                 consent
                   ? "bg-[#DC0218] hover:bg-[#C70015] text-white shadow-lg shadow-[#DC0218]/20 hover:shadow-[#DC0218]/30"
-                  : "bg-[#E0E0E0] text-[#999999] cursor-not-allowed"
+                  : "bg-[#E0E0E0] text-[#666666] cursor-not-allowed"
               }`}
             >
               Sign me up
             </Button>
           </motion.div>
 
-          <p className="text-[#999999] text-[10px] text-center">
+          <p className="text-[#666666] text-[10px] text-center">
             One or two messages a month. Unsubscribe anytime.
           </p>
         </motion.form>

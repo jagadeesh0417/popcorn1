@@ -38,7 +38,7 @@ export default function AdminOrdersPage() {
           <div className="bg-white rounded-2xl p-6 shadow-sm border border-[rgba(220,2,24,0.08)] overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-[rgba(220,2,24,0.08)] text-left text-[#666666]">
+                <tr className="border-b border-[rgba(220,2,24,0.08)] text-left text-[#444444]">
                   <th className="pb-3 font-medium">Order ID</th>
                   <th className="pb-3 font-medium">Customer</th>
                   <th className="pb-3 font-medium">Items</th>
@@ -52,8 +52,8 @@ export default function AdminOrdersPage() {
                 {orderList.map((order) => (
                   <tr key={order.id} className="border-b border-[rgba(220,2,24,0.06)] last:border-0">
                     <td className="py-3 font-medium text-[#1A1A1A]">{order.id}</td>
-                    <td className="py-3 text-[#666666]">{order.customerDetails.firstName} {order.customerDetails.lastName}</td>
-                    <td className="py-3 text-[#666666]">{order.items.reduce((s, i) => s + i.quantity, 0)}</td>
+                    <td className="py-3 text-[#444444]">{order.customerDetails.firstName} {order.customerDetails.lastName}</td>
+                    <td className="py-3 text-[#444444]">{order.items.reduce((s, i) => s + i.quantity, 0)}</td>
                     <td className="py-3 font-medium text-[#DC0218]">₹{order.total}</td>
                     <td className="py-3">
                       <select
@@ -66,7 +66,7 @@ export default function AdminOrdersPage() {
                         ))}
                       </select>
                     </td>
-                    <td className="py-3 text-[#666666]">{order.paymentId ? "Paid" : "Pending"}</td>
+                    <td className="py-3 text-[#444444]">{order.paymentId ? "Paid" : "Pending"}</td>
                     <td className="py-3">
                       <button className="text-[#DC0218] text-xs font-medium hover:underline">View</button>
                     </td>

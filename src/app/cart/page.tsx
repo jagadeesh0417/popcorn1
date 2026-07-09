@@ -39,9 +39,9 @@ export default function CartPage() {
     return (
       <div className="min-h-screen pt-20 flex items-center justify-center bg-white">
         <div className="text-center px-4">
-          <ShoppingBag className="h-16 w-16 text-[#666666] mx-auto mb-4" />
+          <ShoppingBag className="h-16 w-16 text-[#444444] mx-auto mb-4" />
           <h2 className="text-2xl font-bold text-[#1A1A1A] mb-2">Your cart is empty</h2>
-          <p className="text-[#666666] mb-6">Looks like you haven&apos;t added any popcorn yet.</p>
+          <p className="text-[#444444] mb-6">Looks like you haven&apos;t added any popcorn yet.</p>
           <Link href="/shop">
             <Button className="bg-[#DC0218] hover:bg-[#C70015] text-white rounded-xl">Start Shopping</Button>
           </Link>
@@ -97,7 +97,7 @@ export default function CartPage() {
                   <Link href={`/products/${item.product.slug}`}>
                     <h3 className="font-semibold text-[#1A1A1A] hover:text-[#DC0218] transition-colors">{item.product.name}</h3>
                   </Link>
-                  <p className="text-xs text-[#666666] mt-0.5">{item.product.weight}</p>
+                  <p className="text-xs text-[#444444] mt-0.5">{item.product.weight}</p>
                   <div className="flex items-center justify-between mt-3">
                     <div className="flex items-center border border-[rgba(220,2,24,0.15)] rounded-lg overflow-hidden">
                       <button onClick={() => updateQuantity(item.product.id, item.quantity - 1)} className="p-1.5 hover:bg-[#FFF8F0] transition-colors">
@@ -110,7 +110,7 @@ export default function CartPage() {
                     </div>
                     <div className="flex items-center gap-3">
                       <span className="font-bold text-lg text-[#DC0218]">₹{item.product.price * item.quantity}</span>
-                      <button onClick={() => removeItem(item.product.id)} className="text-[#666666] hover:text-[#DC0218] transition-colors">
+                      <button onClick={() => removeItem(item.product.id)} className="text-[#444444] hover:text-[#DC0218] transition-colors">
                         <Trash2 className="h-4 w-4" />
                       </button>
                     </div>
@@ -125,7 +125,7 @@ export default function CartPage() {
               <h3 className="font-bold text-lg text-[#1A1A1A] mb-4">Order Summary</h3>
               <div className="space-y-3 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-[#666666]">Subtotal</span>
+                  <span className="text-[#444444]">Subtotal</span>
                   <span className="font-medium text-[#1A1A1A]">₹{getSubtotal()}</span>
                 </div>
                 {getDiscount() > 0 && (
@@ -135,11 +135,11 @@ export default function CartPage() {
                   </div>
                 )}
                 <div className="flex justify-between">
-                  <span className="text-[#666666]">Shipping</span>
+                  <span className="text-[#444444]">Shipping</span>
                   <span className="font-medium text-[#1A1A1A]">{isFree ? "FREE" : `₹${shippingCtx.settings.panIndiaShippingFee}`}</span>
                 </div>
                 {!isFree && (
-                  <p className="text-xs text-[#666666]">Free shipping on orders above ₹{shippingCtx.settings.freeShippingThreshold}</p>
+                  <p className="text-xs text-[#444444]">Free shipping on orders above ₹{shippingCtx.settings.freeShippingThreshold}</p>
                 )}
                 <Separator className="bg-[rgba(220,2,24,0.08)]" />
                 <div className="flex justify-between text-lg">
@@ -154,7 +154,7 @@ export default function CartPage() {
 
               <div className="flex gap-2 mt-4">
                 <div className="relative flex-1">
-                  <Tag className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#666666]" />
+                  <Tag className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#444444]" />
                   <Input
                     value={couponInput}
                     onChange={(e) => setCouponInput(e.target.value)}

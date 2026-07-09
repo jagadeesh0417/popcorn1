@@ -33,7 +33,7 @@ export default function ReturnsPage() {
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
             <div className="bg-[#FFF8F0] p-8 md:p-10 rounded-[32px] mb-12">
               <h2 className="text-2xl font-bold text-[#1A1A1A] mb-4">Our Promise</h2>
-              <p className="text-[#666666] leading-relaxed">
+              <p className="text-[#444444] leading-relaxed">
                 Poprika is committed to delivering the freshest, highest-quality popcorn. If you receive a damaged,
                 expired, or unsatisfactory product, we will replace it or issue a full refund — no questions asked.
               </p>
@@ -54,7 +54,7 @@ export default function ReturnsPage() {
                     <s.icon className="h-8 w-8 text-[#DC0218]" />
                   </div>
                   <h3 className="font-bold text-[#1A1A1A] mb-2">{s.title}</h3>
-                  <p className="text-[#666666] text-sm leading-relaxed">{s.description}</p>
+                  <p className="text-[#444444] text-sm leading-relaxed">{s.description}</p>
                 </motion.div>
               ))}
             </div>
@@ -65,7 +65,7 @@ export default function ReturnsPage() {
             className="mt-12 text-center p-8 rounded-2xl border border-[rgba(220,2,24,0.08)]"
           >
             <h3 className="font-bold text-lg text-[#1A1A1A] mb-2">Need to initiate a return?</h3>
-            <p className="text-[#666666] text-sm mb-6">Email us at poprika.official@gmail.com with your order ID and we&apos;ll take it from there.</p>
+            <p className="text-[#444444] text-sm mb-6">Email us at poprika.official@gmail.com with your order ID and we&apos;ll take it from there.</p>
             <Link href="/contact">
               <Button className="bg-[#DC0218] hover:bg-[#C70015] text-white rounded-xl shadow-lg shadow-[#DC0218]/20">
                 Contact Us

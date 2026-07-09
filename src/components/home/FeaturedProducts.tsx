@@ -25,7 +25,7 @@ export function FeaturedProducts() {
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mt-3 text-[#1A1A1A]">
             Our Best Selling Flavours
           </h2>
-          <p className="text-[#666666] mt-4 max-w-xl mx-auto leading-relaxed">
+          <p className="text-[#444444] mt-4 max-w-xl mx-auto leading-relaxed">
             Freshly prepared gourmet popcorn crafted to perfection.
           </p>
         </motion.div>
@@ -68,12 +68,12 @@ export function FeaturedProducts() {
                     {product.name}
                   </h3>
                 </Link>
-                <p className="text-[#666666] text-xs mt-1.5 line-clamp-2 leading-relaxed">{product.shortDescription}</p>
+                <p className="text-[#444444] text-xs mt-1.5 line-clamp-2 leading-relaxed">{product.shortDescription}</p>
                 <div className="flex items-center justify-between mt-4 pt-4 border-t border-[rgba(220,2,24,0.08)]">
                   <div className="flex items-center gap-2">
                     <span className="text-xl font-bold text-[#DC0218]">₹{product.price}</span>
                     {product.originalPrice && (
-                      <span className="text-[#666666] line-through text-sm">₹{product.originalPrice}</span>
+                      <span className="text-[#444444] line-through text-sm">₹{product.originalPrice}</span>
                     )}
                   </div>
                   <Button

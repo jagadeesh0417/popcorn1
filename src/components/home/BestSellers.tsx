@@ -122,7 +122,7 @@ export function BestSellers() {
                   <Link href={`/products/${product.slug}`}>
                     <h3 className="font-bold text-base text-[#1A1A1A] group-hover:text-[#DC0218] transition-colors">{product.name}</h3>
                   </Link>
-                  <p className="text-[#666666] text-xs mt-1.5 line-clamp-2">{product.shortDescription}</p>
+                  <p className="text-[#444444] text-xs mt-1.5 line-clamp-2">{product.shortDescription}</p>
                   <div className="flex items-center justify-between mt-4 pt-4 border-t border-[rgba(220,2,24,0.08)]">
                     <span className="text-xl font-bold text-[#DC0218]">₹{product.price}</span>
                     <Button size="sm" className="bg-[#DC0218] hover:bg-[#C70015] text-white rounded-xl text-xs px-4 h-9" onClick={() => addItem(product)}>

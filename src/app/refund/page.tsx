@@ -56,7 +56,7 @@ export default function RefundPage() {
                   <p.icon className="h-6 w-6 text-[#DC0218]" />
                 </div>
                 <h3 className="text-xl font-bold text-[#1A1A1A] mb-3">{p.title}</h3>
-                <p className="text-[#666666] text-sm leading-relaxed">{p.description}</p>
+                <p className="text-[#444444] text-sm leading-relaxed">{p.description}</p>
               </motion.div>
             ))}
           </div>
@@ -73,7 +73,7 @@ export default function RefundPage() {
                 "Promotional or discounted items may be subject to different refund terms.",
                 "Shipping charges are non-refundable for change-of-mind cancellations.",
               ].map((note, i) => (
-                <li key={i} className="text-[#666666] text-sm flex items-start gap-2">
+                <li key={i} className="text-[#444444] text-sm flex items-start gap-2">
                   <span className="text-[#DC0218] mt-0.5">•</span>
                   {note}
                 </li>

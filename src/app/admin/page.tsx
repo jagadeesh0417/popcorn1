@@ -62,7 +62,7 @@ export default function AdminDashboard() {
                 <span className="text-white font-bold text-2xl">P</span>
               </motion.div>
               <h1 className="text-2xl font-bold text-[#1A1A1A]">Admin Login</h1>
-              <p className="text-[#666666] text-sm mt-1">Sign in to manage your Poprika store</p>
+              <p className="text-[#444444] text-sm mt-1">Sign in to manage your Poprika store</p>
             </div>
             <div className="space-y-4">
               <div className="space-y-2">
@@ -116,7 +116,7 @@ export default function AdminDashboard() {
                   </span>
                 </div>
                 <p className="text-2xl font-bold text-[#1A1A1A]">{stat.value}</p>
-                <p className="text-[#666666] text-sm mt-1">{stat.label}</p>
+                <p className="text-[#444444] text-sm mt-1">{stat.label}</p>
               </motion.div>
             ))}
           </motion.div>
@@ -132,7 +132,7 @@ export default function AdminDashboard() {
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-[rgba(220,2,24,0.08)] text-left text-[#666666]">
+                    <tr className="border-b border-[rgba(220,2,24,0.08)] text-left text-[#444444]">
                       <th className="pb-3 font-medium">Order</th>
                       <th className="pb-3 font-medium">Customer</th>
                       <th className="pb-3 font-medium">Items</th>
@@ -149,11 +149,11 @@ export default function AdminDashboard() {
                         className="border-b border-[rgba(220,2,24,0.06)] last:border-0 transition-colors cursor-default"
                       >
                         <td className="py-3 font-medium text-[#1A1A1A]">{order.id}</td>
-                        <td className="py-3 text-[#666666]">{order.customer}</td>
-                        <td className="py-3 text-[#666666]">{order.items}</td>
+                        <td className="py-3 text-[#444444]">{order.customer}</td>
+                        <td className="py-3 text-[#444444]">{order.items}</td>
                         <td className="py-3 text-[#DC0218] font-medium">₹{order.total}</td>
                         <td className="py-3"><span className={`px-2.5 py-1 text-xs font-medium ${statusColors[order.status]}`}>{order.status.charAt(0).toUpperCase() + order.status.slice(1)}</span></td>
-                        <td className="py-3 text-[#666666]">{order.date}</td>
+                        <td className="py-3 text-[#444444]">{order.date}</td>
                       </motion.tr>
                     ))}
                   </tbody>
@@ -172,7 +172,7 @@ export default function AdminDashboard() {
                 {[
                   { label: "Pending Orders", value: "12", color: "bg-[#F9D976] text-[#C70015]" },
                   { label: "Low Stock Items", value: "3", color: "bg-[#DC0218] text-white" },
-                  { label: "New This Month", value: "48 customers", color: "text-[#666666]" },
+                  { label: "New This Month", value: "48 customers", color: "text-[#444444]" },
                 ].map((item, i) => (
                   <motion.div
                     key={item.label}

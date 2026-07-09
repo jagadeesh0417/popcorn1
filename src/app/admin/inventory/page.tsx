@@ -14,7 +14,7 @@ export default function AdminInventoryPage() {
           <div className="bg-white rounded-2xl p-6 shadow-sm border border-[rgba(220,2,24,0.08)] overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-[rgba(220,2,24,0.08)] text-left text-[#666666]">
+                <tr className="border-b border-[rgba(220,2,24,0.08)] text-left text-[#444444]">
                   <th className="pb-3 font-medium">Product</th>
                   <th className="pb-3 font-medium">Category</th>
                   <th className="pb-3 font-medium">Weight</th>
@@ -27,15 +27,15 @@ export default function AdminInventoryPage() {
                 {products.map((p) => (
                   <tr key={p.id} className="border-b border-[rgba(220,2,24,0.06)] last:border-0">
                     <td className="py-3 font-medium text-[#1A1A1A]">{p.name}</td>
-                    <td className="py-3 text-[#666666]">{p.category}</td>
-                    <td className="py-3 text-[#666666]">{p.weight}</td>
+                    <td className="py-3 text-[#444444]">{p.category}</td>
+                    <td className="py-3 text-[#444444]">{p.weight}</td>
                     <td className="py-3 font-medium text-[#DC0218]">₹{p.price}</td>
                     <td className="py-3">
                       <div className="flex items-center gap-3">
                         <div className="w-full bg-[#FFF8F0] rounded-full h-2 max-w-[120px]">
                           <div className="bg-[#DC0218] h-2 rounded-full" style={{ width: `${Math.min(100, (p.stockQuantity / 200) * 100)}%` }} />
                         </div>
-                        <span className="text-xs text-[#666666]">{p.stockQuantity}</span>
+                        <span className="text-xs text-[#444444]">{p.stockQuantity}</span>
                       </div>
                     </td>
                     <td className="py-3">

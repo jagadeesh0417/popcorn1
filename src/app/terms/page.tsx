@@ -48,7 +48,7 @@ export default function TermsPage() {
             initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
             className="mb-16"
           >
-            <p className="text-[#666666] leading-relaxed">
+            <p className="text-[#444444] leading-relaxed">
               Last updated: July 2026. By accessing or using the Poprika website, you agree to be bound by these Terms of Service.
               If you do not agree with any part of these terms, please do not use our services.
             </p>
@@ -68,7 +68,7 @@ export default function TermsPage() {
                   </div>
                   <div>
                     <h3 className="text-xl font-bold text-[#1A1A1A] mb-2">{s.title}</h3>
-                    <p className="text-[#666666] text-sm leading-relaxed">{s.content}</p>
+                    <p className="text-[#444444] text-sm leading-relaxed">{s.content}</p>
                   </div>
                 </div>
               </motion.div>
@@ -79,7 +79,7 @@ export default function TermsPage() {
             initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
             className="mt-12 p-6 rounded-2xl border border-[rgba(220,2,24,0.08)] text-center"
           >
-            <p className="text-[#666666] text-sm">
+            <p className="text-[#444444] text-sm">
               For any questions regarding these terms, contact us at <strong className="text-[#DC0218]">poprika.official@gmail.com</strong>
             </p>
           </motion.div>

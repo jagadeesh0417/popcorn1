@@ -38,7 +38,7 @@ export default function ContactPage() {
             <motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
               <span className="text-[#DC0218] font-semibold text-sm uppercase tracking-[0.2em]">Contact Us</span>
               <h2 className="text-3xl md:text-4xl font-bold mt-3 text-[#1A1A1A]">We&apos;re Here to Help</h2>
-              <p className="text-[#666666] mt-4 leading-relaxed">
+              <p className="text-[#444444] mt-4 leading-relaxed">
                 Whether you have a question about our flavours, need help with an order, or just want to share your Poprika experience — drop us a message.
               </p>
               <div className="mt-10 space-y-6">
@@ -49,7 +49,7 @@ export default function ContactPage() {
                     </div>
                     <div>
                       <p className="font-semibold text-[#1A1A1A]">{info.title}</p>
-                      <p className="text-[#666666] text-sm mt-0.5">{info.detail}</p>
+                      <p className="text-[#444444] text-sm mt-0.5">{info.detail}</p>
                     </div>
                   </div>
                 ))}
@@ -63,7 +63,7 @@ export default function ContactPage() {
                     <Send className="h-10 w-10 text-green-600" />
                   </div>
                   <h3 className="text-2xl font-bold text-[#1A1A1A] mb-2">Message Sent!</h3>
-                  <p className="text-[#666666]">We&apos;ll get back to you within 24 hours.</p>
+                  <p className="text-[#444444]">We&apos;ll get back to you within 24 hours.</p>
                 </div>
               ) : (
                 <form

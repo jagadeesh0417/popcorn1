@@ -204,9 +204,9 @@ export default function CheckoutPage() {
     return (
       <div className="min-h-screen pt-20 flex items-center justify-center bg-white">
         <div className="text-center px-4">
-          <ShoppingBag className="h-16 w-16 text-[#666666] mx-auto mb-4" />
+          <ShoppingBag className="h-16 w-16 text-[#444444] mx-auto mb-4" />
           <h2 className="text-2xl font-bold text-[#1A1A1A] mb-2">Nothing to checkout</h2>
-          <p className="text-[#666666] mb-6">Add some popcorn to your cart first!</p>
+          <p className="text-[#444444] mb-6">Add some popcorn to your cart first!</p>
           <Link href="/shop"><Button className="bg-[#DC0218] hover:bg-[#C70015] text-white">Start Shopping</Button></Link>
         </div>
       </div>
@@ -340,7 +340,7 @@ export default function CheckoutPage() {
                           className={`flex items-center gap-2 px-4 py-2.5 text-xs font-medium border transition-all ${
                             addressType === value
                               ? "bg-[#DC0218] text-white border-[#DC0218]"
-                              : "bg-white text-[#666666] border-[rgba(220,2,24,0.15)] hover:border-[#DC0218]"
+                              : "bg-white text-[#444444] border-[rgba(220,2,24,0.15)] hover:border-[#DC0218]"
                           }`}
                         >
                           <Icon className="h-3.5 w-3.5" /> {label}
@@ -362,11 +362,11 @@ export default function CheckoutPage() {
                 </div>
                 <div className="bg-[#FFF8F0] p-5 border border-[rgba(220,2,24,0.08)]">
                   <p className="text-sm font-medium text-[#1A1A1A]">#30, Sri Nivasa, RCE Layout</p>
-                  <p className="text-xs text-[#666666] mt-1">
+                  <p className="text-xs text-[#444444] mt-1">
                     Vijayanagar 4th Stage<br />
                     Mysore – 570032, Karnataka
                   </p>
-                  <p className="text-xs text-[#666666] mt-3">
+                  <p className="text-xs text-[#444444] mt-3">
                     We&apos;ll confirm your pickup time via WhatsApp after the order is placed.
                   </p>
                 </div>
@@ -410,7 +410,7 @@ export default function CheckoutPage() {
                       </svg>
                       <span className="bg-[#3395FF]/10 text-[#072654] text-[10px] px-2 py-0.5 font-semibold uppercase">Pay Online</span>
                     </div>
-                    <p className="text-xs text-[#666666]">UPI · Cards · Net Banking · Wallets · EMI</p>
+                    <p className="text-xs text-[#444444]">UPI · Cards · Net Banking · Wallets · EMI</p>
                   </div>
                 </button>
 
@@ -433,13 +433,13 @@ export default function CheckoutPage() {
                         <span className="font-bold text-sm text-[#1A1A1A]">Cash on Delivery</span>
                         <span className="bg-[#DC0218]/10 text-[#DC0218] text-[10px] px-2 py-0.5 font-semibold uppercase">Pay Later</span>
                       </div>
-                      <p className="text-xs text-[#666666]">Pay when you receive your order · No extra charges</p>
+                      <p className="text-xs text-[#444444]">Pay when you receive your order · No extra charges</p>
                     </div>
                   </button>
                 )}
 
                 {paymentMethod === "razorpay" && (
-                  <div className="flex flex-wrap gap-3 text-[10px] text-[#666666] pt-1">
+                  <div className="flex flex-wrap gap-3 text-[10px] text-[#444444] pt-1">
                     <span className="flex items-center gap-1">🔒 Secure Checkout</span>
                     <span className="flex items-center gap-1">🔐 Encrypted Payments</span>
                     <span className="flex items-center gap-1">⚡ Fast Refunds</span>
@@ -457,10 +457,10 @@ export default function CheckoutPage() {
               <div className="space-y-3 max-h-60 overflow-y-auto mb-4">
                 {state.items.map((item) => (
                   <div key={item.product.id} className="flex items-center gap-3 bg-white p-3 border border-[rgba(220,2,24,0.06)]">
-                    <div className="w-12 h-12 bg-[#FFF8F0] shrink-0 flex items-center justify-center text-xs font-bold text-[#666666]">x{item.quantity}</div>
+                    <div className="w-12 h-12 bg-[#FFF8F0] shrink-0 flex items-center justify-center text-xs font-bold text-[#444444]">x{item.quantity}</div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-[#1A1A1A] truncate">{item.product.name}</p>
-                      <p className="text-xs text-[#666666]">₹{item.product.price} each</p>
+                      <p className="text-xs text-[#444444]">₹{item.product.price} each</p>
                     </div>
                     <span className="font-semibold text-sm text-[#1A1A1A]">₹{item.product.price * item.quantity}</span>
                   </div>
@@ -469,9 +469,9 @@ export default function CheckoutPage() {
 
               <Separator className="mb-4 bg-[rgba(220,2,24,0.08)]" />
               <div className="space-y-2 text-sm">
-                <div className="flex justify-between text-[#666666]"><span>Subtotal</span><span>₹{getSubtotal()}</span></div>
+                <div className="flex justify-between text-[#444444]"><span>Subtotal</span><span>₹{getSubtotal()}</span></div>
                 {getDiscount() > 0 && <div className="flex justify-between text-green-600"><span>Discount</span><span>-₹{getDiscount()}</span></div>}
-                <div className="flex justify-between text-[#666666]">
+                <div className="flex justify-between text-[#444444]">
                   <span>Shipping</span>
                   <span>{shipping === 0 ? "FREE" : `₹${shipping}`}</span>
                 </div>
@@ -502,7 +502,7 @@ export default function CheckoutPage() {
                 </Button>
               </motion.div>
               {paymentMethod === "razorpay" && (
-                <p className="text-[10px] text-[#666666] text-center mt-3 flex items-center justify-center gap-1">
+                <p className="text-[10px] text-[#444444] text-center mt-3 flex items-center justify-center gap-1">
                   <span className="text-[#072654] font-semibold">Razorpay</span> Secure Checkout · Encrypted &amp; Safe
                 </p>
               )}

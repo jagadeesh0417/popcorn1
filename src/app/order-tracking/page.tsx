@@ -55,7 +55,7 @@ export default function OrderTrackingPage() {
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-10">
           <span className="text-[#DC0218] font-semibold text-sm uppercase tracking-[0.2em]">Track Your Order</span>
           <h1 className="text-3xl md:text-4xl font-bold text-[#1A1A1A] mt-2">Order Tracking</h1>
-          <p className="text-[#666666] mt-3">Enter your order ID to track your delivery status</p>
+          <p className="text-[#444444] mt-3">Enter your order ID to track your delivery status</p>
         </motion.div>
 
         <div className="flex gap-3 max-w-md mx-auto mb-12">
@@ -73,9 +73,9 @@ export default function OrderTrackingPage() {
 
         {searched && !trackedOrder && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-12">
-            <XCircle className="h-16 w-16 text-[#666666] mx-auto mb-4" />
+            <XCircle className="h-16 w-16 text-[#444444] mx-auto mb-4" />
             <h3 className="text-xl font-bold text-[#1A1A1A] mb-2">Order Not Found</h3>
-            <p className="text-[#666666]">No order found with ID &quot;{orderId}&quot;. Please check and try again.</p>
+            <p className="text-[#444444]">No order found with ID &quot;{orderId}&quot;. Please check and try again.</p>
           </motion.div>
         )}
 
@@ -85,7 +85,7 @@ export default function OrderTrackingPage() {
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
                 <div>
                   <h3 className="font-bold text-xl text-[#1A1A1A]">{trackedOrder.id}</h3>
-                  <p className="text-[#666666] text-sm">
+                  <p className="text-[#444444] text-sm">
                     Placed on {trackedOrder.orderDate} · {trackedOrder.items.reduce((s, i) => s + i.quantity, 0)} items
                   </p>
                 </div>
@@ -97,16 +97,16 @@ export default function OrderTrackingPage() {
               {trackedOrder.trackingId && (
                 <div className="grid grid-cols-2 gap-4 mb-6 p-4 bg-white rounded-xl border border-[rgba(220,2,24,0.08)]">
                   <div>
-                    <p className="text-xs text-[#666666] mb-1">Tracking ID</p>
+                    <p className="text-xs text-[#444444] mb-1">Tracking ID</p>
                     <p className="font-medium text-sm text-[#1A1A1A]">{trackedOrder.trackingId}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-[#666666] mb-1">Courier Partner</p>
+                    <p className="text-xs text-[#444444] mb-1">Courier Partner</p>
                     <p className="font-medium text-sm text-[#1A1A1A]">{trackedOrder.courierPartner}</p>
                   </div>
                   {trackedOrder.estimatedDelivery && (
                     <div className="col-span-2">
-                      <p className="text-xs text-[#666666] mb-1">Estimated Delivery</p>
+                      <p className="text-xs text-[#444444] mb-1">Estimated Delivery</p>
                       <p className="font-medium text-sm text-green-600">{trackedOrder.estimatedDelivery}</p>
                     </div>
                   )}
@@ -130,8 +130,8 @@ export default function OrderTrackingPage() {
                       </div>
                       <div className="pt-1.5">
                         <p className="font-medium text-sm text-[#1A1A1A] capitalize">{event.status}</p>
-                        {event.note && <p className="text-xs text-[#666666] mt-0.5">{event.note}</p>}
-                        <p className="text-xs text-[#666666] mt-0.5">{event.date}</p>
+                        {event.note && <p className="text-xs text-[#444444] mt-0.5">{event.note}</p>}
+                        <p className="text-xs text-[#444444] mt-0.5">{event.date}</p>
                       </div>
                     </div>
                   );

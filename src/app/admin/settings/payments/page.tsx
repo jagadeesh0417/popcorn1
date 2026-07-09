@@ -95,7 +95,7 @@ export default function AdminPaymentSettings() {
                   <span className={`text-[10px] font-medium ${stat.up ? "text-green-600" : "text-red-600"}`}>{stat.change}</span>
                 </div>
                 <p className="text-lg font-bold text-[#1A1A1A]">{stat.value}</p>
-                <p className="text-[10px] text-[#666666]">{stat.label}</p>
+                <p className="text-[10px] text-[#444444]">{stat.label}</p>
               </motion.div>
             ))}
           </div>
@@ -152,7 +152,7 @@ export default function AdminPaymentSettings() {
                   <div key={pm.key} className="flex items-center justify-between">
                     <div>
                       <p className="text-sm font-medium text-[#1A1A1A]">{pm.label}</p>
-                      <p className="text-[10px] text-[#666666]">{pm.desc}</p>
+                      <p className="text-[10px] text-[#444444]">{pm.desc}</p>
                     </div>
                     <button onClick={() => toggle(pm.key)}
                       className={`relative w-10 h-5 transition-colors ${config[pm.key] ? "bg-[#DC0218]" : "bg-[#E0E0E0]"}`}>
@@ -179,7 +179,7 @@ export default function AdminPaymentSettings() {
               </Button>
             </motion.div>
           </motion.div>
-          <p className="text-[#999999] text-[10px] mt-3 text-right">
+          <p className="text-[#666666] text-[10px] mt-3 text-right">
             TODO: connect to MongoDB.
           </p>
         </div>

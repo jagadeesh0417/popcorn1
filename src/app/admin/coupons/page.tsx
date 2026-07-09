@@ -35,7 +35,7 @@ export default function AdminCouponsPage() {
                     <div className="w-14 h-14 rounded-xl bg-[#DC0218]/5 flex items-center justify-center text-2xl">🎫</div>
                     <div>
                       <p className="font-bold text-[#1A1A1A]">{c.code}</p>
-                      <p className="text-sm text-[#666666]">
+                      <p className="text-sm text-[#444444]">
                         {c.type === "percentage" ? `${c.discount}% off` : `₹${c.discount} off`} · Min. ₹{c.minAmount} · Expires {c.expiryDate} · Used {c.currentUses}/{c.maxUses}
                       </p>
                     </div>

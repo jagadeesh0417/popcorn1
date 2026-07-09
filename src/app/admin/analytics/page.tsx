@@ -47,7 +47,7 @@ export default function AdminAnalyticsPage() {
                   </span>
                 </div>
                 <p className="text-2xl font-bold text-[#1A1A1A]">{m.value}</p>
-                <p className="text-[#666666] text-sm mt-1">{m.label}</p>
+                <p className="text-[#444444] text-sm mt-1">{m.label}</p>
               </motion.div>
             ))}
           </div>
@@ -58,9 +58,9 @@ export default function AdminAnalyticsPage() {
               <div className="flex items-end gap-3 h-48">
                 {monthlyData.map((d) => (
                   <div key={d.month} className="flex-1 flex flex-col items-center gap-2">
-                    <span className="text-xs text-[#666666] font-medium">₹{(d.revenue / 1000).toFixed(0)}K</span>
+                    <span className="text-xs text-[#444444] font-medium">₹{(d.revenue / 1000).toFixed(0)}K</span>
                     <div className="w-full rounded-t-lg bg-[#DC0218] transition-all duration-300 hover:bg-[#DC0218]/80" style={{ height: `${(d.revenue / maxRevenue) * 100}%` }} />
-                    <span className="text-xs text-[#666666]">{d.month}</span>
+                    <span className="text-xs text-[#444444]">{d.month}</span>
                   </div>
                 ))}
               </div>
@@ -71,9 +71,9 @@ export default function AdminAnalyticsPage() {
               <div className="flex items-end gap-3 h-48">
                 {monthlyData.map((d) => (
                   <div key={d.month} className="flex-1 flex flex-col items-center gap-2">
-                    <span className="text-xs text-[#666666] font-medium">{d.orders}</span>
+                    <span className="text-xs text-[#444444] font-medium">{d.orders}</span>
                     <div className="w-full rounded-t-lg bg-[#C70015] transition-all duration-300 hover:bg-[#C70015]/80" style={{ height: `${(d.orders / maxOrders) * 100}%` }} />
-                    <span className="text-xs text-[#666666]">{d.month}</span>
+                    <span className="text-xs text-[#444444]">{d.month}</span>
                   </div>
                 ))}
               </div>
@@ -93,11 +93,11 @@ export default function AdminAnalyticsPage() {
                 const maxSold = 234;
                 return (
                   <div key={p.name} className="flex items-center gap-4">
-                    <span className="text-sm font-bold text-[#666666] w-6">{i + 1}</span>
+                    <span className="text-sm font-bold text-[#444444] w-6">{i + 1}</span>
                     <div className="flex-1">
                       <div className="flex justify-between mb-1">
                         <span className="text-sm font-medium text-[#1A1A1A]">{p.name}</span>
-                        <span className="text-sm text-[#666666]">{p.sold} sold · ₹{p.revenue.toLocaleString()}</span>
+                        <span className="text-sm text-[#444444]">{p.sold} sold · ₹{p.revenue.toLocaleString()}</span>
                       </div>
                       <div className="w-full bg-[#FFF8F0] rounded-full h-2">
                         <div className="bg-[#DC0218] h-2 rounded-full" style={{ width: `${(p.sold / maxSold) * 100}%` }} />

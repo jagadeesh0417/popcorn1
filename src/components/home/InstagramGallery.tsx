@@ -21,7 +21,7 @@ export function InstagramGallery() {
           <h2 className="text-3xl md:text-4xl text-[#1A1A1A]" style={{ fontFamily: "var(--font-playfair)" }}>
             @poprika on Instagram
           </h2>
-          <p className="text-[#666666] mt-3 text-xs uppercase tracking-[0.08em]">
+          <p className="text-[#444444] mt-3 text-xs uppercase tracking-[0.08em]">
             Follow the build — batch days, new flavors, and behind-the-scenes from the Mysuru kitchen.
           </p>
         </motion.div>

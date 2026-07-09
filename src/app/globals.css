@@ -60,7 +60,7 @@
   --secondary: #fff8f0;
   --secondary-foreground: #1a1a1a;
   --muted: #fff8f0;
-  --muted-foreground: #666666;
+  --muted-foreground: #444444;
   --accent: #f9d976;
   --accent-foreground: #c70015;
   --destructive: #dc0218;
@@ -89,6 +89,16 @@
     @apply text-foreground font-sans;
     background: linear-gradient(180deg, #FFFFFF, #FFFDF9);
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    font-size: 17px;
+    line-height: 1.7;
+    font-weight: 500;
+  }
+  p {
+    margin-top: 0.35em;
+    line-height: 1.7;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    margin-bottom: 0.5rem;
   }
   html { @apply scroll-smooth; }
   h1, h2, h3, h4, h5, h6 {

@@ -132,16 +132,16 @@ export default function AdminBundlePage() {
                 {images.map((img, i) => (
                   <motion.div key={img.id} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }}
                     className="flex items-center gap-3 bg-white p-3 border border-[rgba(220,2,24,0.06)] group">
-                    <div className="flex flex-col gap-0.5 text-[#999999]">
+                    <div className="flex flex-col gap-0.5 text-[#666666]">
                       <button onClick={() => moveImage(i, "up")} disabled={i === 0} className={`text-[10px] ${i === 0 ? "opacity-30" : "hover:text-[#1A1A1A]"}`}>▲</button>
                       <button onClick={() => moveImage(i, "down")} disabled={i === images.length - 1} className={`text-[10px] ${i === images.length - 1 ? "opacity-30" : "hover:text-[#1A1A1A]"}`}>▼</button>
                     </div>
                     <div className="w-14 h-14 bg-[#FFF8F0] overflow-hidden shrink-0">
                       <img src={img.src} alt="" className="w-full h-full object-cover" />
                     </div>
-                    <span className="text-xs text-[#999999] truncate flex-1">{img.src}</span>
+                    <span className="text-xs text-[#666666] truncate flex-1">{img.src}</span>
                     <button onClick={() => replaceImage(img.id)} className="text-[10px] text-[#DC0218] hover:underline opacity-0 group-hover:opacity-100 transition-opacity">Edit</button>
-                    <button onClick={() => removeImage(img.id)} className="p-1 text-[#999999] hover:text-red-500 transition-colors">
+                    <button onClick={() => removeImage(img.id)} className="p-1 text-[#666666] hover:text-red-500 transition-colors">
                       <Trash2 className="h-3.5 w-3.5" />
                     </button>
                   </motion.div>
@@ -163,9 +163,9 @@ export default function AdminBundlePage() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-[rgba(220,2,24,0.08)] text-left">
-                    <th className="pb-3 font-medium text-[#666666] text-xs uppercase tracking-[0.08em]">Size</th>
-                    <th className="pb-3 font-medium text-[#666666] text-xs uppercase tracking-[0.08em]">Price (₹)</th>
-                    <th className="pb-3 font-medium text-[#666666] text-xs uppercase tracking-[0.08em]">Savings (₹)</th>
+                    <th className="pb-3 font-medium text-[#444444] text-xs uppercase tracking-[0.08em]">Size</th>
+                    <th className="pb-3 font-medium text-[#444444] text-xs uppercase tracking-[0.08em]">Price (₹)</th>
+                    <th className="pb-3 font-medium text-[#444444] text-xs uppercase tracking-[0.08em]">Savings (₹)</th>
                     <th className="pb-3" />
                   </tr>
                 </thead>
@@ -182,7 +182,7 @@ export default function AdminBundlePage() {
                         <Input type="number" value={size.savings} onChange={(e) => updateSize(i, "savings", e.target.value)} className="bg-white border-[rgba(220,2,24,0.12)] h-9 text-sm w-28" />
                       </td>
                       <td className="py-3">
-                        <button onClick={() => removeSize(i)} className="p-1.5 text-[#999999] hover:text-red-500 transition-colors">
+                        <button onClick={() => removeSize(i)} className="p-1.5 text-[#666666] hover:text-red-500 transition-colors">
                           <Trash2 className="h-3.5 w-3.5" />
                         </button>
                       </td>

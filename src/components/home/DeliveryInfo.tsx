@@ -33,11 +33,11 @@ export function DeliveryInfo() {
               <MapPin className="h-5 w-5 text-[#DC0218]" />
             </div>
             <h3 className="font-semibold text-sm uppercase tracking-[0.06em] text-[#1A1A1A]">Local to Mysuru?</h3>
-            <p className="text-[#666666] text-xs mt-3 leading-relaxed">
+            <p className="text-[#444444] text-xs mt-3 leading-relaxed">
               Skip shipping. Pick up your order from our kitchen in Vijayanagar 4th Stage, Mysore. Select &quot;Mysuru pickup&quot; at checkout and we&apos;ll have your popcorn ready.
             </p>
             <div className="mt-5 pt-4 border-t border-[rgba(0,0,0,0.05)]">
-              <p className="text-[#999999] text-[10px] uppercase tracking-[0.08em]">#30, Sri Nivasa · RCE Layout · Vijayanagar 4th Stage · Mysore – 570032</p>
+              <p className="text-[#666666] text-[10px] uppercase tracking-[0.08em]">#30, Sri Nivasa · RCE Layout · Vijayanagar 4th Stage · Mysore – 570032</p>
             </div>
           </motion.div>
 
@@ -52,11 +52,11 @@ export function DeliveryInfo() {
               <Truck className="h-5 w-5 text-[#DC0218]" />
             </div>
             <h3 className="font-semibold text-sm uppercase tracking-[0.06em] text-[#1A1A1A]">Everywhere else in India</h3>
-            <p className="text-[#666666] text-xs mt-3 leading-relaxed">
+            <p className="text-[#444444] text-xs mt-3 leading-relaxed">
               We ship pan-India via India Post. Orders go out within 2 working days. Delivery usually takes 3-7 days depending on your location.
             </p>
             <div className="mt-5 pt-4 border-t border-[rgba(0,0,0,0.05)]">
-              <p className="text-[#999999] text-[10px] uppercase tracking-[0.08em]">Free shipping on orders over ₹399</p>
+              <p className="text-[#666666] text-[10px] uppercase tracking-[0.08em]">Free shipping on orders over ₹399</p>
             </div>
           </motion.div>
         </div>

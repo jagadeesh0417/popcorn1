@@ -29,7 +29,7 @@ export function DeliverySection() {
               Freshly Popped, Delivered from{" "}
               <span className="text-[#DC0218]">Mysuru</span>
             </h2>
-            <p className="text-[#666666] mt-4 max-w-md leading-relaxed">
+            <p className="text-[#444444] mt-4 max-w-md leading-relaxed">
               Handcrafted in our Mysuru kitchen and delivered fresh across India within 24-48 hours.
               No preservatives, no shortcuts — just pure popcorn perfection.
             </p>

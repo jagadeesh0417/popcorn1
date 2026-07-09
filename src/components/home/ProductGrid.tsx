@@ -51,7 +51,7 @@ export function ProductGrid() {
           <h2 className="text-3xl md:text-4xl lg:text-5xl text-[#1A1A1A]" style={{ fontFamily: "var(--font-playfair)" }}>
             The First Three
           </h2>
-          <p className="text-[#666666] mt-3 text-sm uppercase tracking-[0.08em]">
+          <p className="text-[#444444] mt-3 text-sm uppercase tracking-[0.08em]">
             Our launch lineup. Two savory. One sweet. All popped this week.
           </p>
         </motion.div>
@@ -87,7 +87,7 @@ export function ProductGrid() {
                     {product.name}
                   </h3>
                   <p className="text-[#DC0218] text-xs italic mt-1">{product.tagline}</p>
-                  <p className="text-[#666666] text-xs mt-3 leading-relaxed">{product.description}</p>
+                  <p className="text-[#444444] text-xs mt-3 leading-relaxed">{product.description}</p>
 
                   <div className="flex gap-2 mt-5">
                     {product.sizes?.map((size) => {

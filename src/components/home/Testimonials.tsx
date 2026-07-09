@@ -16,7 +16,7 @@ export function Testimonials() {
         >
           <span className="text-[#DC0218] font-semibold text-sm uppercase tracking-[0.2em]">Testimonials</span>
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mt-3 text-[#1A1A1A]">What Our Customers Say</h2>
-          <p className="text-[#666666] mt-4 max-w-xl mx-auto leading-relaxed">
+          <p className="text-[#444444] mt-4 max-w-xl mx-auto leading-relaxed">
             Real reviews from real popcorn lovers
           </p>
         </motion.div>
@@ -39,7 +39,7 @@ export function Testimonials() {
                 </div>
                 <div>
                   <p className="font-semibold text-sm text-[#1A1A1A]">{testimonial.name}</p>
-                  {testimonial.role && <p className="text-[#666666] text-xs">{testimonial.role}</p>}
+                  {testimonial.role && <p className="text-[#444444] text-xs">{testimonial.role}</p>}
                 </div>
               </div>
               <div className="flex gap-1 mb-4">
@@ -50,7 +50,7 @@ export function Testimonials() {
                   />
                 ))}
               </div>
-              <p className="text-[#666666] text-sm leading-relaxed">&ldquo;{testimonial.comment}&rdquo;</p>
+              <p className="text-[#444444] text-sm leading-relaxed">&ldquo;{testimonial.comment}&rdquo;</p>
             </motion.div>
           ))}
         </div>

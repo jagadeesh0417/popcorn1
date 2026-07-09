@@ -55,7 +55,7 @@ export default function AdminShippingSettings() {
                     onChange={(e) => set("freeShippingThreshold", Number(e.target.value))}
                     className="bg-white border-[rgba(220,2,24,0.12)]" />
                 </div>
-                <p className="text-xs text-[#666666]">
+                <p className="text-xs text-[#444444]">
                   Orders at or above ₹{settings.freeShippingThreshold} qualify for free delivery.
                 </p>
               </div>
@@ -184,7 +184,7 @@ export default function AdminShippingSettings() {
               </Button>
             </motion.div>
           </motion.div>
-          <p className="text-[#999999] text-[10px] mt-3 text-right">
+          <p className="text-[#666666] text-[10px] mt-3 text-right">
             Settings saved locally. TODO: persist to MongoDB.
           </p>
         </div>

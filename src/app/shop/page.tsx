@@ -31,7 +31,7 @@ export default function ShopPage() {
             <h1 className="text-3xl md:text-4xl text-[#1A1A1A]" style={{ fontFamily: "var(--font-playfair)" }}>
               All Flavours
             </h1>
-            <p className="text-[#666666] mt-2 text-xs uppercase tracking-[0.08em]">{filtered.length} products available</p>
+            <p className="text-[#444444] mt-2 text-xs uppercase tracking-[0.08em]">{filtered.length} products available</p>
           </div>
         </motion.div>
 
@@ -49,7 +49,7 @@ export default function ShopPage() {
               className={`px-5 py-2.5 text-xs uppercase tracking-[0.08em] font-medium border transition-all ${
                 activeCategory === cat.id
                   ? "bg-[#DC0218] text-white border-[#DC0218]"
-                  : "bg-white text-[#666666] border-[rgba(220,2,24,0.15)] hover:border-[#DC0218] hover:text-[#DC0218]"
+                  : "bg-white text-[#444444] border-[rgba(220,2,24,0.15)] hover:border-[#DC0218] hover:text-[#DC0218]"
               }`}
             >
               {cat.name}
@@ -76,10 +76,10 @@ export default function ShopPage() {
                 <Link href={`/products/${product.slug}`}>
                   <h3 className="font-semibold text-lg text-[#1A1A1A]" style={{ fontFamily: "var(--font-playfair)" }}>{product.name}</h3>
                 </Link>
-                <p className="text-[#666666] text-xs mt-1 line-clamp-1">{product.shortDescription}</p>
+                <p className="text-[#444444] text-xs mt-1 line-clamp-1">{product.shortDescription}</p>
 
                 {product.sizes && product.sizes.length > 0 && (
-                  <p className="text-[#999999] text-[10px] mt-2 uppercase tracking-[0.06em]">
+                  <p className="text-[#666666] text-[10px] mt-2 uppercase tracking-[0.06em]">
                     {product.sizes.map((s) => s.label).join(" · ")} available
                   </p>
                 )}
@@ -98,7 +98,7 @@ export default function ShopPage() {
 
         {filtered.length === 0 && (
           <div className="text-center py-20">
-            <p className="text-[#666666] text-sm">No products found in this category.</p>
+            <p className="text-[#444444] text-sm">No products found in this category.</p>
           </div>
         )}
       </div>

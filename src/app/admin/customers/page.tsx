@@ -17,7 +17,7 @@ export default function AdminCustomersPage() {
           <div className="bg-white rounded-2xl p-6 shadow-sm border border-[rgba(220,2,24,0.08)] overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-[rgba(220,2,24,0.08)] text-left text-[#666666]">
+                <tr className="border-b border-[rgba(220,2,24,0.08)] text-left text-[#444444]">
                   <th className="pb-3 font-medium">Name</th>
                   <th className="pb-3 font-medium">Email</th>
                   <th className="pb-3 font-medium">Phone</th>
@@ -30,11 +30,11 @@ export default function AdminCustomersPage() {
                 {customers.map((c) => (
                   <tr key={c.email} className="border-b border-[rgba(220,2,24,0.06)] last:border-0">
                     <td className="py-3 font-medium text-[#1A1A1A]">{c.name}</td>
-                    <td className="py-3 text-[#666666]">{c.email}</td>
-                    <td className="py-3 text-[#666666]">{c.phone}</td>
-                    <td className="py-3 text-[#666666]">{c.orders}</td>
+                    <td className="py-3 text-[#444444]">{c.email}</td>
+                    <td className="py-3 text-[#444444]">{c.phone}</td>
+                    <td className="py-3 text-[#444444]">{c.orders}</td>
                     <td className="py-3 font-medium text-[#DC0218]">₹{c.totalSpent}</td>
-                    <td className="py-3 text-[#666666]">{c.joined}</td>
+                    <td className="py-3 text-[#444444]">{c.joined}</td>
                   </tr>
                 ))}
               </tbody>

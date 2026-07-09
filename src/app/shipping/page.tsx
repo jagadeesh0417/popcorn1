@@ -78,7 +78,7 @@ export default function ShippingPage() {
                 <h3 className="text-xl font-bold text-[#1A1A1A] mb-4">{p.title}</h3>
                 <ul className="space-y-2.5">
                   {p.items.map((item, j) => (
-                    <li key={j} className="text-[#666666] text-sm flex items-start gap-2">
+                    <li key={j} className="text-[#444444] text-sm flex items-start gap-2">
                       <span className="text-[#DC0218] mt-0.5">•</span>
                       {item}
                     </li>
@@ -91,7 +91,7 @@ export default function ShippingPage() {
             initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
             className="mt-12 p-6 bg-[#FFF8F0] rounded-2xl border border-[rgba(220,2,24,0.08)] text-center"
           >
-            <p className="text-[#666666] text-sm">
+            <p className="text-[#444444] text-sm">
               For any shipping-related queries, contact us at <strong className="text-[#DC0218]">poprika.official@gmail.com</strong> or call <strong className="text-[#DC0218]">+91 8197175807</strong>
             </p>
           </motion.div>

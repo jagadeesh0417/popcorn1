@@ -49,7 +49,7 @@ export default function AdminSubscribersPage() {
           <div className="bg-white rounded-2xl p-6 shadow-sm border border-[rgba(220,2,24,0.08)] overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-[rgba(220,2,24,0.08)] text-left text-[#666666]">
+                <tr className="border-b border-[rgba(220,2,24,0.08)] text-left text-[#444444]">
                   <th className="pb-3 font-medium">Email</th>
                   <th className="pb-3 font-medium">WhatsApp</th>
                   <th className="pb-3 font-medium">Consent</th>
@@ -58,23 +58,23 @@ export default function AdminSubscribersPage() {
               </thead>
               <tbody>
                 {subscribers.length === 0 ? (
-                  <tr><td colSpan={4} className="py-8 text-center text-[#999999] text-sm">No subscribers yet.</td></tr>
+                  <tr><td colSpan={4} className="py-8 text-center text-[#666666] text-sm">No subscribers yet.</td></tr>
                 ) : (
                   subscribers.map((s, i) => (
                     <tr key={i} className="border-b border-[rgba(220,2,24,0.06)] last:border-0">
                       <td className="py-3 font-medium text-[#1A1A1A]">{s.email}</td>
-                      <td className="py-3 text-[#666666]">{s.whatsappNumber}</td>
+                      <td className="py-3 text-[#444444]">{s.whatsappNumber}</td>
                       <td className="py-3">
                         <span className="bg-green-100 text-green-700 text-xs font-medium px-2.5 py-1 rounded-full">Yes</span>
                       </td>
-                      <td className="py-3 text-[#666666]">{s.createdAt}</td>
+                      <td className="py-3 text-[#444444]">{s.createdAt}</td>
                     </tr>
                   ))
                 )}
               </tbody>
             </table>
           </div>
-          <p className="text-[#999999] text-xs mt-4">
+          <p className="text-[#666666] text-xs mt-4">
             {/* TODO: connect MongoDB — replace mockSubscribers with live data from DB */}
             Showing {subscribers.length} mock subscribers. Connect MongoDB to see live data.
           </p>

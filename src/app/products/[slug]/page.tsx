@@ -43,7 +43,7 @@ export default function ProductDetailPage() {
   return (
     <div className="min-h-screen pt-20 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <nav className="text-sm text-[#666666] mb-8">
+        <nav className="text-sm text-[#444444] mb-8">
           <Link href="/" className="hover:text-[#DC0218] transition-colors">Home</Link>
           <span className="mx-2">/</span>
           <Link href="/shop" className="hover:text-[#DC0218] transition-colors">Shop</Link>
@@ -74,13 +74,13 @@ export default function ProductDetailPage() {
 
             <h1 className="text-2xl sm:text-3xl lg:text-4xl text-[#1A1A1A]" style={{ fontFamily: "var(--font-playfair)" }}>{product.name}</h1>
             <p className="text-[#DC0218] text-sm italic mt-1">{product.tagline}</p>
-            <p className="text-[#666666] mt-4 leading-relaxed">{product.description}</p>
+            <p className="text-[#444444] mt-4 leading-relaxed">{product.description}</p>
 
             <Separator className="my-6 bg-[rgba(220,2,24,0.08)]" />
 
             {product.sizes && product.sizes.length > 0 && (
               <div className="mb-6">
-                <p className="text-xs uppercase tracking-[0.08em] text-[#666666] mb-3">Choose size</p>
+                <p className="text-xs uppercase tracking-[0.08em] text-[#444444] mb-3">Choose size</p>
                 <div className="flex flex-wrap gap-3">
                   {product.sizes.map((size) => {
                     const isSelected = selectedSize === size.label;
@@ -106,7 +106,7 @@ export default function ProductDetailPage() {
               <span className="text-3xl font-bold text-[#1A1A1A]" style={{ fontFamily: "var(--font-playfair)" }}>
                 ₹{displayPrice}
               </span>
-              <span className="text-sm text-[#666666]">/ {currentSize?.grams}g</span>
+              <span className="text-sm text-[#444444]">/ {currentSize?.grams}g</span>
             </div>
 
             <div className="flex items-center gap-4 mt-auto">
@@ -145,7 +145,7 @@ export default function ProductDetailPage() {
               ].map(({ icon: Icon, text }) => (
                 <div key={text} className="flex flex-col items-center text-center p-3 bg-[#FFF8F0]">
                   <Icon className="h-5 w-5 text-[#DC0218] mb-1" />
-                  <span className="text-xs text-[#666666]">{text}</span>
+                  <span className="text-xs text-[#444444]">{text}</span>
                 </div>
               ))}
             </div>
@@ -164,7 +164,7 @@ export default function ProductDetailPage() {
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
                 className={`px-5 py-3 text-sm font-medium transition-colors border-b-2 -mb-[1px] ${
-                  activeTab === tab.id ? "border-[#DC0218] text-[#DC0218]" : "border-transparent text-[#666666] hover:text-[#1A1A1A]"
+                  activeTab === tab.id ? "border-[#DC0218] text-[#DC0218]" : "border-transparent text-[#444444] hover:text-[#1A1A1A]"
                 }`}
               >
                 {tab.label}
@@ -174,7 +174,7 @@ export default function ProductDetailPage() {
 
           <motion.div key={activeTab} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
             {activeTab === "description" && (
-              <div className="prose max-w-none text-[#666666] leading-relaxed">
+              <div className="prose max-w-none text-[#444444] leading-relaxed">
                 <p>{product.description}</p>
                 <p className="mt-4">Each batch is freshly popped and packed with care to ensure you get the perfect crunch in every bite.</p>
               </div>
@@ -182,7 +182,7 @@ export default function ProductDetailPage() {
             {activeTab === "ingredients" && (
               <ul className="space-y-2">
                 {product.ingredients.map((ing, i) => (
-                  <li key={i} className="flex items-center gap-3 text-[#666666]">
+                  <li key={i} className="flex items-center gap-3 text-[#444444]">
                     <Check className="h-4 w-4 text-[#DC0218] shrink-0" />
                     {ing}
                   </li>
@@ -191,7 +191,7 @@ export default function ProductDetailPage() {
             )}
             {activeTab === "nutrition" && (
               <div className="max-w-md">
-                <p className="text-sm text-[#666666] mb-4">Serving Size: {product.nutritionInfo.servingSize}</p>
+                <p className="text-sm text-[#444444] mb-4">Serving Size: {product.nutritionInfo.servingSize}</p>
                 <div className="border border-[rgba(220,2,24,0.08)] overflow-hidden">
                   <div className="bg-[#FFF8F0] px-4 py-2 flex justify-between font-semibold text-sm text-[#1A1A1A]">
                     <span>Nutrient</span>
@@ -210,7 +210,7 @@ export default function ProductDetailPage() {
                     { label: "Protein", value: product.nutritionInfo.protein },
                   ].map((row, i) => (
                     <div key={row.label} className={`px-4 py-2 flex justify-between text-sm ${i % 2 === 0 ? "bg-white" : "bg-[#FFF8F0]/50"}`}>
-                      <span className="text-[#666666]">{row.label}</span>
+                      <span className="text-[#444444]">{row.label}</span>
                       <span className="font-medium text-[#1A1A1A]">{row.value}</span>
                     </div>
                   ))}
@@ -220,7 +220,7 @@ export default function ProductDetailPage() {
             {activeTab === "reviews" && (
               <div className="space-y-5">
                 {product.reviews.length === 0 ? (
-                  <p className="text-[#666666]">No reviews yet. Be the first to review this product!</p>
+                  <p className="text-[#444444]">No reviews yet. Be the first to review this product!</p>
                 ) : (
                   product.reviews.map((review) => (
                     <div key={review.id} className="p-5 bg-[#FFF8F0]">
@@ -236,9 +236,9 @@ export default function ProductDetailPage() {
                             ))}
                           </div>
                         </div>
-                        <span className="ml-auto text-xs text-[#666666]">{review.date}</span>
+                        <span className="ml-auto text-xs text-[#444444]">{review.date}</span>
                       </div>
-                      <p className="text-sm text-[#666666]">{review.comment}</p>
+                      <p className="text-sm text-[#444444]">{review.comment}</p>
                     </div>
                   ))
                 )}

@@ -58,9 +58,9 @@ function ThankYouContent() {
     return (
       <div className="min-h-screen pt-20 flex items-center justify-center bg-white">
         <div className="text-center px-4">
-          <Package className="h-16 w-16 text-[#666666] mx-auto mb-4" />
+          <Package className="h-16 w-16 text-[#444444] mx-auto mb-4" />
           <h2 className="text-xl font-bold text-[#1A1A1A] mb-2">Order reference</h2>
-          <p className="text-[#666666] mb-6">Your order has been placed but we couldn&apos;t load details.</p>
+          <p className="text-[#444444] mb-6">Your order has been placed but we couldn&apos;t load details.</p>
           <Link href="/shop"><Button className="bg-[#DC0218] hover:bg-[#C70015] text-white">Continue Shopping</Button></Link>
         </div>
       </div>
@@ -83,7 +83,7 @@ function ThankYouContent() {
             <CheckCircle className="h-10 w-10 text-green-600" />
           </div>
           <h1 className="text-2xl md:text-3xl font-bold text-[#1A1A1A]">Order Confirmed!</h1>
-          <p className="text-[#666666] mt-1">Thank you for your order. It&apos;s being prepared with love.</p>
+          <p className="text-[#444444] mt-1">Thank you for your order. It&apos;s being prepared with love.</p>
         </motion.div>
 
         {order && (
@@ -91,12 +91,12 @@ function ThankYouContent() {
             <div className="bg-[#FFF8F0] p-5 flex items-center gap-3">
               <Package className="h-5 w-5 text-[#DC0218]" />
               <div>
-                <p className="text-xs text-[#666666] uppercase tracking-[0.06em]">Order ID</p>
+                <p className="text-xs text-[#444444] uppercase tracking-[0.06em]">Order ID</p>
                 <p className="font-semibold text-[#1A1A1A]">{order.orderId}</p>
               </div>
               {order.paymentMethod && (
                 <div className="ml-auto text-right">
-                  <p className="text-xs text-[#666666] uppercase tracking-[0.06em]">Payment</p>
+                  <p className="text-xs text-[#444444] uppercase tracking-[0.06em]">Payment</p>
                   <span className={`text-xs font-semibold ${order.paymentMethod === "COD" ? "text-[#DC0218]" : "text-green-600"}`}>
                     {order.paymentMethod === "COD" ? "Pending (COD)" : "Paid"}
                   </span>
@@ -112,7 +112,7 @@ function ThankYouContent() {
               <p className="text-sm text-[#1A1A1A]">{order.customerDetails.firstName} {order.customerDetails.lastName}</p>
               <div className="flex items-start gap-2 mt-3">
                 <MapPin className="h-4 w-4 text-[#DC0218] mt-0.5" />
-                <p className="text-sm text-[#666666]">{order.customerDetails.address}, {order.customerDetails.city}, {order.customerDetails.state} — {order.customerDetails.zipCode}</p>
+                <p className="text-sm text-[#444444]">{order.customerDetails.address}, {order.customerDetails.city}, {order.customerDetails.state} — {order.customerDetails.zipCode}</p>
               </div>
             </div>
 
@@ -121,16 +121,16 @@ function ThankYouContent() {
               <div className="space-y-2">
                 {order.items.map((item, i) => (
                   <div key={i} className="flex justify-between text-sm">
-                    <span className="text-[#666666]">{item.name} <span className="text-[#999]">x{item.quantity}</span></span>
+                    <span className="text-[#444444]">{item.name} <span className="text-[#999]">x{item.quantity}</span></span>
                     <span className="font-medium text-[#1A1A1A]">₹{item.price * item.quantity}</span>
                   </div>
                 ))}
               </div>
               <Separator className="my-3 bg-[rgba(220,2,24,0.08)]" />
               <div className="space-y-1 text-sm">
-                <div className="flex justify-between text-[#666666]"><span>Subtotal</span><span>₹{order.subtotal}</span></div>
+                <div className="flex justify-between text-[#444444]"><span>Subtotal</span><span>₹{order.subtotal}</span></div>
                 {order.discount > 0 && <div className="flex justify-between text-green-600"><span>Discount</span><span>-₹{order.discount}</span></div>}
-                <div className="flex justify-between text-[#666666]"><span>Shipping</span><span>{order.shipping === 0 ? "FREE" : `₹${order.shipping}`}</span></div>
+                <div className="flex justify-between text-[#444444]"><span>Shipping</span><span>{order.shipping === 0 ? "FREE" : `₹${order.shipping}`}</span></div>
                 <Separator className="my-2 bg-[rgba(220,2,24,0.08)]" />
                 <div className="flex justify-between font-bold text-lg"><span className="text-[#1A1A1A]">Total</span><span className="text-[#DC0218]">₹{order.total}</span></div>
               </div>
@@ -141,7 +141,7 @@ function ThankYouContent() {
         {error && !order && (
           <div className="text-center py-8">
             <p className="text-[#DC0218] text-sm mb-2">{error}</p>
-            <p className="text-[#666666] text-xs mb-4">But your order ID is: <strong>{orderId}</strong></p>
+            <p className="text-[#444444] text-xs mb-4">But your order ID is: <strong>{orderId}</strong></p>
           </div>
         )}
 

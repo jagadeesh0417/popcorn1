@@ -104,11 +104,11 @@ export function BundleCard() {
               <h2 className="text-3xl md:text-4xl text-[#1A1A1A]" style={{ fontFamily: "var(--font-playfair)" }}>
                 The Trio
               </h2>
-              <p className="text-[#666666] text-sm mt-2 leading-relaxed">
+              <p className="text-[#444444] text-sm mt-2 leading-relaxed">
                 One of each. The best way to find your favourite.
               </p>
               <p className="text-[#DC0218] text-xs mt-4 font-medium tracking-wide">
-                Ghee &amp; Black Pepper <span className="text-[#666666]">·</span> Ghee &amp; Curry Leaf <span className="text-[#666666]">·</span> Coffee Chikki
+                Ghee &amp; Black Pepper <span className="text-[#444444]">·</span> Ghee &amp; Curry Leaf <span className="text-[#444444]">·</span> Coffee Chikki
               </p>
 
               <div className="flex flex-wrap gap-2 mt-6">

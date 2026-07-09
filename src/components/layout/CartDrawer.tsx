@@ -59,7 +59,7 @@ export function CartDrawer() {
               {state.items.length === 0 ? (
                 <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
                   <ShoppingBag className="h-16 w-16 text-[#DC0218]/20 mb-4" />
-                  <p className="text-[#666666] mb-2">Your cart is empty. Go find something good.</p>
+                  <p className="text-[#444444] mb-2">Your cart is empty. Go find something good.</p>
                   <Link href="/shop" onClick={() => setOpen(false)}>
                     <Button className="bg-[#DC0218] hover:bg-[#C70015] text-white btn-small-caps">
                       Browse Flavors
@@ -93,7 +93,7 @@ export function CartDrawer() {
                             </button>
                           </div>
                         </div>
-                        <button onClick={() => removeItem(item.product.id)} className="p-1 self-start text-[#666666] hover:text-red-500 transition-colors">
+                        <button onClick={() => removeItem(item.product.id)} className="p-1 self-start text-[#444444] hover:text-red-500 transition-colors">
                           <Trash2 className="h-4 w-4" />
                         </button>
                       </div>
@@ -101,7 +101,7 @@ export function CartDrawer() {
                   </div>
                   <div className="p-6 border-t border-[rgba(220,2,24,0.08)] space-y-3">
                     <div className="flex justify-between text-sm">
-                      <span className="text-[#666666]">Subtotal</span>
+                      <span className="text-[#444444]">Subtotal</span>
                       <span className="font-semibold">₹{getSubtotal()}</span>
                     </div>
                     <Link href="/checkout" onClick={() => setOpen(false)}>

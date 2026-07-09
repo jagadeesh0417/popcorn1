@@ -48,7 +48,7 @@ export default function PrivacyPage() {
             initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
             className="prose max-w-none mb-16"
           >
-            <p className="text-[#666666] leading-relaxed">
+            <p className="text-[#444444] leading-relaxed">
               Last updated: July 2026. At Poprika, we take your privacy seriously. This policy describes how we collect,
               use, and protect your personal information when you use our website and services.
             </p>
@@ -68,7 +68,7 @@ export default function PrivacyPage() {
                   </div>
                   <div>
                     <h3 className="text-xl font-bold text-[#1A1A1A] mb-2">{s.title}</h3>
-                    <p className="text-[#666666] text-sm leading-relaxed">{s.content}</p>
+                    <p className="text-[#444444] text-sm leading-relaxed">{s.content}</p>
                   </div>
                 </div>
               </motion.div>
@@ -79,7 +79,7 @@ export default function PrivacyPage() {
             initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
             className="mt-12 p-6 rounded-2xl border border-[rgba(220,2,24,0.08)] text-center"
           >
-            <p className="text-[#666666] text-sm">
+            <p className="text-[#444444] text-sm">
               Questions about privacy? Contact us at <strong className="text-[#DC0218]">poprika.official@gmail.com</strong>
             </p>
           </motion.div>
