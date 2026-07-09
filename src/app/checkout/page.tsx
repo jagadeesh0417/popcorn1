@@ -15,6 +15,12 @@ import { useCart } from "@/lib/store";
 import { toast } from "sonner";
 import Link from "next/link";
 
+interface RazorpayResponse {
+  razorpay_order_id: string;
+  razorpay_payment_id: string;
+  razorpay_signature: string;
+}
+
 type ShippingMethod = "shipping" | "pickup";
 type AddressType = "home" | "office" | "other";
 
@@ -31,11 +37,11 @@ const indianStates = [
 export default function CheckoutPage() {
   const router = useRouter();
   const { state, getSubtotal, getDiscount, getShipping, clearCart } = useCart();
+  const [orderId] = useState(() => "POP" + Date.now());
   const [loading, setLoading] = useState(false);
   const [shippingMethod, setShippingMethod] = useState<ShippingMethod>("shipping");
   const [addressType, setAddressType] = useState<AddressType>("home");
-  const [saveAddress, setSaveAddress] = useState(false);
-  const [billingSame, setBillingSame] = useState(true);
+  const [paymentMethod, setPaymentMethod] = useState<"razorpay" | "cod">("razorpay");
   const [form, setForm] = useState({
     firstName: "", lastName: "", phone: "", email: "",
     addressLine1: "", addressLine2: "", area: "", landmark: "",
@@ -44,6 +50,43 @@ export default function CheckoutPage() {
   });
 
   const updateField = (field: string, value: string) => setForm((prev) => ({ ...prev, [field]: value }));
+
+  const buildOrderData = (method: string, pid: string | undefined, oid: string) => ({
+    orderId: oid,
+    items: state.items.map((i) => ({
+      productId: i.product.id || i.product._id || "",
+      name: i.product.name,
+      price: i.product.price,
+      quantity: i.quantity,
+      image: i.product.images?.[0] || "",
+    })),
+    subtotal: getSubtotal(),
+    shipping,
+    discount: getDiscount(),
+    coupon: state.couponCode || undefined,
+    total: getSubtotal() - getDiscount() + shipping,
+    status: method === "COD" ? "pending" : "confirmed",
+    paymentMethod: method,
+    paymentId: pid,
+    customerDetails: {
+      firstName: form.firstName,
+      lastName: form.lastName,
+      email: form.email,
+      phone: form.phone,
+      address: shippingMethod === "shipping"
+        ? `${form.addressLine1}${form.addressLine2 ? ", " + form.addressLine2 : ""}${form.area ? ", " + form.area : ""}${form.landmark ? " (" + form.landmark + ")" : ""}`
+        : "Mysuru Pickup",
+      city: shippingMethod === "shipping" ? form.city : "Mysuru",
+      state: shippingMethod === "shipping" ? form.state : "Karnataka",
+      zipCode: shippingMethod === "shipping" ? form.pincode : "570032",
+      deliveryInstructions: form.deliveryInstructions || undefined,
+    },
+    statusTimeline: [{
+      status: method === "COD" ? "pending" : "confirmed",
+      date: new Date().toISOString(),
+      note: method === "COD" ? "Order placed (COD)" : "Payment received",
+    }],
+  });
 
   const handlePayment = async () => {
     if (!form.firstName || !form.phone || !form.email) {
@@ -60,14 +103,97 @@ export default function CheckoutPage() {
     }
     setLoading(true);
     try {
-      const orderId = "ORD-" + Math.random().toString(36).substring(2, 8).toUpperCase();
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      toast.success("Payment successful!");
-      clearCart();
-      router.push(`/thanks?order=${orderId}`);
-    } catch {
-      toast.error("Payment failed. Please try again.");
-    } finally {
+      const total = getSubtotal() - getDiscount() + shipping;
+
+      if (paymentMethod === "cod") {
+        const orderData = buildOrderData("COD", undefined, orderId);
+        const res = await fetch("/api/orders", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(orderData),
+        });
+        if (!res.ok) throw new Error("Failed to create order");
+        const order = await res.json();
+        clearCart();
+        router.push(`/thanks?order=${order.orderId}`);
+        return;
+      }
+
+      const orderRes = await fetch("/api/razorpay/create-order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ amount: Math.round(total * 100), currency: "INR" }),
+      });
+      if (!orderRes.ok) throw new Error("Failed to create Razorpay order");
+      const { razorpayOrderId } = await orderRes.json();
+
+      const script = document.createElement("script");
+      script.src = "https://checkout.razorpay.com/v1/checkout.js";
+      await new Promise<void>((resolve, reject) => {
+        script.onload = () => resolve();
+        script.onerror = () => reject(new Error("Failed to load Razorpay"));
+        document.head.appendChild(script);
+      });
+
+      const options = {
+        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+        amount: Math.round(total * 100),
+        currency: "INR",
+        name: "Poprika",
+        description: "Gourmet Popcorn",
+        order_id: razorpayOrderId,
+        prefill: {
+          name: `${form.firstName} ${form.lastName}`.trim(),
+          email: form.email,
+          contact: form.phone,
+        },
+        handler: async (response: RazorpayResponse) => {
+          const verifyRes = await fetch("/api/razorpay/verify", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+            }),
+          });
+          if (!verifyRes.ok) {
+            toast.error("Payment verification failed. Please contact support.");
+            setLoading(false);
+            return;
+          }
+          const orderData = buildOrderData("Razorpay", response.razorpay_payment_id, orderId);
+          const saveRes = await fetch("/api/orders", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(orderData),
+          });
+          if (!saveRes.ok) {
+            toast.error("Payment succeeded but order could not be saved. Contact support.");
+            setLoading(false);
+            return;
+          }
+          clearCart();
+          router.push(`/thanks?order=${orderData.orderId}`);
+        },
+        modal: {
+          ondismiss: () => {
+            setLoading(false);
+            toast.error("Payment cancelled. You can try again.");
+          },
+        },
+      };
+
+      const RazorpayCtor = (window as unknown as Record<string, unknown>).Razorpay as new (o: Record<string, unknown>) => { on: (e: string, h: () => void) => void; open: () => void };
+      const rzp = new RazorpayCtor(options);
+      rzp.on("payment.failed", () => {
+        toast.error("Payment failed. Please try again.");
+        setLoading(false);
+      });
+      rzp.open();
+    } catch (err) {
+      console.error("Payment error:", err);
+      toast.error("Something went wrong. Please try again.");
       setLoading(false);
     }
   };
@@ -221,15 +347,6 @@ export default function CheckoutPage() {
                     </div>
                   </div>
 
-                  <label className="flex items-center gap-2.5 cursor-pointer">
-                    <input type="checkbox" checked={saveAddress} onChange={(e) => setSaveAddress(e.target.checked)} className="accent-[#B71C1C]" />
-                    <span className="text-[#666666] text-xs">Save this address for next time</span>
-                  </label>
-
-                  <label className="flex items-center gap-2.5 cursor-pointer">
-                    <input type="checkbox" checked={billingSame} onChange={(e) => setBillingSame(e.target.checked)} className="accent-[#B71C1C]" />
-                    <span className="text-[#666666] text-xs">Billing address same as shipping</span>
-                  </label>
                 </div>
               </div>
             )}
@@ -263,52 +380,68 @@ export default function CheckoutPage() {
               <Textarea value={form.deliveryInstructions} onChange={(e) => updateField("deliveryInstructions", e.target.value)} placeholder={shippingMethod === "pickup" ? "Preferred pickup time, anything we should know..." : "Gate code, landmark, delivery instructions..."} className="bg-white border-[rgba(183,28,28,0.12)] min-h-[80px]" />
             </div>
 
-            {/* Payment — Razorpay */}
+            {/* Payment method */}
             <div className="bg-[#FFFDF9] p-6 border border-[rgba(0,0,0,0.05)] shadow-sm">
               <div className="flex items-center gap-2 mb-5">
                 <CreditCard className="h-5 w-5 text-[#B71C1C]" />
                 <h2 className="font-bold text-lg text-[#1A1A1A]">Payment method</h2>
               </div>
-              <div className="p-5 border" style={{ borderColor: "#072654", background: "#f8faff" }}>
-                <div className="flex items-center gap-2 mb-4">
-                  <svg viewBox="0 0 100 30" className="h-7" xmlns="http://www.w3.org/2000/svg">
-                    <rect width="100" height="30" rx="4" fill="#072654" />
-                    <text x="12" y="20" fill="white" fontWeight="bold" fontSize="12" fontFamily="Arial">R<span style={{fill:"#3395FF"}}>azor</span>pay</text>
-                  </svg>
-                  <span className="bg-[#3395FF]/10 text-[#072654] text-[10px] px-2 py-0.5 font-semibold uppercase tracking-wider">Secure Checkout</span>
-                </div>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mb-4">
-                  <div className="flex items-center gap-2 bg-white p-2.5 border border-[rgba(7,38,84,0.08)]">
-                    <div className="w-6 h-4 bg-[#3395FF]/10 flex items-center justify-center text-[8px] font-bold text-[#072654]">UPI</div>
-                    <span className="text-[10px] text-[#072654] font-medium">Google Pay · PhonePe · Paytm</span>
+              <div className="space-y-3">
+                <button
+                  onClick={() => setPaymentMethod("razorpay")}
+                  className={`w-full flex items-center gap-4 p-4 border text-left transition-all ${
+                    paymentMethod === "razorpay"
+                      ? "border-[#072654] bg-[#f8faff]"
+                      : "border-[rgba(0,0,0,0.08)] bg-white"
+                  }`}
+                >
+                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${
+                    paymentMethod === "razorpay" ? "border-[#072654]" : "border-[#999]"
+                  }`}>
+                    {paymentMethod === "razorpay" && <div className="w-2.5 h-2.5 rounded-full bg-[#072654]" />}
                   </div>
-                  <div className="flex items-center gap-2 bg-white p-2.5 border border-[rgba(7,38,84,0.08)]">
-                    <div className="w-6 h-4 bg-[#3395FF]/10 flex items-center justify-center text-[8px] font-bold text-[#072654]">CC</div>
-                    <span className="text-[10px] text-[#072654] font-medium">Visa · Mastercard · RuPay</span>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <svg viewBox="0 0 100 30" className="h-6" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="100" height="30" rx="4" fill="#072654" />
+                        <text x="12" y="20" fill="white" fontWeight="bold" fontSize="12" fontFamily="Arial">Razorpay</text>
+                      </svg>
+                      <span className="bg-[#3395FF]/10 text-[#072654] text-[10px] px-2 py-0.5 font-semibold uppercase">Pay Online</span>
+                    </div>
+                    <p className="text-xs text-[#666666]">UPI · Cards · Net Banking · Wallets · EMI</p>
                   </div>
-                  <div className="flex items-center gap-2 bg-white p-2.5 border border-[rgba(7,38,84,0.08)]">
-                    <div className="w-6 h-4 bg-[#3395FF]/10 flex items-center justify-center text-[8px] font-bold text-[#072654]">NB</div>
-                    <span className="text-[10px] text-[#072654] font-medium">All Major Banks</span>
+                </button>
+
+                <button
+                  onClick={() => setPaymentMethod("cod")}
+                  className={`w-full flex items-center gap-4 p-4 border text-left transition-all ${
+                    paymentMethod === "cod"
+                      ? "border-[#B71C1C] bg-[#FFF8F0]"
+                      : "border-[rgba(0,0,0,0.08)] bg-white"
+                  }`}
+                >
+                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${
+                    paymentMethod === "cod" ? "border-[#B71C1C]" : "border-[#999]"
+                  }`}>
+                    {paymentMethod === "cod" && <div className="w-2.5 h-2.5 rounded-full bg-[#B71C1C]" />}
                   </div>
-                  <div className="flex items-center gap-2 bg-white p-2.5 border border-[rgba(7,38,84,0.08)]">
-                    <div className="w-6 h-4 bg-[#3395FF]/10 flex items-center justify-center text-[8px] font-bold text-[#072654]">WL</div>
-                    <span className="text-[10px] text-[#072654] font-medium">Paytm · Mobikwik</span>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="font-bold text-sm text-[#1A1A1A]">Cash on Delivery</span>
+                      <span className="bg-[#B71C1C]/10 text-[#B71C1C] text-[10px] px-2 py-0.5 font-semibold uppercase">Pay Later</span>
+                    </div>
+                    <p className="text-xs text-[#666666]">Pay when you receive your order · No extra charges</p>
                   </div>
-                  <div className="flex items-center gap-2 bg-white p-2.5 border border-[rgba(7,38,84,0.08)]">
-                    <div className="w-6 h-4 bg-[#3395FF]/10 flex items-center justify-center text-[8px] font-bold text-[#072654]">EMI</div>
-                    <span className="text-[10px] text-[#072654] font-medium">No-cost EMI</span>
+                </button>
+
+                {paymentMethod === "razorpay" && (
+                  <div className="flex flex-wrap gap-3 text-[10px] text-[#666666] pt-1">
+                    <span className="flex items-center gap-1">🔒 Secure Checkout</span>
+                    <span className="flex items-center gap-1">🔐 Encrypted Payments</span>
+                    <span className="flex items-center gap-1">⚡ Fast Refunds</span>
+                    <span className="flex items-center gap-1">⭐ Trusted by Thousands</span>
                   </div>
-                  <div className="flex items-center gap-2 bg-white p-2.5 border border-[rgba(7,38,84,0.08)]">
-                    <div className="w-6 h-4 bg-[#3395FF]/10 flex items-center justify-center text-[8px] font-bold text-[#072654]">COD</div>
-                    <span className="text-[10px] text-[#072654] font-medium">Cash on Delivery</span>
-                  </div>
-                </div>
-                <div className="flex flex-wrap gap-4 text-[10px] text-[#666666] border-t border-[rgba(7,38,84,0.08)] pt-3">
-                  <span className="flex items-center gap-1">🔒 Secure Checkout</span>
-                  <span className="flex items-center gap-1">🔐 Encrypted Payments</span>
-                  <span className="flex items-center gap-1">⚡ Fast Refunds</span>
-                  <span className="flex items-center gap-1">⭐ Trusted by Thousands</span>
-                </div>
+                )}
               </div>
             </div>
           </div>
@@ -343,20 +476,32 @@ export default function CheckoutPage() {
               </div>
 
               <motion.div whileTap={{ scale: 0.97 }}>
-                <Button className="w-full mt-6 bg-[#072654] hover:bg-[#051d3f] text-white h-12 text-base shadow-lg shadow-[#072654]/20 hover:shadow-[#072654]/30" onClick={handlePayment} disabled={loading}>
+                <Button
+                  className={`w-full mt-6 h-12 text-base shadow-lg ${
+                    paymentMethod === "cod"
+                      ? "bg-[#B71C1C] hover:bg-[#8E1414] text-white shadow-[#B71C1C]/20 hover:shadow-[#B71C1C]/30"
+                      : "bg-[#072654] hover:bg-[#051d3f] text-white shadow-[#072654]/20 hover:shadow-[#072654]/30"
+                  }`}
+                  onClick={handlePayment}
+                  disabled={loading}
+                >
                   {loading ? (
                     <span className="flex items-center gap-2">
                       <span className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" />
                       Processing...
                     </span>
+                  ) : paymentMethod === "cod" ? (
+                    <span className="flex items-center gap-2"><Lock className="h-4 w-4" /> Place Order (COD)</span>
                   ) : (
                     <span className="flex items-center gap-2"><Lock className="h-4 w-4" /> Pay ₹{getSubtotal() - getDiscount() + shipping} securely</span>
                   )}
                 </Button>
               </motion.div>
-              <p className="text-[10px] text-[#666666] text-center mt-3 flex items-center justify-center gap-1">
-                <span className="text-[#072654] font-semibold">Razorpay</span> Secure Checkout · Encrypted &amp; Safe
-              </p>
+              {paymentMethod === "razorpay" && (
+                <p className="text-[10px] text-[#666666] text-center mt-3 flex items-center justify-center gap-1">
+                  <span className="text-[#072654] font-semibold">Razorpay</span> Secure Checkout · Encrypted &amp; Safe
+                </p>
+              )}
             </div>
           </div>
         </div>

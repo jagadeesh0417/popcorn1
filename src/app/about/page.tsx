@@ -5,24 +5,6 @@ import { Wheat, Flame, Shield, MapPin, Award } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
-const storyPoints = [
-  {
-    year: "2024",
-    title: "The Beginning",
-    description: "Poprika was born in a small kitchen in Mysuru with a simple mission — create the finest gourmet popcorn using traditional Indian ingredients and techniques.",
-  },
-  {
-    year: "2025",
-    title: "Small Batches, Big Flavours",
-    description: "We perfected our signature recipes — Ghee & Black Pepper, Coffee Chikki, Ghee & Curry Leaf — each crafted in small batches for peak freshness.",
-  },
-  {
-    year: "2026",
-    title: "Loved by Thousands",
-    description: "From a Mysuru kitchen to homes across India. Thousands of customers, hundreds of 5-star reviews, and just getting started.",
-  },
-];
-
 const values = [
   { icon: Wheat, title: "100% Natural", description: "No artificial flavours, preservatives, or palm oil. Ever." },
   { icon: Flame, title: "Small Batch", description: "Handcrafted daily in small batches for quality, not quantity." },
@@ -124,30 +106,6 @@ export default function AboutPage() {
                 </div>
                 <h3 className="font-bold text-lg text-[#1A1A1A] mb-2">{v.title}</h3>
                 <p className="text-[#666666] text-sm leading-relaxed">{v.description}</p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="py-24 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-16">
-            <span className="text-[#B71C1C] font-semibold text-sm uppercase tracking-[0.2em]">Our Journey</span>
-            <h2 className="text-3xl md:text-4xl font-bold mt-3 text-[#1A1A1A]">How It All Started</h2>
-          </motion.div>
-          <div className="max-w-3xl mx-auto space-y-12">
-            {storyPoints.map((point, i) => (
-              <motion.div
-                key={point.year}
-                initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-                className="relative pl-12 border-l-2 border-[rgba(183,28,28,0.2)]"
-              >
-                <div className="absolute -left-3 top-0 w-6 h-6 rounded-full bg-[#B71C1C] border-4 border-white shadow-sm" />
-                <span className="text-[#B71C1C] font-bold text-sm">{point.year}</span>
-                <h3 className="text-xl font-bold text-[#1A1A1A] mt-1">{point.title}</h3>
-                <p className="text-[#666666] mt-2 leading-relaxed">{point.description}</p>
               </motion.div>
             ))}
           </div>
