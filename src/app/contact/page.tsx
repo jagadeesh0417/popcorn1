@@ -8,10 +8,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 const contactInfo = [
-  { icon: MapPin, title: "Visit Us", detail: "42 Gourmet Street, Mysuru, Karnataka 570001" },
-  { icon: Phone, title: "Call Us", detail: "+91 98765 43210" },
-  { icon: Mail, title: "Email Us", detail: "hello@poprika.in" },
-  { icon: Clock, title: "Working Hours", detail: "Mon — Sat, 9:00 AM — 7:00 PM" },
+  { icon: MapPin, title: "Visit Us", detail: "#30, Sri Nivasa, RCE Layout, Vijayanagar 4th Stage, Mysore – 570032, Karnataka" },
+  { icon: Phone, title: "Call Us", detail: "+91 8197175807" },
+  { icon: Mail, title: "Email Us", detail: "poprika.official@gmail.com" },
+  { icon: Clock, title: "Business Hours", detail: "Monday – Sunday, 9:30 AM – 8:00 PM" },
 ];
 
 export default function ContactPage() {

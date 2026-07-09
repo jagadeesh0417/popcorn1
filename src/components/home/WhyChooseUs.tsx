@@ -7,7 +7,7 @@ const points = [
     title: "No palm oil. Ever.",
     description: "We use cow ghee amul butter. That's it. No hydrogenated fats, no cheap substitutes.",
     svg: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-7 h-7">
         <path d="M12 2a8 8 0 0 0-8 8c0 4 8 10 8 10s8-6 8-10a8 8 0 0 0-8-8z" />
         <line x1="4" y1="12" x2="20" y2="12" />
         <line x1="10" y1="3" x2="8" y2="8" />
@@ -18,7 +18,7 @@ const points = [
     title: "Real spices, not preservatives",
     description: "No flavor mixes, no seasoning powders, no anti-caking agents. Bold Indian flavors built from single spices, the way they're meant to be tasted.",
     svg: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-7 h-7">
         <path d="M12 2L2 7l10 5 10-5-10-5z" />
         <path d="M2 17l10 5 10-5" />
         <path d="M2 12l10 5 10-5" />
@@ -29,7 +29,7 @@ const points = [
     title: "Popped in small batches",
     description: "Every batch is handmade in small batches in our Mysuru kitchen. What you get was made this week, not last quarter.",
     svg: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-7 h-7">
         <circle cx="12" cy="12" r="10" />
         <path d="M8 14s1.5 2 4 2 4-2 4-2" />
         <line x1="9" y1="9" x2="9.01" y2="9" />
@@ -41,7 +41,7 @@ const points = [
     title: "Made in Mysuru",
     description: "Founder-led, one kitchen, one team. When you order, you're ordering from us — not a factory.",
     svg: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-7 h-7">
         <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
         <circle cx="12" cy="10" r="3" />
       </svg>
@@ -82,15 +82,15 @@ export function WhyChooseUs() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.08 }}
-              whileHover={{ y: -3 }}
-              className="flex gap-5 p-5 bg-white/60 hover:bg-white/90 transition-all duration-300 shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:shadow-[0_8px_25px_rgba(0,0,0,0.06)]"
+              whileHover={{ y: -6 }}
+              className="flex gap-5 p-6 bg-[#FFF8F0] border border-[#E8C56A] shadow-[0_4px_16px_rgba(0,0,0,0.04)] hover:shadow-[0_12px_32px_rgba(0,0,0,0.08)] transition-all duration-300 rounded-[18px]"
             >
-              <div className="w-12 h-12 flex items-center justify-center shrink-0 text-[#F9D976] bg-[#F9D976]/10 rounded-full border border-[#F9D976]/20">
+              <div className="w-14 h-14 flex items-center justify-center shrink-0 text-[#F9D976] bg-[#F9D976]/15 rounded-full">
                 {point.svg}
               </div>
-              <div>
-                <h3 className="font-semibold text-sm text-[#1A1A1A] uppercase tracking-[0.06em]">{point.title}</h3>
-                <p className="text-[#666666] text-xs mt-1.5 leading-relaxed">{point.description}</p>
+              <div className="flex-1">
+                <h3 className="font-bold text-sm text-[#1A1A1A] uppercase tracking-[0.06em]">{point.title}</h3>
+                <p className="text-[#555555] text-xs mt-2 leading-relaxed">{point.description}</p>
               </div>
             </motion.div>
           ))}

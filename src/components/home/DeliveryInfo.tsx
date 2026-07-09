@@ -34,10 +34,10 @@ export function DeliveryInfo() {
             </div>
             <h3 className="font-semibold text-sm uppercase tracking-[0.06em] text-[#1A1A1A]">Local to Mysuru?</h3>
             <p className="text-[#666666] text-xs mt-3 leading-relaxed">
-              Skip shipping. Pick up your order from our kitchen in Vijayanagar 4th Stage. Select &quot;Mysuru pickup&quot; at checkout and we&apos;ll have your popcorn ready.
+              Skip shipping. Pick up your order from our kitchen in Vijayanagar 4th Stage, Mysore. Select &quot;Mysuru pickup&quot; at checkout and we&apos;ll have your popcorn ready.
             </p>
             <div className="mt-5 pt-4 border-t border-[rgba(0,0,0,0.05)]">
-              <p className="text-[#999999] text-[10px] uppercase tracking-[0.08em]">Poprika Kitchen · Vijayanagar 4th Stage · Mysuru</p>
+              <p className="text-[#999999] text-[10px] uppercase tracking-[0.08em]">#30, Sri Nivasa · RCE Layout · Vijayanagar 4th Stage · Mysore – 570032</p>
             </div>
           </motion.div>
 

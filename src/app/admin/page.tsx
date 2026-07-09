@@ -39,7 +39,7 @@ const fadeUp = {
 
 export default function AdminDashboard() {
   const [isLogin, setIsLogin] = useState(true);
-  const [email, setEmail] = useState("admin@poprika.in");
+  const [email, setEmail] = useState("poprika.official@gmail.com");
   const [password, setPassword] = useState("");
 
   if (isLogin) {

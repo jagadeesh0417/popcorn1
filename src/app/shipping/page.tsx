@@ -92,7 +92,7 @@ export default function ShippingPage() {
             className="mt-12 p-6 bg-[#FFF8F0] rounded-2xl border border-[rgba(183,28,28,0.08)] text-center"
           >
             <p className="text-[#666666] text-sm">
-              For any shipping-related queries, contact us at <strong className="text-[#B71C1C]">hello@poprika.in</strong> or call <strong className="text-[#B71C1C]">+91 98765 43210</strong>
+              For any shipping-related queries, contact us at <strong className="text-[#B71C1C]">poprika.official@gmail.com</strong> or call <strong className="text-[#B71C1C]">+91 8197175807</strong>
             </p>
           </motion.div>
         </div>

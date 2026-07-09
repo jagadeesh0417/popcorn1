@@ -80,7 +80,7 @@ export default function TermsPage() {
             className="mt-12 p-6 rounded-2xl border border-[rgba(183,28,28,0.08)] text-center"
           >
             <p className="text-[#666666] text-sm">
-              For any questions regarding these terms, contact us at <strong className="text-[#B71C1C]">hello@poprika.in</strong>
+              For any questions regarding these terms, contact us at <strong className="text-[#B71C1C]">poprika.official@gmail.com</strong>
             </p>
           </motion.div>
         </div>

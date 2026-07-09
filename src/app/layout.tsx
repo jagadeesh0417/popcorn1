@@ -63,7 +63,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               description: "Small-batch gourmet popcorn brand from Mysuru",
               url: "https://poprika.in",
               servesCuisine: "Popcorn",
-              address: { "@type": "PostalAddress", addressLocality: "Mysuru", addressCountry: "IN" },
+              address: { "@type": "PostalAddress", streetAddress: "#30, Sri Nivasa, RCE Layout, Vijayanagar 4th Stage", addressLocality: "Mysore", postalCode: "570032", addressRegion: "Karnataka", addressCountry: "IN" },
               aggregateRating: { "@type": "AggregateRating", ratingValue: "4.9", reviewCount: "10000" },
             }),
           }}

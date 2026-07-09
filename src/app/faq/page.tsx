@@ -36,7 +36,7 @@ const faqs = [
   },
   {
     q: "Can I order in bulk for events or corporate gifting?",
-    a: "Absolutely! We offer bulk orders and custom corporate gifting solutions. Contact us at hello@poprika.in with your requirements and we'll create a tailored package.",
+    a: "Absolutely! We offer bulk orders and custom corporate gifting solutions. Contact us at poprika.official@gmail.com with your requirements and we'll create a tailored package.",
   },
   {
     q: "Do you ship internationally?",

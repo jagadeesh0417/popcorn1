@@ -134,7 +134,7 @@ export default function CheckoutPage() {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="phone" className="text-[#1A1A1A]">Phone number *</Label>
-                  <Input id="phone" type="tel" value={form.phone} onChange={(e) => updateField("phone", e.target.value)} placeholder="+91 98765 43210" className="bg-white border-[rgba(183,28,28,0.12)]" />
+                  <Input id="phone" type="tel" value={form.phone} onChange={(e) => updateField("phone", e.target.value)} placeholder="+91 8197175807" className="bg-white border-[rgba(183,28,28,0.12)]" />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="email" className="text-[#1A1A1A]">Email *</Label>
@@ -242,10 +242,10 @@ export default function CheckoutPage() {
                   <h2 className="font-bold text-lg text-[#1A1A1A]">Pickup location</h2>
                 </div>
                 <div className="bg-[#FFF8F0] p-5 border border-[rgba(183,28,28,0.08)]">
-                  <p className="text-sm font-medium text-[#1A1A1A]">Poprika Kitchen</p>
+                  <p className="text-sm font-medium text-[#1A1A1A]">#30, Sri Nivasa, RCE Layout</p>
                   <p className="text-xs text-[#666666] mt-1">
                     Vijayanagar 4th Stage<br />
-                    Mysuru, Karnataka 570017
+                    Mysore – 570032, Karnataka
                   </p>
                   <p className="text-xs text-[#666666] mt-3">
                     We&apos;ll confirm your pickup time via WhatsApp after the order is placed.

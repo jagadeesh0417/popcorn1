@@ -51,7 +51,7 @@ export default function AccountPage() {
               {[
                 { label: "Name", value: "Guest User" },
                 { label: "Email", value: "guest@example.com" },
-                { label: "Phone", value: "+91 98765 43210" },
+                { label: "Phone", value: "+91 8197175807" },
                 { label: "Member Since", value: "July 2026" },
               ].map((field) => (
                 <div key={field.label}>

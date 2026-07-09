@@ -22,7 +22,7 @@ const sections = [
   {
     icon: Database,
     title: "Your Rights",
-    content: "You have the right to access, correct, or delete your personal data at any time. You can unsubscribe from marketing emails at any time. For data-related requests, email us at hello@poprika.in.",
+    content: "You have the right to access, correct, or delete your personal data at any time. You can unsubscribe from marketing emails at any time. For data-related requests, email us at poprika.official@gmail.com.",
   },
 ];
 
@@ -80,7 +80,7 @@ export default function PrivacyPage() {
             className="mt-12 p-6 rounded-2xl border border-[rgba(183,28,28,0.08)] text-center"
           >
             <p className="text-[#666666] text-sm">
-              Questions about privacy? Contact us at <strong className="text-[#B71C1C]">hello@poprika.in</strong>
+              Questions about privacy? Contact us at <strong className="text-[#B71C1C]">poprika.official@gmail.com</strong>
             </p>
           </motion.div>
         </div>

@@ -42,8 +42,8 @@ export default function AboutPage() {
               <Award className="h-4 w-4 text-[#F9D976]" /> Our Story
             </span>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight">
-              Crafting <span className="text-[#F9D976]">Premium Popcorn</span>
-              <br />from the Heart of Mysuru
+              <span className="text-[#F9D976]">Our Story</span>
+              <br />How a Love for Popcorn Became Poprika
             </h1>
           </motion.div>
         </div>
@@ -51,31 +51,55 @@ export default function AboutPage() {
 
       <section className="py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
+          <div className="grid lg:grid-cols-2 gap-16 items-start">
             <motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
-              <span className="text-[#B71C1C] font-semibold text-sm uppercase tracking-[0.2em]">Our Mission</span>
-              <h2 className="text-3xl md:text-4xl font-bold mt-3 text-[#1A1A1A]">
-                Popcorn Reimagined with <span className="text-[#B71C1C]">Indian Soul</span>
-              </h2>
-              <p className="text-[#666666] mt-6 leading-relaxed">
-                Poprika started with a simple belief — great popcorn deserves great ingredients. We take the finest
-                premium kernels and coat them with flavours inspired by India&apos;s rich culinary heritage.
+              <p className="text-[#666666] leading-relaxed">
+                I&apos;ve always loved popcorn. But whenever I picked up a bag from well-known brands, I kept seeing the same ingredients — palm oil, artificial flavours, artificial colours, and other unnecessary additives.
               </p>
               <p className="text-[#666666] mt-4 leading-relaxed">
-                From the ghee-laden kitchens of Mysuru to the spice bazaars of Kerala, every flavour tells a story.
-                No palm oil. No artificial flavours. Just real food, made with love.
+                Then another question came to mind. Why are most popcorn flavours inspired by the West? Caramel. Cheese. Sour Cream &amp; Onion. They&apos;re classics, but I wondered why we weren&apos;t celebrating the flavours we grew up with. Why not Chikki, Filter Coffee, Rasmalai, or the countless flavours that make Indian food so special?
+              </p>
+              <p className="text-[#666666] mt-4 leading-relaxed">
+                That&apos;s when I decided to create something different. Poprika was born with a simple idea: make popcorn using real ingredients and create flavours inspired by India.
+              </p>
+              <p className="text-[#666666] mt-4 leading-relaxed">
+                The journey wasn&apos;t easy. I knew nothing about starting a food business. Everything — from learning how to pop the perfect corn and developing recipes to packaging, food safety, and building a brand — was learned one step at a time.
+              </p>
+              <p className="text-[#666666] mt-4 leading-relaxed">
+                Today, every batch is still made with the same purpose.
+              </p>
+              <p className="text-[#666666] mt-4 leading-relaxed">
+                If you&apos;re here today, you&apos;re one of the first people to be part of this journey. Every order supports a small business that&apos;s just getting started, and I&apos;m truly grateful for your trust.
+              </p>
+              <p className="text-[#666666] mt-4 leading-relaxed font-medium">
+                Thank you for being part of Poprika.
               </p>
             </motion.div>
             <motion.div
               initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}
-              className="bg-[#FFF8F0] rounded-[32px] p-8 md:p-12 text-center"
+              className="bg-[#FFF8F0] p-8 md:p-10"
             >
-              <div className="text-7xl mb-6">🍿</div>
-              <h3 className="text-2xl font-bold text-[#1A1A1A] mb-3">Made in Mysuru</h3>
-              <p className="text-[#666666] text-sm leading-relaxed">
-                Every batch is handcrafted in our Mysuru kitchen, using traditional methods and premium ingredients
-                sourced from across India.
-              </p>
+              <h3 className="text-xl font-bold text-[#1A1A1A] mb-6" style={{ fontFamily: "var(--font-playfair)" }}>
+                Made with purpose
+              </h3>
+              <ul className="space-y-4">
+                <li className="flex items-start gap-3">
+                  <span className="w-1.5 h-1.5 bg-[#B71C1C] mt-2 shrink-0" />
+                  <span className="text-[#666666] text-sm leading-relaxed">Real butter, ghee, and quality oils.</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <span className="w-1.5 h-1.5 bg-[#B71C1C] mt-2 shrink-0" />
+                  <span className="text-[#666666] text-sm leading-relaxed">No palm oil.</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <span className="w-1.5 h-1.5 bg-[#B71C1C] mt-2 shrink-0" />
+                  <span className="text-[#666666] text-sm leading-relaxed">No artificial flavours or colours.</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <span className="w-1.5 h-1.5 bg-[#B71C1C] mt-2 shrink-0" />
+                  <span className="text-[#666666] text-sm leading-relaxed">Indian-inspired flavours made with care.</span>
+                </li>
+              </ul>
             </motion.div>
           </div>
         </div>

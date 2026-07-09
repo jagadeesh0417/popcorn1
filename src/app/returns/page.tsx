@@ -65,7 +65,7 @@ export default function ReturnsPage() {
             className="mt-12 text-center p-8 rounded-2xl border border-[rgba(183,28,28,0.08)]"
           >
             <h3 className="font-bold text-lg text-[#1A1A1A] mb-2">Need to initiate a return?</h3>
-            <p className="text-[#666666] text-sm mb-6">Email us at hello@poprika.in with your order ID and we&apos;ll take it from there.</p>
+            <p className="text-[#666666] text-sm mb-6">Email us at poprika.official@gmail.com with your order ID and we&apos;ll take it from there.</p>
             <Link href="/contact">
               <Button className="bg-[#B71C1C] hover:bg-[#8E1414] text-white rounded-xl shadow-lg shadow-[#B71C1C]/20">
                 Contact Us
