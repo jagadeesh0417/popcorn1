@@ -19,7 +19,7 @@ export default function ContactPage() {
 
   return (
     <div className="pt-20">
-      <section className="relative py-24 overflow-hidden bg-gradient-to-br from-[#B71C1C] via-[#C62828] to-[#D84315]">
+      <section className="relative py-24 overflow-hidden bg-gradient-to-br from-[#DC0218] via-[#DC0218] to-[#C70015]">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight">
@@ -36,7 +36,7 @@ export default function ContactPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-16">
             <motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
-              <span className="text-[#B71C1C] font-semibold text-sm uppercase tracking-[0.2em]">Contact Us</span>
+              <span className="text-[#DC0218] font-semibold text-sm uppercase tracking-[0.2em]">Contact Us</span>
               <h2 className="text-3xl md:text-4xl font-bold mt-3 text-[#1A1A1A]">We&apos;re Here to Help</h2>
               <p className="text-[#666666] mt-4 leading-relaxed">
                 Whether you have a question about our flavours, need help with an order, or just want to share your Poprika experience — drop us a message.
@@ -44,8 +44,8 @@ export default function ContactPage() {
               <div className="mt-10 space-y-6">
                 {contactInfo.map((info) => (
                   <div key={info.title} className="flex items-start gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-[#B71C1C]/5 flex items-center justify-center shrink-0">
-                      <info.icon className="h-6 w-6 text-[#B71C1C]" />
+                    <div className="w-12 h-12 rounded-xl bg-[#DC0218]/5 flex items-center justify-center shrink-0">
+                      <info.icon className="h-6 w-6 text-[#DC0218]" />
                     </div>
                     <div>
                       <p className="font-semibold text-[#1A1A1A]">{info.title}</p>
@@ -73,20 +73,20 @@ export default function ContactPage() {
                   <div className="grid sm:grid-cols-2 gap-5">
                     <div className="space-y-2">
                       <Label htmlFor="name" className="text-[#1A1A1A]">First Name</Label>
-                      <Input id="name" required className="rounded-xl bg-white border-[rgba(183,28,28,0.12)]" />
+                      <Input id="name" required className="rounded-xl bg-white border-[rgba(220,2,24,0.12)]" />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="lname" className="text-[#1A1A1A]">Last Name</Label>
-                      <Input id="lname" className="rounded-xl bg-white border-[rgba(183,28,28,0.12)]" />
+                      <Input id="lname" className="rounded-xl bg-white border-[rgba(220,2,24,0.12)]" />
                     </div>
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="email" className="text-[#1A1A1A]">Email</Label>
-                    <Input id="email" type="email" required className="rounded-xl bg-white border-[rgba(183,28,28,0.12)]" />
+                    <Input id="email" type="email" required className="rounded-xl bg-white border-[rgba(220,2,24,0.12)]" />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="subject" className="text-[#1A1A1A]">Subject</Label>
-                    <Input id="subject" required className="rounded-xl bg-white border-[rgba(183,28,28,0.12)]" />
+                    <Input id="subject" required className="rounded-xl bg-white border-[rgba(220,2,24,0.12)]" />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="message" className="text-[#1A1A1A]">Message</Label>
@@ -94,10 +94,10 @@ export default function ContactPage() {
                       id="message"
                       required
                       rows={5}
-                      className="w-full px-4 py-3 rounded-xl bg-white border border-[rgba(183,28,28,0.12)] text-[#1A1A1A] focus:outline-none focus:border-[#B71C1C] transition-colors resize-none"
+                      className="w-full px-4 py-3 rounded-xl bg-white border border-[rgba(220,2,24,0.12)] text-[#1A1A1A] focus:outline-none focus:border-[#DC0218] transition-colors resize-none"
                     />
                   </div>
-                  <Button type="submit" className="w-full bg-[#B71C1C] hover:bg-[#8E1414] text-white rounded-xl h-12 shadow-lg shadow-[#B71C1C]/20">
+                  <Button type="submit" className="w-full bg-[#DC0218] hover:bg-[#C70015] text-white rounded-xl h-12 shadow-lg shadow-[#DC0218]/20">
                     <Send className="h-4 w-4 mr-2" /> Send Message
                   </Button>
                 </form>

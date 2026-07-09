@@ -15,7 +15,7 @@ const steps = [
 export default function ReturnsPage() {
   return (
     <div className="pt-20">
-      <section className="relative py-24 overflow-hidden bg-gradient-to-br from-[#B71C1C] via-[#C62828] to-[#D84315]">
+      <section className="relative py-24 overflow-hidden bg-gradient-to-br from-[#DC0218] via-[#DC0218] to-[#C70015]">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight">
@@ -50,8 +50,8 @@ export default function ReturnsPage() {
                   transition={{ delay: i * 0.08 }}
                   className="text-center p-6"
                 >
-                  <div className="w-16 h-16 mx-auto rounded-2xl bg-[#B71C1C]/5 flex items-center justify-center mb-4">
-                    <s.icon className="h-8 w-8 text-[#B71C1C]" />
+                  <div className="w-16 h-16 mx-auto rounded-2xl bg-[#DC0218]/5 flex items-center justify-center mb-4">
+                    <s.icon className="h-8 w-8 text-[#DC0218]" />
                   </div>
                   <h3 className="font-bold text-[#1A1A1A] mb-2">{s.title}</h3>
                   <p className="text-[#666666] text-sm leading-relaxed">{s.description}</p>
@@ -62,12 +62,12 @@ export default function ReturnsPage() {
 
           <motion.div
             initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
-            className="mt-12 text-center p-8 rounded-2xl border border-[rgba(183,28,28,0.08)]"
+            className="mt-12 text-center p-8 rounded-2xl border border-[rgba(220,2,24,0.08)]"
           >
             <h3 className="font-bold text-lg text-[#1A1A1A] mb-2">Need to initiate a return?</h3>
             <p className="text-[#666666] text-sm mb-6">Email us at poprika.official@gmail.com with your order ID and we&apos;ll take it from there.</p>
             <Link href="/contact">
-              <Button className="bg-[#B71C1C] hover:bg-[#8E1414] text-white rounded-xl shadow-lg shadow-[#B71C1C]/20">
+              <Button className="bg-[#DC0218] hover:bg-[#C70015] text-white rounded-xl shadow-lg shadow-[#DC0218]/20">
                 Contact Us
               </Button>
             </Link>

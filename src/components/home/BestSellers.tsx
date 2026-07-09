@@ -65,14 +65,14 @@ export function BestSellers() {
           className="flex items-center justify-between mb-12"
         >
           <div>
-            <span className="text-[#B71C1C] font-semibold text-sm uppercase tracking-[0.2em]">Trending</span>
+            <span className="text-[#DC0218] font-semibold text-sm uppercase tracking-[0.2em]">Trending</span>
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mt-2 text-[#1A1A1A]">Best Sellers</h2>
           </div>
           <div className="hidden sm:flex gap-2">
             <Button
               variant="outline"
               size="icon"
-              className="rounded-full border-[rgba(183,28,28,0.2)] hover:bg-[#B71C1C] hover:text-white transition-all"
+              className="rounded-full border-[rgba(220,2,24,0.2)] hover:bg-[#DC0218] hover:text-white transition-all"
               onClick={() => scroll("left")}
               disabled={!canScrollLeft}
             >
@@ -81,7 +81,7 @@ export function BestSellers() {
             <Button
               variant="outline"
               size="icon"
-              className="rounded-full border-[rgba(183,28,28,0.2)] hover:bg-[#B71C1C] hover:text-white transition-all"
+              className="rounded-full border-[rgba(220,2,24,0.2)] hover:bg-[#DC0218] hover:text-white transition-all"
               onClick={() => scroll("right")}
               disabled={!canScrollRight}
             >
@@ -103,7 +103,7 @@ export function BestSellers() {
               transition={{ delay: index * 0.08 }}
               className="min-w-[290px] sm:min-w-[310px] snap-start"
             >
-              <div className="bg-white rounded-[24px] overflow-hidden shadow-[0_2px_20px_rgba(183,28,28,0.06)] hover:shadow-[0_8px_40px_rgba(183,28,28,0.12)] transition-all duration-500 border border-[rgba(183,28,28,0.08)] group h-full">
+              <div className="bg-white rounded-[24px] overflow-hidden shadow-[0_2px_20px_rgba(220,2,24,0.06)] hover:shadow-[0_8px_40px_rgba(220,2,24,0.12)] transition-all duration-500 border border-[rgba(220,2,24,0.08)] group h-full">
                 <Link href={`/products/${product.slug}`}>
                   <div className="relative h-56 overflow-hidden bg-[#FFF8F0]">
                     <Image
@@ -113,19 +113,19 @@ export function BestSellers() {
                       className="object-cover group-hover:scale-105 transition-transform duration-700"
                       sizes="310px"
                     />
-                    <div className="absolute top-3 left-3 bg-[#F9D976] text-[#8E1414] text-xs font-bold px-3 py-1.5 rounded-full flex items-center gap-1 shadow-lg">
+                    <div className="absolute top-3 left-3 bg-[#F9D976] text-[#C70015] text-xs font-bold px-3 py-1.5 rounded-full flex items-center gap-1 shadow-lg">
                       <Star className="h-3 w-3 fill-current" /> Bestseller
                     </div>
                   </div>
                 </Link>
                 <div className="p-5">
                   <Link href={`/products/${product.slug}`}>
-                    <h3 className="font-bold text-base text-[#1A1A1A] group-hover:text-[#B71C1C] transition-colors">{product.name}</h3>
+                    <h3 className="font-bold text-base text-[#1A1A1A] group-hover:text-[#DC0218] transition-colors">{product.name}</h3>
                   </Link>
                   <p className="text-[#666666] text-xs mt-1.5 line-clamp-2">{product.shortDescription}</p>
-                  <div className="flex items-center justify-between mt-4 pt-4 border-t border-[rgba(183,28,28,0.08)]">
-                    <span className="text-xl font-bold text-[#B71C1C]">₹{product.price}</span>
-                    <Button size="sm" className="bg-[#B71C1C] hover:bg-[#8E1414] text-white rounded-xl text-xs px-4 h-9" onClick={() => addItem(product)}>
+                  <div className="flex items-center justify-between mt-4 pt-4 border-t border-[rgba(220,2,24,0.08)]">
+                    <span className="text-xl font-bold text-[#DC0218]">₹{product.price}</span>
+                    <Button size="sm" className="bg-[#DC0218] hover:bg-[#C70015] text-white rounded-xl text-xs px-4 h-9" onClick={() => addItem(product)}>
                       <ShoppingBag className="h-3.5 w-3.5 mr-1.5" />
                       Add
                     </Button>

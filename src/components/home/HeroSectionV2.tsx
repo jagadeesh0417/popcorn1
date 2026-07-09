@@ -11,7 +11,7 @@ export function HeroSectionV2() {
       {/* Background image */}
       <Image src="/banner.jpeg" alt="" fill className="object-cover" sizes="100vw" priority />
       {/* Gradient overlay */}
-      <div className="absolute inset-0" style={{ background: "linear-gradient(135deg, rgba(183,28,28,0.85) 0%, rgba(198,40,40,0.75) 40%, rgba(216,67,21,0.7) 100%)" }} />
+      <div className="absolute inset-0" style={{ background: "linear-gradient(135deg, rgba(220,2,24,0.85) 0%, rgba(220,2,24,0.75) 40%, rgba(199,0,21,0.7) 100%)" }} />
       <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMiIvPjwvZz48L2c+PC9zdmc+')] opacity-30" />
 
       {/* Soft radial glow */}
@@ -86,7 +86,7 @@ export function HeroSectionV2() {
             className="mt-7 flex flex-col sm:flex-row items-center justify-center gap-4"
           >
             <Link href="/shop">
-              <Button className="bg-white text-[#B71C1C] hover:bg-[#FFF8F0] hover:text-[#B71C1C] btn-small-caps px-8 h-12 text-xs shadow-lg shadow-black/10 hover:shadow-xl hover:shadow-black/15 transition-shadow">
+              <Button className="bg-white text-[#DC0218] hover:bg-[#FFF8F0] hover:text-[#DC0218] btn-small-caps px-8 h-12 text-xs shadow-lg shadow-black/10 hover:shadow-xl hover:shadow-black/15 transition-shadow">
                 Shop the Range
               </Button>
             </Link>

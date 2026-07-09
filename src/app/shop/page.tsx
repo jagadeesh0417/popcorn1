@@ -48,8 +48,8 @@ export default function ShopPage() {
               onClick={() => setActiveCategory(cat.id)}
               className={`px-5 py-2.5 text-xs uppercase tracking-[0.08em] font-medium border transition-all ${
                 activeCategory === cat.id
-                  ? "bg-[#B71C1C] text-white border-[#B71C1C]"
-                  : "bg-white text-[#666666] border-[rgba(183,28,28,0.15)] hover:border-[#B71C1C] hover:text-[#B71C1C]"
+                  ? "bg-[#DC0218] text-white border-[#DC0218]"
+                  : "bg-white text-[#666666] border-[rgba(220,2,24,0.15)] hover:border-[#DC0218] hover:text-[#DC0218]"
               }`}
             >
               {cat.name}
@@ -64,7 +64,7 @@ export default function ShopPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.05 }}
-              className="group border border-[rgba(183,28,28,0.08)] bg-white overflow-hidden hover:border-[rgba(183,28,28,0.2)] transition-colors"
+              className="group border border-[rgba(220,2,24,0.08)] bg-white overflow-hidden hover:border-[rgba(220,2,24,0.2)] transition-colors"
             >
               <Link href={`/products/${product.slug}`}>
                 <div className="relative h-48 bg-[#FFF8F0]">
@@ -72,7 +72,7 @@ export default function ShopPage() {
                 </div>
               </Link>
               <div className="p-5">
-                <p className="text-[#B71C1C] text-xs italic">{product.tagline}</p>
+                <p className="text-[#DC0218] text-xs italic">{product.tagline}</p>
                 <Link href={`/products/${product.slug}`}>
                   <h3 className="font-semibold text-lg text-[#1A1A1A]" style={{ fontFamily: "var(--font-playfair)" }}>{product.name}</h3>
                 </Link>
@@ -84,9 +84,9 @@ export default function ShopPage() {
                   </p>
                 )}
 
-                <div className="flex items-center justify-between mt-3 pt-3 border-t border-[rgba(183,28,28,0.08)]">
+                <div className="flex items-center justify-between mt-3 pt-3 border-t border-[rgba(220,2,24,0.08)]">
                   <span className="text-base font-semibold text-[#1A1A1A]">From ₹{Math.min(...(product.sizes?.map((s) => s.price) || [product.price]))}</span>
-                  <Button size="sm" className="bg-[#B71C1C] hover:bg-[#8E1414] text-white h-9 px-4 text-xs transition-all" onClick={() => addItem(product)}>
+                  <Button size="sm" className="bg-[#DC0218] hover:bg-[#C70015] text-white h-9 px-4 text-xs transition-all" onClick={() => addItem(product)}>
                     <ShoppingBag className="h-3.5 w-3.5 mr-1" />
                     Add
                   </Button>

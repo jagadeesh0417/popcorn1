@@ -8,13 +8,13 @@ export default function AdminInventoryPage() {
       <div className="flex-1 ml-64 pt-20">
         <div className="px-8 py-8">
           <div className="mb-8">
-            <span className="text-[#B71C1C] font-semibold text-sm uppercase tracking-[0.2em]">Admin</span>
+            <span className="text-[#DC0218] font-semibold text-sm uppercase tracking-[0.2em]">Admin</span>
             <h1 className="text-3xl font-bold text-[#1A1A1A] mt-1">Inventory</h1>
           </div>
-          <div className="bg-white rounded-2xl p-6 shadow-sm border border-[rgba(183,28,28,0.08)] overflow-x-auto">
+          <div className="bg-white rounded-2xl p-6 shadow-sm border border-[rgba(220,2,24,0.08)] overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-[rgba(183,28,28,0.08)] text-left text-[#666666]">
+                <tr className="border-b border-[rgba(220,2,24,0.08)] text-left text-[#666666]">
                   <th className="pb-3 font-medium">Product</th>
                   <th className="pb-3 font-medium">Category</th>
                   <th className="pb-3 font-medium">Weight</th>
@@ -25,15 +25,15 @@ export default function AdminInventoryPage() {
               </thead>
               <tbody>
                 {products.map((p) => (
-                  <tr key={p.id} className="border-b border-[rgba(183,28,28,0.06)] last:border-0">
+                  <tr key={p.id} className="border-b border-[rgba(220,2,24,0.06)] last:border-0">
                     <td className="py-3 font-medium text-[#1A1A1A]">{p.name}</td>
                     <td className="py-3 text-[#666666]">{p.category}</td>
                     <td className="py-3 text-[#666666]">{p.weight}</td>
-                    <td className="py-3 font-medium text-[#B71C1C]">₹{p.price}</td>
+                    <td className="py-3 font-medium text-[#DC0218]">₹{p.price}</td>
                     <td className="py-3">
                       <div className="flex items-center gap-3">
                         <div className="w-full bg-[#FFF8F0] rounded-full h-2 max-w-[120px]">
-                          <div className="bg-[#B71C1C] h-2 rounded-full" style={{ width: `${Math.min(100, (p.stockQuantity / 200) * 100)}%` }} />
+                          <div className="bg-[#DC0218] h-2 rounded-full" style={{ width: `${Math.min(100, (p.stockQuantity / 200) * 100)}%` }} />
                         </div>
                         <span className="text-xs text-[#666666]">{p.stockQuantity}</span>
                       </div>

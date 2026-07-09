@@ -50,14 +50,14 @@ export default function AdminDashboard() {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.4 }}
-            className="bg-white p-8 shadow-xl border border-[rgba(183,28,28,0.08)]"
+            className="bg-white p-8 shadow-xl border border-[rgba(220,2,24,0.08)]"
           >
             <div className="text-center mb-8">
               <motion.div
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 transition={{ type: "spring", damping: 15, delay: 0.1 }}
-                className="w-16 h-16 mx-auto bg-[#B71C1C] flex items-center justify-center mb-4 shadow-lg shadow-[#B71C1C]/20"
+                className="w-16 h-16 mx-auto bg-[#DC0218] flex items-center justify-center mb-4 shadow-lg shadow-[#DC0218]/20"
               >
                 <span className="text-white font-bold text-2xl">P</span>
               </motion.div>
@@ -67,14 +67,14 @@ export default function AdminDashboard() {
             <div className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-[#1A1A1A]">Email</Label>
-                <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="border-[rgba(183,28,28,0.12)]" />
+                <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="border-[rgba(220,2,24,0.12)]" />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="password" className="text-[#1A1A1A]">Password</Label>
-                <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="border-[rgba(183,28,28,0.12)]" />
+                <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="border-[rgba(220,2,24,0.12)]" />
               </div>
               <motion.div whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.97 }}>
-                <Button className="w-full bg-[#B71C1C] hover:bg-[#8E1414] text-white h-12 shadow-lg shadow-[#B71C1C]/20" onClick={() => { if (password) setIsLogin(false); }}>
+                <Button className="w-full bg-[#DC0218] hover:bg-[#C70015] text-white h-12 shadow-lg shadow-[#DC0218]/20" onClick={() => { if (password) setIsLogin(false); }}>
                   <LogIn className="h-4 w-4 mr-2" /> Sign In
                 </Button>
               </motion.div>
@@ -91,7 +91,7 @@ export default function AdminDashboard() {
       <div className="flex-1 ml-64 pt-20">
         <div className="px-8 py-8">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-            <span className="text-[#B71C1C] font-semibold text-sm uppercase tracking-[0.2em]">Admin Panel</span>
+            <span className="text-[#DC0218] font-semibold text-sm uppercase tracking-[0.2em]">Admin Panel</span>
             <h1 className="text-3xl font-bold text-[#1A1A1A] mt-1">Dashboard</h1>
           </motion.div>
 
@@ -102,14 +102,14 @@ export default function AdminDashboard() {
                 variants={fadeUp}
                 transition={{ duration: 0.4 }}
                 whileHover={{ y: -4, boxShadow: "0 12px 35px rgba(0,0,0,0.08)" }}
-                className="bg-white p-6 border border-[rgba(183,28,28,0.08)] transition-all duration-300 cursor-default"
+                className="bg-white p-6 border border-[rgba(220,2,24,0.08)] transition-all duration-300 cursor-default"
               >
                 <div className="flex items-center justify-between mb-4">
                   <motion.div
                     whileHover={{ scale: 1.1, rotate: 3 }}
-                    className="w-12 h-12 bg-[#B71C1C]/5 flex items-center justify-center"
+                    className="w-12 h-12 bg-[#DC0218]/5 flex items-center justify-center"
                   >
-                    <stat.icon className="h-6 w-6 text-[#B71C1C]" />
+                    <stat.icon className="h-6 w-6 text-[#DC0218]" />
                   </motion.div>
                   <span className={`flex items-center gap-1 text-xs font-medium ${stat.up ? "text-green-600" : "text-red-600"}`}>
                     {stat.up ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />}{stat.change}
@@ -126,13 +126,13 @@ export default function AdminDashboard() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
-              className="lg:col-span-2 bg-white p-6 border border-[rgba(183,28,28,0.08)]"
+              className="lg:col-span-2 bg-white p-6 border border-[rgba(220,2,24,0.08)]"
             >
               <h3 className="font-bold text-lg text-[#1A1A1A] mb-4">Recent Orders</h3>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-[rgba(183,28,28,0.08)] text-left text-[#666666]">
+                    <tr className="border-b border-[rgba(220,2,24,0.08)] text-left text-[#666666]">
                       <th className="pb-3 font-medium">Order</th>
                       <th className="pb-3 font-medium">Customer</th>
                       <th className="pb-3 font-medium">Items</th>
@@ -145,13 +145,13 @@ export default function AdminDashboard() {
                     {recentOrders.map((order) => (
                       <motion.tr
                         key={order.id}
-                        whileHover={{ backgroundColor: "rgba(183,28,28,0.03)" }}
-                        className="border-b border-[rgba(183,28,28,0.06)] last:border-0 transition-colors cursor-default"
+                        whileHover={{ backgroundColor: "rgba(220,2,24,0.03)" }}
+                        className="border-b border-[rgba(220,2,24,0.06)] last:border-0 transition-colors cursor-default"
                       >
                         <td className="py-3 font-medium text-[#1A1A1A]">{order.id}</td>
                         <td className="py-3 text-[#666666]">{order.customer}</td>
                         <td className="py-3 text-[#666666]">{order.items}</td>
-                        <td className="py-3 text-[#B71C1C] font-medium">₹{order.total}</td>
+                        <td className="py-3 text-[#DC0218] font-medium">₹{order.total}</td>
                         <td className="py-3"><span className={`px-2.5 py-1 text-xs font-medium ${statusColors[order.status]}`}>{order.status.charAt(0).toUpperCase() + order.status.slice(1)}</span></td>
                         <td className="py-3 text-[#666666]">{order.date}</td>
                       </motion.tr>
@@ -165,13 +165,13 @@ export default function AdminDashboard() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
-              className="bg-white p-6 border border-[rgba(183,28,28,0.08)]"
+              className="bg-white p-6 border border-[rgba(220,2,24,0.08)]"
             >
               <h3 className="font-bold text-lg text-[#1A1A1A] mb-4">Quick Stats</h3>
               <div className="space-y-4">
                 {[
-                  { label: "Pending Orders", value: "12", color: "bg-[#F9D976] text-[#8E1414]" },
-                  { label: "Low Stock Items", value: "3", color: "bg-[#B71C1C] text-white" },
+                  { label: "Pending Orders", value: "12", color: "bg-[#F9D976] text-[#C70015]" },
+                  { label: "Low Stock Items", value: "3", color: "bg-[#DC0218] text-white" },
                   { label: "New This Month", value: "48 customers", color: "text-[#666666]" },
                 ].map((item, i) => (
                   <motion.div

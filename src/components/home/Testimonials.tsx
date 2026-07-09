@@ -14,7 +14,7 @@ export function Testimonials() {
           viewport={{ once: true, margin: "-100px" }}
           className="text-center mb-16"
         >
-          <span className="text-[#B71C1C] font-semibold text-sm uppercase tracking-[0.2em]">Testimonials</span>
+          <span className="text-[#DC0218] font-semibold text-sm uppercase tracking-[0.2em]">Testimonials</span>
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mt-3 text-[#1A1A1A]">What Our Customers Say</h2>
           <p className="text-[#666666] mt-4 max-w-xl mx-auto leading-relaxed">
             Real reviews from real popcorn lovers
@@ -30,11 +30,11 @@ export function Testimonials() {
               viewport={{ once: true, margin: "-50px" }}
               transition={{ delay: index * 0.1 }}
               whileHover={{ y: -4 }}
-              className="bg-white p-8 rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 border border-[rgba(183,28,28,0.08)] relative"
+              className="bg-white p-8 rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 border border-[rgba(220,2,24,0.08)] relative"
             >
-              <Quote className="absolute top-6 right-6 h-8 w-8 text-[#B71C1C]/10" />
+              <Quote className="absolute top-6 right-6 h-8 w-8 text-[#DC0218]/10" />
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-12 h-12 rounded-full bg-[#B71C1C]/10 flex items-center justify-center text-[#B71C1C] font-bold text-sm">
+                <div className="w-12 h-12 rounded-full bg-[#DC0218]/10 flex items-center justify-center text-[#DC0218] font-bold text-sm">
                   {testimonial.name.split(" ").map((n) => n[0]).join("")}
                 </div>
                 <div>

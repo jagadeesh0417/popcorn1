@@ -46,7 +46,7 @@ export function InstagramGallery() {
                 sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
               />
               <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/30 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              <div className="absolute inset-0 bg-[#B71C1C]/40 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center">
+              <div className="absolute inset-0 bg-[#DC0218]/40 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center">
                 <motion.div
                   initial={{ scale: 0 }}
                   whileHover={{ scale: 1 }}
@@ -69,7 +69,7 @@ export function InstagramGallery() {
             href="https://instagram.com/poprika"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-[#B71C1C] text-xs uppercase tracking-[0.12em] font-medium hover:text-[#8E1414] transition-colors inline-flex items-center gap-1.5"
+            className="text-[#DC0218] text-xs uppercase tracking-[0.12em] font-medium hover:text-[#C70015] transition-colors inline-flex items-center gap-1.5"
           >
             Follow us on Instagram <span className="text-sm">→</span>
           </a>

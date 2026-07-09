@@ -97,7 +97,7 @@ export function BundleCard() {
 
             {/* Content side */}
             <div className="md:w-1/2 p-8 md:p-10 flex flex-col justify-center">
-              <span className="inline-block bg-[#B71C1C] text-white text-[10px] uppercase tracking-[0.15em] font-semibold px-3 py-1 mb-4 w-fit">
+              <span className="inline-block bg-[#DC0218] text-white text-[10px] uppercase tracking-[0.15em] font-semibold px-3 py-1 mb-4 w-fit">
                 Best Value
               </span>
 
@@ -107,7 +107,7 @@ export function BundleCard() {
               <p className="text-[#666666] text-sm mt-2 leading-relaxed">
                 One of each. The best way to find your favourite.
               </p>
-              <p className="text-[#B71C1C] text-xs mt-4 font-medium tracking-wide">
+              <p className="text-[#DC0218] text-xs mt-4 font-medium tracking-wide">
                 Ghee &amp; Black Pepper <span className="text-[#666666]">·</span> Ghee &amp; Curry Leaf <span className="text-[#666666]">·</span> Coffee Chikki
               </p>
 
@@ -120,8 +120,8 @@ export function BundleCard() {
                       onClick={() => setSelectedBundle(size)}
                       className={`px-5 py-2.5 text-xs uppercase tracking-[0.06em] font-medium border transition-all duration-200 ${
                         isSelected
-                          ? "bg-[#B71C1C] text-white border-[#B71C1C]"
-                          : "bg-white text-[#1A1A1A] border-[rgba(183,28,28,0.2)] hover:border-[#B71C1C]"
+                          ? "bg-[#DC0218] text-white border-[#DC0218]"
+                          : "bg-white text-[#1A1A1A] border-[rgba(220,2,24,0.2)] hover:border-[#DC0218]"
                       }`}
                     >
                       {size}
@@ -155,7 +155,7 @@ export function BundleCard() {
                   disabled={!selectedBundle}
                   className={`w-full md:w-auto btn-small-caps px-10 h-12 transition-all duration-200 ${
                     selectedBundle
-                      ? "bg-[#B71C1C] hover:bg-[#8E1414] text-white shadow-lg shadow-[#B71C1C]/20 hover:shadow-[#B71C1C]/30"
+                      ? "bg-[#DC0218] hover:bg-[#C70015] text-white shadow-lg shadow-[#DC0218]/20 hover:shadow-[#DC0218]/30"
                       : "bg-[#E0E0E0] text-[#999999] cursor-not-allowed"
                   }`}
                 >

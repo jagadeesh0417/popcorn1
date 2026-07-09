@@ -92,7 +92,7 @@ export function Newsletter() {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Email address"
               required
-              className="w-full px-4 py-3 border border-[rgba(183,28,28,0.12)] text-sm text-[#1A1A1A] placeholder:text-[#999999] focus:outline-none focus:border-[#B71C1C] transition-colors bg-white"
+              className="w-full px-4 py-3 border border-[rgba(220,2,24,0.12)] text-sm text-[#1A1A1A] placeholder:text-[#999999] focus:outline-none focus:border-[#DC0218] transition-colors bg-white"
             />
           </div>
 
@@ -100,7 +100,7 @@ export function Newsletter() {
             <select
               value={countryCode}
               onChange={(e) => setCountryCode(e.target.value)}
-              className="px-3 py-3 border border-[rgba(183,28,28,0.12)] text-sm bg-white text-[#1A1A1A] focus:outline-none focus:border-[#B71C1C] transition-colors w-24"
+              className="px-3 py-3 border border-[rgba(220,2,24,0.12)] text-sm bg-white text-[#1A1A1A] focus:outline-none focus:border-[#DC0218] transition-colors w-24"
             >
               {countryCodes.map((c) => (
                 <option key={c.code} value={c.code}>{c.label}</option>
@@ -111,7 +111,7 @@ export function Newsletter() {
               value={whatsapp}
               onChange={(e) => setWhatsapp(e.target.value)}
               placeholder="WhatsApp number"
-              className="flex-1 px-4 py-3 border border-[rgba(183,28,28,0.12)] text-sm text-[#1A1A1A] placeholder:text-[#999999] focus:outline-none focus:border-[#B71C1C] transition-colors bg-white"
+              className="flex-1 px-4 py-3 border border-[rgba(220,2,24,0.12)] text-sm text-[#1A1A1A] placeholder:text-[#999999] focus:outline-none focus:border-[#DC0218] transition-colors bg-white"
             />
           </div>
 
@@ -120,7 +120,7 @@ export function Newsletter() {
               type="checkbox"
               checked={consent}
               onChange={(e) => setConsent(e.target.checked)}
-              className="mt-0.5 accent-[#B71C1C]"
+              className="mt-0.5 accent-[#DC0218]"
               required
             />
             <span className="text-[#666666] text-xs leading-relaxed">
@@ -134,7 +134,7 @@ export function Newsletter() {
               disabled={!consent}
               className={`w-full btn-small-caps h-12 transition-all duration-200 ${
                 consent
-                  ? "bg-[#B71C1C] hover:bg-[#8E1414] text-white shadow-lg shadow-[#B71C1C]/20 hover:shadow-[#B71C1C]/30"
+                  ? "bg-[#DC0218] hover:bg-[#C70015] text-white shadow-lg shadow-[#DC0218]/20 hover:shadow-[#DC0218]/30"
                   : "bg-[#E0E0E0] text-[#999999] cursor-not-allowed"
               }`}
             >

@@ -36,7 +36,7 @@ export function Header() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 md:h-20">
           <Link href="/" className="flex items-center gap-2.5">
-            <div className="w-9 h-9 bg-[#B71C1C] flex items-center justify-center">
+            <div className="w-9 h-9 bg-[#DC0218] flex items-center justify-center">
               <span className="text-white font-bold text-base">P</span>
             </div>
             <span className="font-semibold text-lg tracking-tight text-[#1A1A1A]" style={{ fontFamily: "var(--font-playfair)" }}>
@@ -49,7 +49,7 @@ export function Header() {
               <Link
                 key={link.href}
                 href={link.href}
-                className="text-sm font-medium uppercase tracking-[0.08em] text-[#1A1A1A] transition-colors duration-200 hover:text-[#B71C1C]"
+                className="text-sm font-medium uppercase tracking-[0.08em] text-[#1A1A1A] transition-colors duration-200 hover:text-[#DC0218]"
               >
                 {link.name}
               </Link>
@@ -59,12 +59,12 @@ export function Header() {
           <div className="flex items-center gap-3">
             <button
               onClick={openCart}
-              className="relative p-2 text-[#1A1A1A] transition-colors hover:text-[#B71C1C]"
+              className="relative p-2 text-[#1A1A1A] transition-colors hover:text-[#DC0218]"
               aria-label="Open cart"
             >
               <ShoppingBag className="h-5 w-5" />
               {getItemCount() > 0 && (
-                <span className="absolute -top-1 -right-1 bg-[#F9D976] text-[#8E1414] text-[9px] font-bold rounded-full h-4 w-4 flex items-center justify-center shadow-sm">
+                <span className="absolute -top-1 -right-1 bg-[#F9D976] text-[#C70015] text-[9px] font-bold rounded-full h-4 w-4 flex items-center justify-center shadow-sm">
                   {getItemCount()}
                 </span>
               )}
@@ -86,7 +86,7 @@ export function Header() {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            className="md:hidden bg-white border-t border-[rgba(183,28,28,0.08)]"
+            className="md:hidden bg-white border-t border-[rgba(220,2,24,0.08)]"
           >
             <div className="px-4 py-4 space-y-1">
               {navLinks.map((link) => (
@@ -94,7 +94,7 @@ export function Header() {
                   key={link.href}
                   href={link.href}
                   onClick={() => setIsOpen(false)}
-                  className="block py-3 text-[#1A1A1A] font-medium hover:text-[#B71C1C] transition-colors text-sm uppercase tracking-[0.08em]"
+                  className="block py-3 text-[#1A1A1A] font-medium hover:text-[#DC0218] transition-colors text-sm uppercase tracking-[0.08em]"
                 >
                   {link.name}
                 </Link>

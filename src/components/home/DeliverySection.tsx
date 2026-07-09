@@ -7,7 +7,7 @@ export function DeliverySection() {
   return (
     <section className="py-24 bg-[#FFF8F0] relative overflow-hidden">
       <motion.div
-        className="absolute -right-20 -top-20 w-64 h-64 text-[#B71C1C]/5"
+        className="absolute -right-20 -top-20 w-64 h-64 text-[#DC0218]/5"
         animate={{ rotate: 360 }}
         transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
       >
@@ -24,10 +24,10 @@ export function DeliverySection() {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
           >
-            <span className="text-[#B71C1C] font-semibold text-sm uppercase tracking-[0.2em]">Delivery</span>
+            <span className="text-[#DC0218] font-semibold text-sm uppercase tracking-[0.2em]">Delivery</span>
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mt-3 text-[#1A1A1A]">
               Freshly Popped, Delivered from{" "}
-              <span className="text-[#B71C1C]">Mysuru</span>
+              <span className="text-[#DC0218]">Mysuru</span>
             </h2>
             <p className="text-[#666666] mt-4 max-w-md leading-relaxed">
               Handcrafted in our Mysuru kitchen and delivered fresh across India within 24-48 hours.
@@ -47,8 +47,8 @@ export function DeliverySection() {
                   transition={{ delay: i * 0.1 }}
                   className="flex items-center gap-3"
                 >
-                  <div className="w-10 h-10 rounded-xl bg-[#B71C1C]/5 flex items-center justify-center shrink-0">
-                    <item.icon className="h-5 w-5 text-[#B71C1C]" />
+                  <div className="w-10 h-10 rounded-xl bg-[#DC0218]/5 flex items-center justify-center shrink-0">
+                    <item.icon className="h-5 w-5 text-[#DC0218]" />
                   </div>
                   <span className="text-sm text-[#1A1A1A] font-medium">{item.text}</span>
                 </motion.div>
@@ -65,20 +65,20 @@ export function DeliverySection() {
             <div className="relative w-[300px] h-[300px] md:w-[380px] md:h-[380px]">
               <svg viewBox="0 0 380 380" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
                 <g opacity="0.08">
-                  <path d="M190 10C90 10 10 90 10 190s80 180 180 180 180-80 180-180S290 10 190 10z" stroke="#B71C1C" strokeWidth="2" fill="none" />
+                  <path d="M190 10C90 10 10 90 10 190s80 180 180 180 180-80 180-180S290 10 190 10z" stroke="#DC0218" strokeWidth="2" fill="none" />
                 </g>
                 <g opacity="0.12">
-                  <path d="M190 50C133 50 50 133 50 190s83 140 140 140 140-83 140-140S247 50 190 50z" stroke="#B71C1C" strokeWidth="1.5" fill="none" />
+                  <path d="M190 50C133 50 50 133 50 190s83 140 140 140 140-83 140-140S247 50 190 50z" stroke="#DC0218" strokeWidth="1.5" fill="none" />
                 </g>
                 <g opacity="0.15">
                   <path d="M250 95c-30-15-75-5-95 25s-10 75 20 95 75 5 95-25 10-75-20-95z" stroke="#F9D976" strokeWidth="1.5" fill="none" />
-                  <circle cx="250" cy="95" r="4" fill="#B71C1C" />
-                  <circle cx="155" cy="120" r="4" fill="#B71C1C" />
-                  <circle cx="175" cy="195" r="4" fill="#B71C1C" />
+                  <circle cx="250" cy="95" r="4" fill="#DC0218" />
+                  <circle cx="155" cy="120" r="4" fill="#DC0218" />
+                  <circle cx="175" cy="195" r="4" fill="#DC0218" />
                 </g>
                 <text x="190" y="200" textAnchor="middle" dominantBaseline="central" fill="#1A1A1A" fontSize="14" fontWeight="600" opacity="0.6">MYSURU</text>
-                <circle cx="190" cy="200" r="20" fill="#B71C1C" opacity="0.1" stroke="#B71C1C" strokeWidth="2" />
-                <circle cx="190" cy="200" r="6" fill="#B71C1C" />
+                <circle cx="190" cy="200" r="20" fill="#DC0218" opacity="0.1" stroke="#DC0218" strokeWidth="2" />
+                <circle cx="190" cy="200" r="6" fill="#DC0218" />
               </svg>
               <motion.div
                 className="absolute"
@@ -86,7 +86,7 @@ export function DeliverySection() {
                 animate={{ x: [0, 200, 0], y: [0, 30, 0] }}
                 transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
               >
-                <Truck className="h-8 w-8 text-[#B71C1C]" />
+                <Truck className="h-8 w-8 text-[#DC0218]" />
               </motion.div>
             </div>
           </motion.div>

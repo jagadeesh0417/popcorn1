@@ -39,17 +39,17 @@ export default function AdminSubscribersPage() {
         <div className="px-8 py-8">
           <div className="flex items-center justify-between mb-8">
             <div>
-              <span className="text-[#B71C1C] font-semibold text-sm uppercase tracking-[0.2em]">Admin</span>
+              <span className="text-[#DC0218] font-semibold text-sm uppercase tracking-[0.2em]">Admin</span>
               <h1 className="text-3xl font-bold text-[#1A1A1A] mt-1">Subscribers</h1>
             </div>
-            <Button onClick={exportCSV} className="bg-[#B71C1C] hover:bg-[#8E1414] text-white rounded-xl">
+            <Button onClick={exportCSV} className="bg-[#DC0218] hover:bg-[#C70015] text-white rounded-xl">
               <Download className="h-4 w-4 mr-2" /> Export CSV
             </Button>
           </div>
-          <div className="bg-white rounded-2xl p-6 shadow-sm border border-[rgba(183,28,28,0.08)] overflow-x-auto">
+          <div className="bg-white rounded-2xl p-6 shadow-sm border border-[rgba(220,2,24,0.08)] overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-[rgba(183,28,28,0.08)] text-left text-[#666666]">
+                <tr className="border-b border-[rgba(220,2,24,0.08)] text-left text-[#666666]">
                   <th className="pb-3 font-medium">Email</th>
                   <th className="pb-3 font-medium">WhatsApp</th>
                   <th className="pb-3 font-medium">Consent</th>
@@ -61,7 +61,7 @@ export default function AdminSubscribersPage() {
                   <tr><td colSpan={4} className="py-8 text-center text-[#999999] text-sm">No subscribers yet.</td></tr>
                 ) : (
                   subscribers.map((s, i) => (
-                    <tr key={i} className="border-b border-[rgba(183,28,28,0.06)] last:border-0">
+                    <tr key={i} className="border-b border-[rgba(220,2,24,0.06)] last:border-0">
                       <td className="py-3 font-medium text-[#1A1A1A]">{s.email}</td>
                       <td className="py-3 text-[#666666]">{s.whatsappNumber}</td>
                       <td className="py-3">

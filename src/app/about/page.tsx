@@ -16,7 +16,7 @@ const values = [
 export default function AboutPage() {
   return (
     <div className="pt-20">
-      <section className="relative py-24 overflow-hidden bg-gradient-to-br from-[#B71C1C] via-[#C62828] to-[#D84315]">
+      <section className="relative py-24 overflow-hidden bg-gradient-to-br from-[#DC0218] via-[#DC0218] to-[#C70015]">
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMiIvPjwvZz48L2c+PC9zdmc+')] opacity-30" />
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
@@ -66,19 +66,19 @@ export default function AboutPage() {
               </h3>
               <ul className="space-y-4">
                 <li className="flex items-start gap-3">
-                  <span className="w-1.5 h-1.5 bg-[#B71C1C] mt-2 shrink-0" />
+                  <span className="w-1.5 h-1.5 bg-[#DC0218] mt-2 shrink-0" />
                   <span className="text-[#666666] text-sm leading-relaxed">Real butter, ghee, and quality oils.</span>
                 </li>
                 <li className="flex items-start gap-3">
-                  <span className="w-1.5 h-1.5 bg-[#B71C1C] mt-2 shrink-0" />
+                  <span className="w-1.5 h-1.5 bg-[#DC0218] mt-2 shrink-0" />
                   <span className="text-[#666666] text-sm leading-relaxed">No palm oil.</span>
                 </li>
                 <li className="flex items-start gap-3">
-                  <span className="w-1.5 h-1.5 bg-[#B71C1C] mt-2 shrink-0" />
+                  <span className="w-1.5 h-1.5 bg-[#DC0218] mt-2 shrink-0" />
                   <span className="text-[#666666] text-sm leading-relaxed">No artificial flavours or colours.</span>
                 </li>
                 <li className="flex items-start gap-3">
-                  <span className="w-1.5 h-1.5 bg-[#B71C1C] mt-2 shrink-0" />
+                  <span className="w-1.5 h-1.5 bg-[#DC0218] mt-2 shrink-0" />
                   <span className="text-[#666666] text-sm leading-relaxed">Indian-inspired flavours made with care.</span>
                 </li>
               </ul>
@@ -90,7 +90,7 @@ export default function AboutPage() {
       <section className="py-24 bg-[#FFF8F0]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-16">
-            <span className="text-[#B71C1C] font-semibold text-sm uppercase tracking-[0.2em]">Our Values</span>
+            <span className="text-[#DC0218] font-semibold text-sm uppercase tracking-[0.2em]">Our Values</span>
             <h2 className="text-3xl md:text-4xl font-bold mt-3 text-[#1A1A1A]">What We Stand For</h2>
           </motion.div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -99,10 +99,10 @@ export default function AboutPage() {
                 key={v.title}
                 initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
                 transition={{ delay: i * 0.08 }}
-                className="bg-white p-8 rounded-2xl shadow-sm border border-[rgba(183,28,28,0.08)] text-center group hover:shadow-md transition-all duration-300"
+                className="bg-white p-8 rounded-2xl shadow-sm border border-[rgba(220,2,24,0.08)] text-center group hover:shadow-md transition-all duration-300"
               >
-                <div className="w-14 h-14 mx-auto rounded-2xl bg-[#B71C1C]/5 flex items-center justify-center mb-4 group-hover:bg-[#B71C1C]/10 transition-colors">
-                  <v.icon className="h-7 w-7 text-[#B71C1C]" />
+                <div className="w-14 h-14 mx-auto rounded-2xl bg-[#DC0218]/5 flex items-center justify-center mb-4 group-hover:bg-[#DC0218]/10 transition-colors">
+                  <v.icon className="h-7 w-7 text-[#DC0218]" />
                 </div>
                 <h3 className="font-bold text-lg text-[#1A1A1A] mb-2">{v.title}</h3>
                 <p className="text-[#666666] text-sm leading-relaxed">{v.description}</p>
@@ -116,11 +116,11 @@ export default function AboutPage() {
         <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
             <h2 className="text-3xl md:text-4xl font-bold text-[#1A1A1A] mb-4">
-              Ready to <span className="text-[#B71C1C]">Taste</span> the Difference?
+              Ready to <span className="text-[#DC0218]">Taste</span> the Difference?
             </h2>
             <p className="text-[#666666] mb-8 max-w-md mx-auto">Join thousands of happy customers who&apos;ve made the switch to real, handcrafted popcorn.</p>
             <Link href="/shop">
-              <Button size="lg" className="bg-[#B71C1C] hover:bg-[#8E1414] text-white rounded-2xl px-10 h-14 text-base shadow-lg shadow-[#B71C1C]/20">
+              <Button size="lg" className="bg-[#DC0218] hover:bg-[#C70015] text-white rounded-2xl px-10 h-14 text-base shadow-lg shadow-[#DC0218]/20">
                 Shop Our Flavours
               </Button>
             </Link>

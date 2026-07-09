@@ -14,7 +14,7 @@ export function Footer() {
           <div>
             <div className="flex items-center gap-2.5 mb-4">
               <div className="w-9 h-9 bg-white flex items-center justify-center">
-                <span className="text-[#8E1414] font-bold text-base">P</span>
+                <span className="text-[#C70015] font-bold text-base">P</span>
               </div>
               <span className="font-semibold text-lg" style={{ fontFamily: "var(--font-playfair)" }}>Poprika</span>
             </div>

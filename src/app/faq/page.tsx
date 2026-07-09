@@ -58,7 +58,7 @@ export default function FAQPage() {
 
   return (
     <div className="pt-20">
-      <section className="relative py-24 overflow-hidden bg-gradient-to-br from-[#B71C1C] via-[#C62828] to-[#D84315]">
+      <section className="relative py-24 overflow-hidden bg-gradient-to-br from-[#DC0218] via-[#DC0218] to-[#C70015]">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight">
@@ -80,7 +80,7 @@ export default function FAQPage() {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search FAQs..."
-                className="pl-12 rounded-xl border-[rgba(183,28,28,0.12)]"
+                className="pl-12 rounded-xl border-[rgba(220,2,24,0.12)]"
               />
             </div>
           </motion.div>
@@ -91,14 +91,14 @@ export default function FAQPage() {
                 key={i}
                 initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
                 transition={{ delay: i * 0.03 }}
-                className="border border-[rgba(183,28,28,0.1)] rounded-2xl overflow-hidden"
+                className="border border-[rgba(220,2,24,0.1)] rounded-2xl overflow-hidden"
               >
                 <button
                   onClick={() => setOpenIndex(openIndex === i ? null : i)}
                   className="w-full flex items-center justify-between p-5 text-left bg-white hover:bg-[#FFF8F0] transition-colors"
                 >
                   <span className="font-semibold text-[#1A1A1A] text-sm pr-4">{faq.q}</span>
-                  <ChevronDown className={`h-5 w-5 text-[#B71C1C] shrink-0 transition-transform duration-300 ${openIndex === i ? "rotate-180" : ""}`} />
+                  <ChevronDown className={`h-5 w-5 text-[#DC0218] shrink-0 transition-transform duration-300 ${openIndex === i ? "rotate-180" : ""}`} />
                 </button>
                 {openIndex === i && (
                   <div className="px-5 pb-5">

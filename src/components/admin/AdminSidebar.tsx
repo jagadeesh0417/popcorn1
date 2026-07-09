@@ -21,11 +21,11 @@ export function AdminSidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="fixed left-0 top-0 h-full w-64 bg-[#8E1414] z-40 flex flex-col shadow-2xl">
+    <aside className="fixed left-0 top-0 h-full w-64 bg-[#C70015] z-40 flex flex-col shadow-2xl">
       <div className="p-6 border-b border-white/10">
         <Link href="/admin" className="flex items-center gap-2.5">
           <div className="w-9 h-9 bg-white flex items-center justify-center shadow-lg">
-            <span className="text-[#8E1414] font-bold text-base">P</span>
+            <span className="text-[#C70015] font-bold text-base">P</span>
           </div>
           <div>
             <span className="text-white font-bold text-lg">Poprika</span>

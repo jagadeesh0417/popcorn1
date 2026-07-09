@@ -43,7 +43,7 @@ export default function CartPage() {
           <h2 className="text-2xl font-bold text-[#1A1A1A] mb-2">Your cart is empty</h2>
           <p className="text-[#666666] mb-6">Looks like you haven&apos;t added any popcorn yet.</p>
           <Link href="/shop">
-            <Button className="bg-[#B71C1C] hover:bg-[#8E1414] text-white rounded-xl">Start Shopping</Button>
+            <Button className="bg-[#DC0218] hover:bg-[#C70015] text-white rounded-xl">Start Shopping</Button>
           </Link>
         </div>
       </div>
@@ -55,11 +55,11 @@ export default function CartPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <span className="text-[#B71C1C] font-semibold text-sm uppercase tracking-[0.2em]">Cart</span>
+            <span className="text-[#DC0218] font-semibold text-sm uppercase tracking-[0.2em]">Cart</span>
             <h1 className="text-3xl font-bold text-[#1A1A1A] mt-1">Shopping Cart ({getItemCount()} items)</h1>
           </div>
           <Link href="/shop">
-            <Button variant="outline" size="sm" className="rounded-xl border-[rgba(183,28,28,0.2)] text-[#1A1A1A]">
+            <Button variant="outline" size="sm" className="rounded-xl border-[rgba(220,2,24,0.2)] text-[#1A1A1A]">
               <ArrowLeft className="mr-2 h-4 w-4" /> Continue Shopping
             </Button>
           </Link>
@@ -69,12 +69,12 @@ export default function CartPage() {
         <div className={`mb-6 p-4 text-sm font-medium flex items-center gap-2.5 border ${
           isFree
             ? "bg-green-50 border-green-200 text-green-700"
-            : "bg-[#FFF8F0] border-[rgba(183,28,28,0.12)] text-[#1A1A1A]"
+            : "bg-[#FFF8F0] border-[rgba(220,2,24,0.12)] text-[#1A1A1A]"
         }`}>
           {isFree ? (
             <span>🎉 Congratulations! Your order qualifies for FREE delivery.</span>
           ) : (
-            <span>Add <span className="font-bold text-[#B71C1C]">₹{remains}</span> more to unlock <span className="font-bold">free shipping</span>!</span>
+            <span>Add <span className="font-bold text-[#DC0218]">₹{remains}</span> more to unlock <span className="font-bold">free shipping</span>!</span>
           )}
         </div>
 
@@ -86,7 +86,7 @@ export default function CartPage() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.05 }}
-                className="flex gap-4 p-4 bg-white rounded-2xl border border-[rgba(183,28,28,0.08)] shadow-sm"
+                className="flex gap-4 p-4 bg-white rounded-2xl border border-[rgba(220,2,24,0.08)] shadow-sm"
               >
                 <Link href={`/products/${item.product.slug}`}>
                   <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-xl overflow-hidden bg-[#FFF8F0] shrink-0">
@@ -95,11 +95,11 @@ export default function CartPage() {
                 </Link>
                 <div className="flex-1 min-w-0">
                   <Link href={`/products/${item.product.slug}`}>
-                    <h3 className="font-semibold text-[#1A1A1A] hover:text-[#B71C1C] transition-colors">{item.product.name}</h3>
+                    <h3 className="font-semibold text-[#1A1A1A] hover:text-[#DC0218] transition-colors">{item.product.name}</h3>
                   </Link>
                   <p className="text-xs text-[#666666] mt-0.5">{item.product.weight}</p>
                   <div className="flex items-center justify-between mt-3">
-                    <div className="flex items-center border border-[rgba(183,28,28,0.15)] rounded-lg overflow-hidden">
+                    <div className="flex items-center border border-[rgba(220,2,24,0.15)] rounded-lg overflow-hidden">
                       <button onClick={() => updateQuantity(item.product.id, item.quantity - 1)} className="p-1.5 hover:bg-[#FFF8F0] transition-colors">
                         <Minus className="h-3.5 w-3.5 text-[#1A1A1A]" />
                       </button>
@@ -109,8 +109,8 @@ export default function CartPage() {
                       </button>
                     </div>
                     <div className="flex items-center gap-3">
-                      <span className="font-bold text-lg text-[#B71C1C]">₹{item.product.price * item.quantity}</span>
-                      <button onClick={() => removeItem(item.product.id)} className="text-[#666666] hover:text-[#B71C1C] transition-colors">
+                      <span className="font-bold text-lg text-[#DC0218]">₹{item.product.price * item.quantity}</span>
+                      <button onClick={() => removeItem(item.product.id)} className="text-[#666666] hover:text-[#DC0218] transition-colors">
                         <Trash2 className="h-4 w-4" />
                       </button>
                     </div>
@@ -141,15 +141,15 @@ export default function CartPage() {
                 {!isFree && (
                   <p className="text-xs text-[#666666]">Free shipping on orders above ₹{shippingCtx.settings.freeShippingThreshold}</p>
                 )}
-                <Separator className="bg-[rgba(183,28,28,0.08)]" />
+                <Separator className="bg-[rgba(220,2,24,0.08)]" />
                 <div className="flex justify-between text-lg">
                   <span className="font-bold text-[#1A1A1A]">Total</span>
-                  <span className="font-bold text-[#B71C1C]">₹{getSubtotal() - getDiscount() + (isFree ? 0 : shippingCtx.settings.panIndiaShippingFee)}</span>
+                  <span className="font-bold text-[#DC0218]">₹{getSubtotal() - getDiscount() + (isFree ? 0 : shippingCtx.settings.panIndiaShippingFee)}</span>
                 </div>
               </div>
 
               {couponMsg && (
-                <p className={`text-xs mt-3 ${couponMsg.includes("successfully") ? "text-green-600" : "text-[#B71C1C]"}`}>{couponMsg}</p>
+                <p className={`text-xs mt-3 ${couponMsg.includes("successfully") ? "text-green-600" : "text-[#DC0218]"}`}>{couponMsg}</p>
               )}
 
               <div className="flex gap-2 mt-4">
@@ -159,14 +159,14 @@ export default function CartPage() {
                     value={couponInput}
                     onChange={(e) => setCouponInput(e.target.value)}
                     placeholder="Coupon code"
-                    className="pl-9 rounded-xl border-[rgba(183,28,28,0.12)]"
+                    className="pl-9 rounded-xl border-[rgba(220,2,24,0.12)]"
                   />
                 </div>
-                <Button variant="outline" onClick={handleApplyCoupon} className="rounded-xl border-[rgba(183,28,28,0.2)] text-[#B71C1C]">Apply</Button>
+                <Button variant="outline" onClick={handleApplyCoupon} className="rounded-xl border-[rgba(220,2,24,0.2)] text-[#DC0218]">Apply</Button>
               </div>
 
               <Link href="/checkout">
-                <Button className="w-full mt-4 bg-[#B71C1C] hover:bg-[#8E1414] text-white rounded-xl h-12 text-base shadow-lg shadow-[#B71C1C]/20">
+                <Button className="w-full mt-4 bg-[#DC0218] hover:bg-[#C70015] text-white rounded-xl h-12 text-base shadow-lg shadow-[#DC0218]/20">
                   Proceed to Checkout — ₹{getSubtotal() - getDiscount() + (isFree ? 0 : shippingCtx.settings.panIndiaShippingFee)}
                 </Button>
               </Link>

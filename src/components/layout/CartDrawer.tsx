@@ -21,12 +21,12 @@ export function CartDrawer() {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="fixed bottom-6 left-6 z-40 w-14 h-14 rounded-full bg-[#B71C1C] text-white flex items-center justify-center shadow-xl hover:scale-110 transition-transform duration-200 md:hidden"
+        className="fixed bottom-6 left-6 z-40 w-14 h-14 rounded-full bg-[#DC0218] text-white flex items-center justify-center shadow-xl hover:scale-110 transition-transform duration-200 md:hidden"
         aria-label="Open cart"
       >
         <ShoppingBag className="h-6 w-6" />
         {getItemCount() > 0 && (
-          <span className="absolute -top-1 -right-1 bg-white text-[#B71C1C] text-[10px] font-bold rounded-full h-5 w-5 flex items-center justify-center shadow-md">
+          <span className="absolute -top-1 -right-1 bg-white text-[#DC0218] text-[10px] font-bold rounded-full h-5 w-5 flex items-center justify-center shadow-md">
             {getItemCount()}
           </span>
         )}
@@ -49,7 +49,7 @@ export function CartDrawer() {
               transition={{ type: "spring", damping: 25, stiffness: 250 }}
               className="fixed top-0 right-0 bottom-0 w-full max-w-md bg-white z-50 shadow-2xl flex flex-col"
             >
-              <div className="flex items-center justify-between p-6 border-b border-[rgba(183,28,28,0.08)]">
+              <div className="flex items-center justify-between p-6 border-b border-[rgba(220,2,24,0.08)]">
                 <h2 className="text-xl font-semibold" style={{ fontFamily: "var(--font-playfair)" }}>Your Cart</h2>
                 <button onClick={() => setOpen(false)} className="p-2 hover:bg-[#FFF8F0] rounded transition-colors">
                   <X className="h-5 w-5" />
@@ -58,10 +58,10 @@ export function CartDrawer() {
 
               {state.items.length === 0 ? (
                 <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
-                  <ShoppingBag className="h-16 w-16 text-[#B71C1C]/20 mb-4" />
+                  <ShoppingBag className="h-16 w-16 text-[#DC0218]/20 mb-4" />
                   <p className="text-[#666666] mb-2">Your cart is empty. Go find something good.</p>
                   <Link href="/shop" onClick={() => setOpen(false)}>
-                    <Button className="bg-[#B71C1C] hover:bg-[#8E1414] text-white btn-small-caps">
+                    <Button className="bg-[#DC0218] hover:bg-[#C70015] text-white btn-small-caps">
                       Browse Flavors
                     </Button>
                   </Link>
@@ -70,13 +70,13 @@ export function CartDrawer() {
                 <>
                   <div className="flex-1 overflow-y-auto p-6 space-y-4">
                     {state.items.map((item) => (
-                      <div key={item.product.id} className="flex gap-4 border-b border-[rgba(183,28,28,0.06)] pb-4">
+                      <div key={item.product.id} className="flex gap-4 border-b border-[rgba(220,2,24,0.06)] pb-4">
                         <div className="w-20 h-20 bg-[#FFF8F0] rounded flex items-center justify-center text-2xl shrink-0">
                           🍿
                         </div>
                         <div className="flex-1 min-w-0">
                           <h4 className="font-medium text-sm text-[#1A1A1A]">{item.product.name}</h4>
-                          <p className="text-[#B71C1C] font-semibold text-sm mt-1">₹{item.product.price}</p>
+                          <p className="text-[#DC0218] font-semibold text-sm mt-1">₹{item.product.price}</p>
                           <div className="flex items-center gap-3 mt-2">
                             <button
                               onClick={() => updateQuantity(item.product.id, item.quantity - 1)}
@@ -99,13 +99,13 @@ export function CartDrawer() {
                       </div>
                     ))}
                   </div>
-                  <div className="p-6 border-t border-[rgba(183,28,28,0.08)] space-y-3">
+                  <div className="p-6 border-t border-[rgba(220,2,24,0.08)] space-y-3">
                     <div className="flex justify-between text-sm">
                       <span className="text-[#666666]">Subtotal</span>
                       <span className="font-semibold">₹{getSubtotal()}</span>
                     </div>
                     <Link href="/checkout" onClick={() => setOpen(false)}>
-                      <Button className="w-full bg-[#B71C1C] hover:bg-[#8E1414] text-white btn-small-caps h-12">
+                      <Button className="w-full bg-[#DC0218] hover:bg-[#C70015] text-white btn-small-caps h-12">
                         Checkout
                       </Button>
                     </Link>

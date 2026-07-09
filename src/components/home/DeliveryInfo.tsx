@@ -29,8 +29,8 @@ export function DeliveryInfo() {
             whileHover={{ y: -4, boxShadow: "0 12px 35px rgba(0,0,0,0.06)" }}
             className="bg-[#FFFDF9] p-8 border border-[rgba(0,0,0,0.05)] shadow-[0_4px_20px_rgba(0,0,0,0.03)] transition-all duration-300"
           >
-            <div className="w-12 h-12 flex items-center justify-center mb-5 bg-[#FFF8F0] border border-[rgba(183,28,28,0.1)]">
-              <MapPin className="h-5 w-5 text-[#B71C1C]" />
+            <div className="w-12 h-12 flex items-center justify-center mb-5 bg-[#FFF8F0] border border-[rgba(220,2,24,0.1)]">
+              <MapPin className="h-5 w-5 text-[#DC0218]" />
             </div>
             <h3 className="font-semibold text-sm uppercase tracking-[0.06em] text-[#1A1A1A]">Local to Mysuru?</h3>
             <p className="text-[#666666] text-xs mt-3 leading-relaxed">
@@ -48,8 +48,8 @@ export function DeliveryInfo() {
             whileHover={{ y: -4, boxShadow: "0 12px 35px rgba(0,0,0,0.06)" }}
             className="bg-[#FFFDF9] p-8 border border-[rgba(0,0,0,0.05)] shadow-[0_4px_20px_rgba(0,0,0,0.03)] transition-all duration-300"
           >
-            <div className="w-12 h-12 flex items-center justify-center mb-5 bg-[#FFF8F0] border border-[rgba(183,28,28,0.1)]">
-              <Truck className="h-5 w-5 text-[#B71C1C]" />
+            <div className="w-12 h-12 flex items-center justify-center mb-5 bg-[#FFF8F0] border border-[rgba(220,2,24,0.1)]">
+              <Truck className="h-5 w-5 text-[#DC0218]" />
             </div>
             <h3 className="font-semibold text-sm uppercase tracking-[0.06em] text-[#1A1A1A]">Everywhere else in India</h3>
             <p className="text-[#666666] text-xs mt-3 leading-relaxed">

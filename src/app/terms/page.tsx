@@ -29,7 +29,7 @@ const sections = [
 export default function TermsPage() {
   return (
     <div className="pt-20">
-      <section className="relative py-24 overflow-hidden bg-gradient-to-br from-[#B71C1C] via-[#C62828] to-[#D84315]">
+      <section className="relative py-24 overflow-hidden bg-gradient-to-br from-[#DC0218] via-[#DC0218] to-[#C70015]">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight">
@@ -60,11 +60,11 @@ export default function TermsPage() {
                 key={s.title}
                 initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
                 transition={{ delay: i * 0.08 }}
-                className="bg-[#FFF8F0] p-8 rounded-2xl border border-[rgba(183,28,28,0.08)]"
+                className="bg-[#FFF8F0] p-8 rounded-2xl border border-[rgba(220,2,24,0.08)]"
               >
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-[#B71C1C]/5 flex items-center justify-center shrink-0">
-                    <s.icon className="h-6 w-6 text-[#B71C1C]" />
+                  <div className="w-12 h-12 rounded-xl bg-[#DC0218]/5 flex items-center justify-center shrink-0">
+                    <s.icon className="h-6 w-6 text-[#DC0218]" />
                   </div>
                   <div>
                     <h3 className="text-xl font-bold text-[#1A1A1A] mb-2">{s.title}</h3>
@@ -77,10 +77,10 @@ export default function TermsPage() {
 
           <motion.div
             initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
-            className="mt-12 p-6 rounded-2xl border border-[rgba(183,28,28,0.08)] text-center"
+            className="mt-12 p-6 rounded-2xl border border-[rgba(220,2,24,0.08)] text-center"
           >
             <p className="text-[#666666] text-sm">
-              For any questions regarding these terms, contact us at <strong className="text-[#B71C1C]">poprika.official@gmail.com</strong>
+              For any questions regarding these terms, contact us at <strong className="text-[#DC0218]">poprika.official@gmail.com</strong>
             </p>
           </motion.div>
         </div>

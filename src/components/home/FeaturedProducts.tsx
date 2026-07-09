@@ -21,7 +21,7 @@ export function FeaturedProducts() {
           viewport={{ once: true, margin: "-100px" }}
           className="text-center mb-16"
         >
-          <span className="text-[#B71C1C] font-semibold text-sm uppercase tracking-[0.2em]">Our Collection</span>
+          <span className="text-[#DC0218] font-semibold text-sm uppercase tracking-[0.2em]">Our Collection</span>
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mt-3 text-[#1A1A1A]">
             Our Best Selling Flavours
           </h2>
@@ -39,7 +39,7 @@ export function FeaturedProducts() {
               viewport={{ once: true, margin: "-50px" }}
               transition={{ delay: index * 0.08 }}
               whileHover={{ y: -8 }}
-              className="group bg-white rounded-[28px] overflow-hidden shadow-[0_2px_20px_rgba(0,0,0,0.04)] hover:shadow-[0_10px_40px_rgba(0,0,0,0.06)] transition-all duration-500 border border-[rgba(183,28,28,0.08)]"
+              className="group bg-white rounded-[28px] overflow-hidden shadow-[0_2px_20px_rgba(0,0,0,0.04)] hover:shadow-[0_10px_40px_rgba(0,0,0,0.06)] transition-all duration-500 border border-[rgba(220,2,24,0.08)]"
             >
               <Link href={`/products/${product.slug}`}>
                 <div className="relative h-56 overflow-hidden bg-[#FFF8F0]">
@@ -51,12 +51,12 @@ export function FeaturedProducts() {
                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                   />
                   {product.originalPrice && (
-                    <div className="absolute top-3 left-3 bg-[#B71C1C] text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg">
+                    <div className="absolute top-3 left-3 bg-[#DC0218] text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg">
                       SAVE ₹{product.originalPrice - product.price}
                     </div>
                   )}
                   {product.isBestSeller && (
-                    <div className="absolute top-3 right-3 bg-[#F9D976] text-[#8E1414] text-xs font-bold px-3 py-1.5 rounded-full flex items-center gap-1 shadow-lg">
+                    <div className="absolute top-3 right-3 bg-[#F9D976] text-[#C70015] text-xs font-bold px-3 py-1.5 rounded-full flex items-center gap-1 shadow-lg">
                       <Star className="h-3 w-3 fill-current" /> Best Seller
                     </div>
                   )}
@@ -64,21 +64,21 @@ export function FeaturedProducts() {
               </Link>
               <div className="p-5">
                 <Link href={`/products/${product.slug}`}>
-                  <h3 className="font-bold text-base text-[#1A1A1A] group-hover:text-[#B71C1C] transition-colors">
+                  <h3 className="font-bold text-base text-[#1A1A1A] group-hover:text-[#DC0218] transition-colors">
                     {product.name}
                   </h3>
                 </Link>
                 <p className="text-[#666666] text-xs mt-1.5 line-clamp-2 leading-relaxed">{product.shortDescription}</p>
-                <div className="flex items-center justify-between mt-4 pt-4 border-t border-[rgba(183,28,28,0.08)]">
+                <div className="flex items-center justify-between mt-4 pt-4 border-t border-[rgba(220,2,24,0.08)]">
                   <div className="flex items-center gap-2">
-                    <span className="text-xl font-bold text-[#B71C1C]">₹{product.price}</span>
+                    <span className="text-xl font-bold text-[#DC0218]">₹{product.price}</span>
                     {product.originalPrice && (
                       <span className="text-[#666666] line-through text-sm">₹{product.originalPrice}</span>
                     )}
                   </div>
                   <Button
                     size="sm"
-                    className="bg-[#B71C1C] hover:bg-[#8E1414] text-white rounded-xl text-xs px-4 h-9 transition-all duration-300"
+                    className="bg-[#DC0218] hover:bg-[#C70015] text-white rounded-xl text-xs px-4 h-9 transition-all duration-300"
                     onClick={() => addItem(product)}
                   >
                     <ShoppingBag className="h-3.5 w-3.5 mr-1.5" />
@@ -100,7 +100,7 @@ export function FeaturedProducts() {
             <Button
               variant="outline"
               size="lg"
-              className="rounded-2xl border-[#B71C1C] text-[#B71C1C] hover:bg-[#B71C1C] hover:text-white px-10 transition-all duration-300"
+              className="rounded-2xl border-[#DC0218] text-[#DC0218] hover:bg-[#DC0218] hover:text-white px-10 transition-all duration-300"
             >
               View All Flavours
             </Button>
