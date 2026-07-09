@@ -4,8 +4,8 @@ import { motion } from "framer-motion";
 
 const points = [
   {
-    title: "No palm oil. Ever.",
-    description: "We use cow ghee amul butter. That's it. No hydrogenated fats, no cheap substitutes.",
+    title: "No Palm Oil. Ever.",
+    description: "We use real butter, cow ghee, and refined sunflower oil—nothing hydrogenated. No palm oil, no vanaspati, no cheap substitutes.",
     svg: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
         <path d="M12 2a8 8 0 0 0-8 8c0 4 8 10 8 10s8-6 8-10a8 8 0 0 0-8-8z" />
@@ -15,8 +15,8 @@ const points = [
     ),
   },
   {
-    title: "Real spices, not preservatives",
-    description: "No flavor mixes, no seasoning powders, no anti-caking agents. Bold Indian flavors built from single spices, the way they're meant to be tasted.",
+    title: "Real Spices. Nothing Artificial.",
+    description: "Every flavour is made from real spices and quality ingredients. No MSG, no artificial flavours, no artificial colours, and no unnecessary additives.",
     svg: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
         <path d="M12 2L2 7l10 5 10-5-10-5z" />
