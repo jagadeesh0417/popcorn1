@@ -24,14 +24,14 @@ const bundleImages = [
 ];
 
 export function BundleCard() {
-  const [selectedBundle, setSelectedBundle] = useState<string | null>(null);
+  const [selectedBundle, setSelectedBundle] = useState<string>(bundleSizes[0]);
   const [currentImage, setCurrentImage] = useState(0);
 
-  const bundleData = selectedBundle ? bundlePrices[selectedBundle] : null;
+  const bundleData = bundlePrices[selectedBundle];
 
   const handleAddBundle = () => {
     if (!bundleData) return;
-    toast.success(`Added The Trio (${selectedBundle}) to cart!`);
+    toast.success(`Added Bundle to Cart ✓`);
   };
 
   const nextImage = () => setCurrentImage((prev) => (prev + 1) % bundleImages.length);
@@ -130,34 +130,23 @@ export function BundleCard() {
                 })}
               </div>
 
-              {bundleData && (
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="mt-5 flex items-baseline gap-3"
-                >
-                  <span className="text-2xl font-semibold text-[#1A1A1A]" style={{ fontFamily: "var(--font-playfair)" }}>
-                    ₹{bundleData.price}
-                  </span>
-                  <span className="bg-green-100 text-green-700 text-[10px] font-semibold px-2 py-0.5 uppercase tracking-wider">
-                    Save ₹{bundleData.savings}
-                  </span>
-                </motion.div>
-              )}
-
-              {!selectedBundle && (
-                <p className="text-[#999999] text-[11px] mt-3 uppercase tracking-[0.06em]">Select a size above</p>
-              )}
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mt-5 flex items-baseline gap-3"
+              >
+                <span className="text-2xl font-semibold text-[#1A1A1A]" style={{ fontFamily: "var(--font-playfair)" }}>
+                  ₹{bundleData.price}
+                </span>
+                <span className="bg-green-100 text-green-700 text-[10px] font-semibold px-2 py-0.5 uppercase tracking-wider">
+                  Save ₹{bundleData.savings}
+                </span>
+              </motion.div>
 
               <motion.div whileTap={{ scale: 0.97 }} className="mt-6">
                 <Button
                   onClick={handleAddBundle}
-                  disabled={!selectedBundle}
-                  className={`w-full md:w-auto btn-small-caps px-10 h-12 transition-all duration-200 ${
-                    selectedBundle
-                      ? "bg-[#DC0218] hover:bg-[#C70015] text-white shadow-lg shadow-[#DC0218]/20 hover:shadow-[#DC0218]/30"
-                      : "bg-[#E0E0E0] text-[#999999] cursor-not-allowed"
-                  }`}
+                  className={`w-full md:w-auto btn-small-caps px-10 h-12 rounded-xl transition-all duration-200 bg-[#DC0218] hover:bg-[#C70015] text-white shadow-lg shadow-[#DC0218]/20 hover:shadow-[#DC0218]/30`}
                 >
                   <ShoppingBag className="h-3.5 w-3.5 mr-2" /> Add Bundle to Cart
                 </Button>

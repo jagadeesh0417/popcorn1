@@ -6,10 +6,17 @@ import { ShoppingBag, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/lib/store";
 import { trioProducts } from "@/lib/data";
+import { toast } from "sonner";
 
 export function ProductGrid() {
   const { addItem } = useCart();
-  const [selectedSizes, setSelectedSizes] = useState<Record<string, string>>({});
+  const initialSizes: Record<string, string> = {};
+  trioProducts.forEach((p) => {
+    if (p.sizes && p.sizes.length > 0) {
+      initialSizes[p.id] = p.sizes[0].label;
+    }
+  });
+  const [selectedSizes, setSelectedSizes] = useState<Record<string, string>>(initialSizes);
   const [addedFeedback, setAddedFeedback] = useState<Record<string, boolean>>({});
 
   const handleSizeSelect = (productId: string, label: string) => {
@@ -23,6 +30,7 @@ export function ProductGrid() {
     const productToAdd = { ...product, price: size?.price || product.price };
     addItem(productToAdd);
     setAddedFeedback((prev) => ({ ...prev, [product.id]: true }));
+    toast.success("Added to Cart ✓");
     setTimeout(() => {
       setAddedFeedback((prev) => ({ ...prev, [product.id]: false }));
     }, 1500);
@@ -101,23 +109,16 @@ export function ProductGrid() {
                   </div>
 
                   <div className="mt-3 h-5">
-                    {selectedSize ? (
-                      <p className="text-sm font-semibold text-[#DC0218]">₹{displayPrice}</p>
-                    ) : (
-                      <p className="text-[#999999] text-[11px] uppercase tracking-[0.06em]">Select a size</p>
-                    )}
+                    <p className="text-sm font-semibold text-[#DC0218]">₹{displayPrice}</p>
                   </div>
 
                   <motion.div whileTap={{ scale: 0.97 }}>
                     <Button
                       onClick={() => handleAddToCart(product)}
-                      disabled={!selectedSize}
-                      className={`w-full mt-4 btn-small-caps h-11 transition-all duration-200 ${
+                      className={`w-full mt-4 btn-small-caps h-11 rounded-xl transition-all duration-200 ${
                         addedFeedback[product.id]
                           ? "bg-green-600 text-white shadow-lg shadow-green-600/20"
-                          : selectedSize
-                            ? "bg-[#DC0218] hover:bg-[#C70015] text-white shadow-lg shadow-[#DC0218]/20 hover:shadow-[#DC0218]/30"
-                            : "bg-[#E0E0E0] text-[#999999] cursor-not-allowed"
+                          : "bg-[#DC0218] hover:bg-[#C70015] text-white shadow-lg shadow-[#DC0218]/20 hover:shadow-[#DC0218]/30"
                       }`}
                     >
                       {addedFeedback[product.id] ? (

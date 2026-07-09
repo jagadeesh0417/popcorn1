@@ -12,6 +12,7 @@ import { Separator } from "@/components/ui/separator";
 import { useCart } from "@/lib/store";
 import { getProductBySlug, getRelatedProducts } from "@/lib/data";
 import { notFound } from "next/navigation";
+import { toast } from "sonner";
 
 export default function ProductDetailPage() {
   const params = useParams();
@@ -19,7 +20,7 @@ export default function ProductDetailPage() {
   const product = getProductBySlug(slug);
   const { addItem } = useCart();
   const [quantity, setQuantity] = useState(1);
-  const [selectedSize, setSelectedSize] = useState<string | null>(null);
+  const [selectedSize, setSelectedSize] = useState<string>(product?.sizes?.[0]?.label ?? "");
   const [activeTab, setActiveTab] = useState<"description" | "ingredients" | "nutrition" | "reviews">("description");
   const [added, setAdded] = useState(false);
 
@@ -35,6 +36,7 @@ export default function ProductDetailPage() {
     addItem({ ...product, price: displayPrice }, quantity);
     setAdded(true);
     setQuantity(1);
+    toast.success("Added to Cart ✓");
     setTimeout(() => setAdded(false), 1500);
   };
 
@@ -102,9 +104,9 @@ export default function ProductDetailPage() {
 
             <div className="flex items-baseline gap-3 mb-6">
               <span className="text-3xl font-bold text-[#1A1A1A]" style={{ fontFamily: "var(--font-playfair)" }}>
-                {currentSize ? `₹${displayPrice}` : "Select a size"}
+                ₹{displayPrice}
               </span>
-              {currentSize && <span className="text-sm text-[#666666]">/ {currentSize.grams}g</span>}
+              <span className="text-sm text-[#666666]">/ {currentSize?.grams}g</span>
             </div>
 
             <div className="flex items-center gap-4 mt-auto">
@@ -121,12 +123,10 @@ export default function ProductDetailPage() {
                 size="lg"
                 disabled={!currentSize}
                 onClick={handleAdd}
-                className={`flex-1 h-12 text-base transition-all ${
+                className={`flex-1 h-12 text-base rounded-xl transition-all ${
                   added
                     ? "bg-green-600 text-white"
-                    : currentSize
-                      ? "bg-[#DC0218] hover:bg-[#C70015] text-white"
-                      : "bg-[#E0E0E0] text-[#999999] cursor-not-allowed"
+                    : "bg-[#DC0218] hover:bg-[#C70015] text-white"
                 }`}
               >
                 {added ? (
@@ -136,10 +136,6 @@ export default function ProductDetailPage() {
                 )}
               </Button>
             </div>
-
-            {!currentSize && (
-              <p className="text-[#999999] text-xs mt-2">Select a size above to add to cart.</p>
-            )}
 
             <div className="grid grid-cols-3 gap-3 mt-8">
               {[
