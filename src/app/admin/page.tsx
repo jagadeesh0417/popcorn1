@@ -21,7 +21,6 @@ export default function AdminDashboard() {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("poprika.official@gmail.com");
   const [password, setPassword] = useState("");
-
   const [stats, setStats] = useState([
     { icon: IndianRupee, label: "Total Revenue", value: "₹0", change: "0%", up: true },
     { icon: ShoppingBag, label: "Total Orders", value: "0", change: "0%", up: true },
@@ -38,26 +37,29 @@ export default function AdminDashboard() {
       fetch("/api/products").then((r) => r.json()),
       fetch("/api/customers").then((r) => r.json()),
     ]).then(([orders, products, customers]) => {
-      const totalRevenue = orders.reduce((s: number, o: { total: number }) => s + (o.total || 0), 0);
-      const pendingOrders = orders.filter((o: { status: string }) => o.status === "pending").length;
-      const lowStock = products.filter((p: { stockQuantity: number }) => (p.stockQuantity || 0) <= 10).length;
-      const uniqueCustomers = customers.length;
+      const ordersArr = Array.isArray(orders) ? orders : [];
+      const productsArr = Array.isArray(products) ? products : [];
+      const customersArr = Array.isArray(customers) ? customers : [];
+      const totalRevenue = ordersArr.reduce((s: number, o: { total: number }) => s + (o.total || 0), 0);
+      const pendingOrders = ordersArr.filter((o: { status: string }) => o.status === "pending").length;
+      const lowStock = productsArr.filter((p: { stockQuantity: number }) => (p.stockQuantity || 0) <= 10).length;
+      const uniqueCustomers = customersArr.length;
 
       setStats([
         { icon: IndianRupee, label: "Total Revenue", value: `₹${totalRevenue.toLocaleString()}`, change: "", up: true },
-        { icon: ShoppingBag, label: "Total Orders", value: `${orders.length}`, change: "", up: true },
+        { icon: ShoppingBag, label: "Total Orders", value: `${ordersArr.length}`, change: "", up: true },
         { icon: Users, label: "Total Customers", value: `${uniqueCustomers}`, change: "", up: true },
-        { icon: Package, label: "Products", value: `${products.length}`, change: "", up: true },
+        { icon: Package, label: "Products", value: `${productsArr.length}`, change: "", up: true },
       ]);
 
       setRecentOrders(
-        orders.slice(0, 4).map((o: { orderId: string; customerDetails: { firstName: string; lastName: string }; items: { quantity: number }[]; total: number; status: string; createdAt: string }) => ({
+        ordersArr.slice(0, 4).map((o: { orderId: string; customerDetails: { firstName: string; lastName: string }; items: { quantity: number }[]; total: number; status: string; createdAt: string }) => ({
           id: o.orderId,
-          customer: `${o.customerDetails.firstName} ${o.customerDetails.lastName}`,
-          items: o.items.reduce((s: number, i: { quantity: number }) => s + i.quantity, 0),
+          customer: `${o.customerDetails?.firstName || ""} ${o.customerDetails?.lastName || ""}`,
+          items: o.items?.reduce((s: number, i: { quantity: number }) => s + i.quantity, 0) || 0,
           total: o.total,
           status: o.status,
-          date: new Date(o.createdAt).toLocaleDateString(),
+          date: o.createdAt ? new Date(o.createdAt).toLocaleDateString() : "",
         }))
       );
 
@@ -66,7 +68,7 @@ export default function AdminDashboard() {
         { label: "Low Stock Items", value: `${lowStock}`, color: lowStock > 0 ? "bg-[#DC0218] text-white" : "bg-green-100 text-green-700" },
         { label: "Total Customers", value: `${uniqueCustomers} customers`, color: "text-[#444444]" },
       ]);
-    }).catch(() => {});
+    }).catch((e) => console.error("Failed to load dashboard data", e));
   }, [isLogin]);
 
   if (isLogin) {

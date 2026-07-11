@@ -21,11 +21,13 @@ export default function AdminCouponsPage() {
   const [coupons, setCoupons] = useState<Coupon[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
+  const [error, setError] = useState("");
+
   const [form, setForm] = useState({ code: "", discount: 0, type: "percentage" as "percentage" | "fixed", minAmount: 0, maxUses: 100, expiryDate: "", isActive: true });
 
   useEffect(() => {
     let mounted = true;
-    fetch("/api/coupons").then((r) => r.json()).then((data) => { if (mounted) { setCoupons(data); setLoading(false); } }).catch(() => { if (mounted) setLoading(false); });
+    fetch("/api/coupons").then((r) => r.json()).then((data) => { if (mounted) { if (Array.isArray(data)) setCoupons(data); if (!Array.isArray(data)) setError("Invalid response"); setLoading(false); } }).catch(() => { if (mounted) { setError("Failed to load coupons"); setLoading(false); } });
     return () => { mounted = false; };
   }, []);
 
@@ -114,9 +116,14 @@ export default function AdminCouponsPage() {
             </div>
           )}
 
+          {error && <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 text-sm mb-6">{error}</div>}
           {loading ? (
             <div className="flex items-center justify-center py-20">
               <Loader2 className="h-8 w-8 animate-spin text-[#DC0218]" />
+            </div>
+          ) : coupons.length === 0 ? (
+            <div className="bg-white rounded-2xl p-12 shadow-sm border border-[rgba(220,2,24,0.08)] text-center">
+              <p className="text-[#444444]">No coupons yet. Create your first coupon to offer discounts.</p>
             </div>
           ) : (
             <div className="bg-white rounded-2xl p-6 shadow-sm border border-[rgba(220,2,24,0.08)]">

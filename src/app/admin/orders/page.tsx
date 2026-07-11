@@ -27,10 +27,11 @@ const statusOptions = ["pending", "confirmed", "packed", "shipped", "delivered",
 export default function AdminOrdersPage() {
   const [orderList, setOrderList] = useState<AdminOrder[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     let mounted = true;
-    fetch("/api/orders").then((r) => r.json()).then((data) => { if (mounted) { setOrderList(data); setLoading(false); } }).catch(() => { if (mounted) setLoading(false); });
+    fetch("/api/orders").then((r) => r.json()).then((data) => { if (mounted) { if (Array.isArray(data)) setOrderList(data); setLoading(false); } }).catch(() => { if (mounted) { setError("Failed to load orders"); setLoading(false); } });
     return () => { mounted = false; };
   }, []);
 
@@ -60,9 +61,14 @@ export default function AdminOrdersPage() {
             <span className="text-[#DC0218] font-semibold text-sm uppercase tracking-[0.2em]">Admin</span>
             <h1 className="text-3xl font-bold text-[#1A1A1A] mt-1">Orders</h1>
           </div>
+          {error && <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 text-sm mb-6">{error}</div>}
           {loading ? (
             <div className="flex items-center justify-center py-20">
               <Loader2 className="h-8 w-8 animate-spin text-[#DC0218]" />
+            </div>
+          ) : orderList.length === 0 ? (
+            <div className="bg-white rounded-2xl p-12 shadow-sm border border-[rgba(220,2,24,0.08)] text-center">
+              <p className="text-[#444444]">No orders yet. Orders will appear here once customers start checking out.</p>
             </div>
           ) : (
             <div className="bg-white rounded-2xl p-6 shadow-sm border border-[rgba(220,2,24,0.08)] overflow-x-auto">

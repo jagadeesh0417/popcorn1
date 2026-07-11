@@ -19,10 +19,11 @@ interface AdminProduct {
 export default function AdminProductsPage() {
   const [products, setProducts] = useState<AdminProduct[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     let mounted = true;
-    fetch("/api/products").then((r) => r.json()).then((data) => { if (mounted) { setProducts(data); setLoading(false); } }).catch(() => { if (mounted) setLoading(false); });
+    fetch("/api/products").then((r) => r.json()).then((data) => { if (mounted) { if (Array.isArray(data)) setProducts(data); setLoading(false); } }).catch(() => { if (mounted) { setError("Failed to load products"); setLoading(false); } });
     return () => { mounted = false; };
   }, []);
 
@@ -67,9 +68,14 @@ export default function AdminProductsPage() {
               <Plus className="h-4 w-4 mr-2" /> Add Product
             </Button>
           </div>
+          {error && <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 text-sm mb-6">{error}</div>}
           {loading ? (
             <div className="flex items-center justify-center py-20">
               <Loader2 className="h-8 w-8 animate-spin text-[#DC0218]" />
+            </div>
+          ) : products.length === 0 ? (
+            <div className="bg-white rounded-2xl shadow-sm border border-[rgba(220,2,24,0.08)] p-12 text-center">
+              <p className="text-[#444444]">No products found. Add your first product to get started.</p>
             </div>
           ) : (
             <div className="bg-white rounded-2xl shadow-sm border border-[rgba(220,2,24,0.08)] overflow-x-auto">

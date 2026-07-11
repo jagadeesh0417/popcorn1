@@ -24,11 +24,13 @@ export default function AdminAnalyticsPage() {
     ])
       .then(([orders, customers]) => {
         if (!mounted) return;
+        const ordersArr = Array.isArray(orders) ? orders : [];
+        const customersArr = Array.isArray(customers) ? customers : [];
         const now = new Date();
         const currentMonth = now.getMonth();
         const currentYear = now.getFullYear();
 
-        const monthlyOrders = orders.filter((o: { createdAt: string }) => {
+        const monthlyOrders = ordersArr.filter((o: { createdAt: string }) => {
           const d = new Date(o.createdAt);
           return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
         });
@@ -39,7 +41,7 @@ export default function AdminAnalyticsPage() {
         setMetrics([
           { icon: IndianRupee, label: "Monthly Revenue", value: `₹${monthlyRevenue.toLocaleString()}`, change: "", up: true },
           { icon: ShoppingBag, label: "Monthly Orders", value: `${monthlyOrders.length}`, change: "", up: true },
-          { icon: Users, label: "New Customers", value: `${customers.length}`, change: "", up: true },
+          { icon: Users, label: "New Customers", value: `${customersArr.length}`, change: "", up: true },
           { icon: Package, label: "Avg. Order Value", value: `₹${avgOrderValue}`, change: "", up: true },
         ]);
 
@@ -47,7 +49,7 @@ export default function AdminAnalyticsPage() {
         const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
         for (let i = 5; i >= 0; i--) {
           const m = new Date(currentYear, currentMonth - i, 1);
-          const monthOrders = orders.filter((o: { createdAt: string }) => {
+          const monthOrders = ordersArr.filter((o: { createdAt: string }) => {
             const d = new Date(o.createdAt);
             return d.getMonth() === m.getMonth() && d.getFullYear() === m.getFullYear();
           });
@@ -60,7 +62,7 @@ export default function AdminAnalyticsPage() {
         setMonthlyData(months);
 
         const productSales: Record<string, { sold: number; revenue: number; name: string }> = {};
-        orders.forEach((o: { items: { productId: string; name: string; price: number; quantity: number }[] }) => {
+        ordersArr.forEach((o: { items: { productId: string; name: string; price: number; quantity: number }[] }) => {
           o.items.forEach((item) => {
             if (!productSales[item.productId]) {
               productSales[item.productId] = { sold: 0, revenue: 0, name: item.name };
@@ -75,7 +77,7 @@ export default function AdminAnalyticsPage() {
             .slice(0, 5)
         );
       })
-      .catch(() => console.error("Failed to fetch analytics"))
+      .catch(() => { if (mounted) console.error("Failed to fetch analytics"); })
       .finally(() => { if (mounted) setLoading(false); });
     return () => { mounted = false; };
   }, []);

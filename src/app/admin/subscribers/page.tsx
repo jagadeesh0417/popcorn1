@@ -17,10 +17,11 @@ interface Subscriber {
 export default function AdminSubscribersPage() {
   const [subscribers, setSubscribers] = useState<Subscriber[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     let mounted = true;
-    fetch("/api/subscribers").then((r) => r.json()).then((data) => { if (mounted) { setSubscribers(data); setLoading(false); } }).catch(() => { if (mounted) setLoading(false); });
+    fetch("/api/subscribers").then((r) => r.json()).then((data) => { if (mounted) { if (Array.isArray(data)) setSubscribers(data); setLoading(false); } }).catch(() => { if (mounted) { setError("Failed to load subscribers"); setLoading(false); } });
     return () => { mounted = false; };
   }, []);
 
@@ -62,9 +63,14 @@ export default function AdminSubscribersPage() {
               <Download className="h-4 w-4 mr-2" /> Export CSV
             </Button>
           </div>
+          {error && <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 text-sm mb-6">{error}</div>}
           {loading ? (
             <div className="flex items-center justify-center py-20">
               <Loader2 className="h-8 w-8 animate-spin text-[#DC0218]" />
+            </div>
+          ) : subscribers.length === 0 ? (
+            <div className="bg-white rounded-2xl p-12 shadow-sm border border-[rgba(220,2,24,0.08)] text-center">
+              <p className="text-[#444444]">No subscribers yet. They will appear when users sign up via the newsletter.</p>
             </div>
           ) : (
             <div className="bg-white rounded-2xl p-6 shadow-sm border border-[rgba(220,2,24,0.08)] overflow-x-auto">
@@ -80,10 +86,7 @@ export default function AdminSubscribersPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {subscribers.length === 0 ? (
-                    <tr><td colSpan={6} className="py-8 text-center text-[#666666] text-sm">No subscribers yet.</td></tr>
-                  ) : (
-                    subscribers.map((s) => (
+                  {subscribers.map((s) => (
                       <tr key={s._id} className="border-b border-[rgba(220,2,24,0.06)] last:border-0">
                         <td className="py-3 font-medium text-[#1A1A1A]">{s.email}</td>
                         <td className="py-3 text-[#444444]">{s.name || "-"}</td>
@@ -100,8 +103,7 @@ export default function AdminSubscribersPage() {
                           </button>
                         </td>
                       </tr>
-                    ))
-                  )}
+                  ))}
                 </tbody>
               </table>
             </div>

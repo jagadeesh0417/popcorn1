@@ -17,12 +17,13 @@ interface AdminCustomer {
 export default function AdminCustomersPage() {
   const [customers, setCustomers] = useState<AdminCustomer[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     fetch("/api/customers")
       .then((r) => r.json())
-      .then((data) => setCustomers(data))
-      .catch(() => console.error("Failed to fetch customers"))
+      .then((data) => { if (Array.isArray(data)) setCustomers(data); else setError("Invalid response from server"); })
+      .catch(() => setError("Failed to load customers"))
       .finally(() => setLoading(false));
   }, []);
 
@@ -38,9 +39,14 @@ export default function AdminCustomersPage() {
             </div>
             <span className="bg-[#DC0218] text-white text-sm font-medium px-4 py-2 rounded-xl">{customers.length} customers</span>
           </div>
+          {error && <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 text-sm mb-6">{error}</div>}
           {loading ? (
             <div className="flex items-center justify-center py-20">
               <Loader2 className="h-8 w-8 animate-spin text-[#DC0218]" />
+            </div>
+          ) : customers.length === 0 ? (
+            <div className="bg-white rounded-2xl p-12 shadow-sm border border-[rgba(220,2,24,0.08)] text-center">
+              <p className="text-[#444444]">No customers yet. Customers appear after placing their first order.</p>
             </div>
           ) : (
             <div className="bg-white rounded-2xl p-6 shadow-sm border border-[rgba(220,2,24,0.08)] overflow-x-auto">
