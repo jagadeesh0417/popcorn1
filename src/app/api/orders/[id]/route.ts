@@ -9,7 +9,8 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
     const order = await Order.findOne({ orderId: id });
     if (!order) return NextResponse.json({ error: "Not found" }, { status: 404 });
     return NextResponse.json(order);
-  } catch {
+  } catch (err) {
+    console.error("Failed to fetch order", err);
     return NextResponse.json({ error: "Failed" }, { status: 500 });
   }
 }
@@ -22,7 +23,8 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     const order = await Order.findOneAndUpdate({ orderId: id }, body, { new: true });
     if (!order) return NextResponse.json({ error: "Not found" }, { status: 404 });
     return NextResponse.json(order);
-  } catch {
+  } catch (err) {
+    console.error("Failed to update order", err);
     return NextResponse.json({ error: "Failed" }, { status: 500 });
   }
 }

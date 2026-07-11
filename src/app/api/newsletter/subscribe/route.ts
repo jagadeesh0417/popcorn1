@@ -21,7 +21,8 @@ export async function POST(request: Request) {
     await Subscriber.create({ email, phone, name });
 
     return NextResponse.json({ success: true, message: "Subscribed successfully" });
-  } catch {
+  } catch (err) {
+    console.error("Newsletter subscribe error", err);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

@@ -11,7 +11,8 @@ export async function GET() {
       { $sort: { orders: -1 } },
     ]);
     return NextResponse.json(customers);
-  } catch {
+  } catch (err) {
+    console.error("Failed to fetch customers", err);
     return NextResponse.json({ error: "Failed to fetch customers" }, { status: 500 });
   }
 }

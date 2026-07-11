@@ -7,7 +7,8 @@ export async function GET() {
     await connectDB();
     const orders = await Order.find({}).sort({ createdAt: -1 });
     return NextResponse.json(orders);
-  } catch {
+  } catch (err) {
+    console.error("Failed to fetch orders", err);
     return NextResponse.json({ error: "Failed" }, { status: 500 });
   }
 }
@@ -21,7 +22,8 @@ export async function POST(req: Request) {
       statusTimeline: [{ status: "pending", date: new Date(), note: "Order placed" }],
     });
     return NextResponse.json(order, { status: 201 });
-  } catch {
+  } catch (err) {
+    console.error("Failed to create order", err);
     return NextResponse.json({ error: "Failed to create order" }, { status: 500 });
   }
 }

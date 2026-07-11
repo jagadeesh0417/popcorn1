@@ -7,7 +7,8 @@ export async function GET() {
     await connectDB();
     const coupons = await Coupon.find({}).sort({ createdAt: -1 });
     return NextResponse.json(coupons);
-  } catch {
+  } catch (err) {
+    console.error("Failed to fetch coupons", err);
     return NextResponse.json({ error: "Failed" }, { status: 500 });
   }
 }
@@ -18,7 +19,8 @@ export async function POST(req: Request) {
     const body = await req.json();
     const coupon = await Coupon.create(body);
     return NextResponse.json(coupon, { status: 201 });
-  } catch {
+  } catch (err) {
+    console.error("Failed to create coupon", err);
     return NextResponse.json({ error: "Failed" }, { status: 500 });
   }
 }

@@ -7,7 +7,8 @@ export async function GET() {
     await connectDB();
     const products = await Product.find({}).sort({ name: 1 });
     return NextResponse.json(products);
-  } catch {
+  } catch (err) {
+    console.error("Failed to fetch inventory", err);
     return NextResponse.json({ error: "Failed to fetch inventory" }, { status: 500 });
   }
 }
@@ -24,7 +25,8 @@ export async function PUT(req: Request) {
     const product = await Product.findByIdAndUpdate(id, { $set: update }, { new: true });
     if (!product) return NextResponse.json({ error: "Not found" }, { status: 404 });
     return NextResponse.json(product);
-  } catch {
+  } catch (err) {
+    console.error("Failed to update inventory", err);
     return NextResponse.json({ error: "Failed to update" }, { status: 500 });
   }
 }

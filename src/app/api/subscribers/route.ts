@@ -7,7 +7,8 @@ export async function GET() {
     await connectDB();
     const subscribers = await Subscriber.find({}).sort({ createdAt: -1 });
     return NextResponse.json(subscribers);
-  } catch {
+  } catch (err) {
+    console.error("Failed to fetch subscribers", err);
     return NextResponse.json({ error: "Failed to fetch subscribers" }, { status: 500 });
   }
 }
@@ -22,7 +23,8 @@ export async function POST(req: Request) {
     if (existing) return NextResponse.json({ error: "Already subscribed" }, { status: 409 });
     const subscriber = await Subscriber.create({ email, name, phone });
     return NextResponse.json(subscriber, { status: 201 });
-  } catch {
+  } catch (err) {
+    console.error("Failed to create subscriber", err);
     return NextResponse.json({ error: "Failed to create subscriber" }, { status: 500 });
   }
 }
@@ -34,7 +36,8 @@ export async function DELETE(req: Request) {
     if (!email) return NextResponse.json({ error: "Email is required" }, { status: 400 });
     await Subscriber.deleteOne({ email });
     return NextResponse.json({ message: "Deleted" });
-  } catch {
+  } catch (err) {
+    console.error("Failed to delete subscriber", err);
     return NextResponse.json({ error: "Failed to delete subscriber" }, { status: 500 });
   }
 }

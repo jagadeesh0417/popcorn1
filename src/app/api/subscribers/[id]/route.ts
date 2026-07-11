@@ -9,7 +9,8 @@ export async function DELETE(_req: Request, { params }: { params: Promise<{ id: 
     const subscriber = await Subscriber.findByIdAndDelete(id);
     if (!subscriber) return NextResponse.json({ error: "Not found" }, { status: 404 });
     return NextResponse.json({ message: "Deleted" });
-  } catch {
+  } catch (err) {
+    console.error("Failed to delete subscriber", err);
     return NextResponse.json({ error: "Failed to delete" }, { status: 500 });
   }
 }
