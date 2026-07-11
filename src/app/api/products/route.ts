@@ -16,6 +16,13 @@ export async function POST(req: Request) {
   try {
     await connectDB();
     const body = await req.json();
+    if (!body.name || !body.slug || !body.price) {
+      return NextResponse.json({ error: "Name, slug, and price are required" }, { status: 400 });
+    }
+    const existing = await Product.findOne({ slug: body.slug });
+    if (existing) {
+      return NextResponse.json({ error: "Product with this slug already exists" }, { status: 409 });
+    }
     const product = await Product.create(body);
     return NextResponse.json(product, { status: 201 });
   } catch {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Package, ShoppingBag, Users, IndianRupee, ArrowUp, ArrowDown, LogIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -8,39 +8,66 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
 
-const stats = [
-  { icon: IndianRupee, label: "Total Revenue", value: "₹1,28,490", change: "+12.5%", up: true },
-  { icon: ShoppingBag, label: "Total Orders", value: "486", change: "+8.2%", up: true },
-  { icon: Users, label: "Total Customers", value: "342", change: "+18.7%", up: true },
-  { icon: Package, label: "Products", value: "10", change: "0%", up: true },
-];
-
-const recentOrders = [
-  { id: "ORD-004", customer: "Rohit K.", items: 2, total: 598, status: "pending", date: "2026-07-06" },
-  { id: "ORD-005", customer: "Sneha P.", items: 1, total: 299, status: "confirmed", date: "2026-07-05" },
-  { id: "ORD-006", customer: "Amit S.", items: 3, total: 837, status: "shipped", date: "2026-07-04" },
-  { id: "ORD-007", customer: "Kiran B.", items: 1, total: 449, status: "delivered", date: "2026-07-03" },
-];
-
 const statusColors: Record<string, string> = {
   pending: "bg-yellow-100 text-yellow-800", confirmed: "bg-blue-100 text-blue-800",
   shipped: "bg-purple-100 text-purple-800", delivered: "bg-green-100 text-green-800",
   cancelled: "bg-red-100 text-red-800",
 };
 
-const stagger = {
-  animate: { transition: { staggerChildren: 0.08 } },
-};
-
-const fadeUp = {
-  initial: { opacity: 0, y: 20 },
-  animate: { opacity: 1, y: 0 },
-};
+const stagger = { animate: { transition: { staggerChildren: 0.08 } } };
+const fadeUp = { initial: { opacity: 0, y: 20 }, animate: { opacity: 1, y: 0 } };
 
 export default function AdminDashboard() {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("poprika.official@gmail.com");
   const [password, setPassword] = useState("");
+
+  const [stats, setStats] = useState([
+    { icon: IndianRupee, label: "Total Revenue", value: "₹0", change: "0%", up: true },
+    { icon: ShoppingBag, label: "Total Orders", value: "0", change: "0%", up: true },
+    { icon: Users, label: "Total Customers", value: "0", change: "0%", up: true },
+    { icon: Package, label: "Products", value: "0", change: "0%", up: true },
+  ]);
+  const [recentOrders, setRecentOrders] = useState<{ id: string; customer: string; items: number; total: number; status: string; date: string }[]>([]);
+  const [quickStats, setQuickStats] = useState<{ label: string; value: string; color: string }[]>([]);
+
+  useEffect(() => {
+    if (isLogin) return;
+    Promise.all([
+      fetch("/api/orders").then((r) => r.json()),
+      fetch("/api/products").then((r) => r.json()),
+      fetch("/api/customers").then((r) => r.json()),
+    ]).then(([orders, products, customers]) => {
+      const totalRevenue = orders.reduce((s: number, o: { total: number }) => s + (o.total || 0), 0);
+      const pendingOrders = orders.filter((o: { status: string }) => o.status === "pending").length;
+      const lowStock = products.filter((p: { stockQuantity: number }) => (p.stockQuantity || 0) <= 10).length;
+      const uniqueCustomers = customers.length;
+
+      setStats([
+        { icon: IndianRupee, label: "Total Revenue", value: `₹${totalRevenue.toLocaleString()}`, change: "", up: true },
+        { icon: ShoppingBag, label: "Total Orders", value: `${orders.length}`, change: "", up: true },
+        { icon: Users, label: "Total Customers", value: `${uniqueCustomers}`, change: "", up: true },
+        { icon: Package, label: "Products", value: `${products.length}`, change: "", up: true },
+      ]);
+
+      setRecentOrders(
+        orders.slice(0, 4).map((o: { orderId: string; customerDetails: { firstName: string; lastName: string }; items: { quantity: number }[]; total: number; status: string; createdAt: string }) => ({
+          id: o.orderId,
+          customer: `${o.customerDetails.firstName} ${o.customerDetails.lastName}`,
+          items: o.items.reduce((s: number, i: { quantity: number }) => s + i.quantity, 0),
+          total: o.total,
+          status: o.status,
+          date: new Date(o.createdAt).toLocaleDateString(),
+        }))
+      );
+
+      setQuickStats([
+        { label: "Pending Orders", value: `${pendingOrders}`, color: pendingOrders > 0 ? "bg-[#F9D976] text-[#C70015]" : "bg-green-100 text-green-700" },
+        { label: "Low Stock Items", value: `${lowStock}`, color: lowStock > 0 ? "bg-[#DC0218] text-white" : "bg-green-100 text-green-700" },
+        { label: "Total Customers", value: `${uniqueCustomers} customers`, color: "text-[#444444]" },
+      ]);
+    }).catch(() => {});
+  }, [isLogin]);
 
   if (isLogin) {
     return (
@@ -111,9 +138,11 @@ export default function AdminDashboard() {
                   >
                     <stat.icon className="h-6 w-6 text-[#DC0218]" />
                   </motion.div>
-                  <span className={`flex items-center gap-1 text-xs font-medium ${stat.up ? "text-green-600" : "text-red-600"}`}>
-                    {stat.up ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />}{stat.change}
-                  </span>
+                  {stat.change && (
+                    <span className={`flex items-center gap-1 text-xs font-medium ${stat.up ? "text-green-600" : "text-red-600"}`}>
+                      {stat.up ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />}{stat.change}
+                    </span>
+                  )}
                 </div>
                 <p className="text-2xl font-bold text-[#1A1A1A]">{stat.value}</p>
                 <p className="text-[#444444] text-sm mt-1">{stat.label}</p>
@@ -169,11 +198,7 @@ export default function AdminDashboard() {
             >
               <h3 className="font-bold text-lg text-[#1A1A1A] mb-4">Quick Stats</h3>
               <div className="space-y-4">
-                {[
-                  { label: "Pending Orders", value: "12", color: "bg-[#F9D976] text-[#C70015]" },
-                  { label: "Low Stock Items", value: "3", color: "bg-[#DC0218] text-white" },
-                  { label: "New This Month", value: "48 customers", color: "text-[#444444]" },
-                ].map((item, i) => (
+                {quickStats.map((item, i) => (
                   <motion.div
                     key={item.label}
                     initial={{ opacity: 0, x: -10 }}

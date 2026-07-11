@@ -1,28 +1,99 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { TrendingUp, TrendingDown, IndianRupee, ShoppingBag, Users, Package } from "lucide-react";
+import { TrendingUp, TrendingDown, IndianRupee, ShoppingBag, Users, Package, Loader2 } from "lucide-react";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
 
-const metrics = [
-  { icon: IndianRupee, label: "Monthly Revenue", value: "₹42,800", change: "+15.3%", up: true },
-  { icon: ShoppingBag, label: "Monthly Orders", value: "156", change: "+12.1%", up: true },
-  { icon: Users, label: "New Customers", value: "48", change: "+22.5%", up: true },
-  { icon: Package, label: "Avg. Order Value", value: "₹274", change: "-2.4%", up: false },
-];
-
-const monthlyData = [
-  { month: "Jan", revenue: 28000, orders: 98 },
-  { month: "Feb", revenue: 32000, orders: 112 },
-  { month: "Mar", revenue: 35000, orders: 128 },
-  { month: "Apr", revenue: 38000, orders: 135 },
-  { month: "May", revenue: 41000, orders: 148 },
-  { month: "Jun", revenue: 42800, orders: 156 },
-];
-
 export default function AdminAnalyticsPage() {
-  const maxRevenue = Math.max(...monthlyData.map((d) => d.revenue));
-  const maxOrders = Math.max(...monthlyData.map((d) => d.orders));
+  const [loading, setLoading] = useState(true);
+  const [metrics, setMetrics] = useState([
+    { icon: IndianRupee, label: "Monthly Revenue", value: "₹0", change: "0%", up: true },
+    { icon: ShoppingBag, label: "Monthly Orders", value: "0", change: "0%", up: true },
+    { icon: Users, label: "New Customers", value: "0", change: "0%", up: true },
+    { icon: Package, label: "Avg. Order Value", value: "₹0", change: "0%", up: true },
+  ]);
+  const [monthlyData, setMonthlyData] = useState<{ month: string; revenue: number; orders: number }[]>([]);
+  const [topProducts, setTopProducts] = useState<{ name: string; sold: number; revenue: number }[]>([]);
+
+  useEffect(() => {
+    let mounted = true;
+    Promise.all([
+      fetch("/api/orders").then((r) => r.json()),
+      fetch("/api/customers").then((r) => r.json()),
+    ])
+      .then(([orders, customers]) => {
+        if (!mounted) return;
+        const now = new Date();
+        const currentMonth = now.getMonth();
+        const currentYear = now.getFullYear();
+
+        const monthlyOrders = orders.filter((o: { createdAt: string }) => {
+          const d = new Date(o.createdAt);
+          return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+        });
+
+        const monthlyRevenue = monthlyOrders.reduce((s: number, o: { total: number }) => s + (o.total || 0), 0);
+        const avgOrderValue = monthlyOrders.length > 0 ? Math.round(monthlyRevenue / monthlyOrders.length) : 0;
+
+        setMetrics([
+          { icon: IndianRupee, label: "Monthly Revenue", value: `₹${monthlyRevenue.toLocaleString()}`, change: "", up: true },
+          { icon: ShoppingBag, label: "Monthly Orders", value: `${monthlyOrders.length}`, change: "", up: true },
+          { icon: Users, label: "New Customers", value: `${customers.length}`, change: "", up: true },
+          { icon: Package, label: "Avg. Order Value", value: `₹${avgOrderValue}`, change: "", up: true },
+        ]);
+
+        const months: { month: string; revenue: number; orders: number }[] = [];
+        const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        for (let i = 5; i >= 0; i--) {
+          const m = new Date(currentYear, currentMonth - i, 1);
+          const monthOrders = orders.filter((o: { createdAt: string }) => {
+            const d = new Date(o.createdAt);
+            return d.getMonth() === m.getMonth() && d.getFullYear() === m.getFullYear();
+          });
+          months.push({
+            month: monthNames[m.getMonth()],
+            revenue: monthOrders.reduce((s: number, o: { total: number }) => s + (o.total || 0), 0),
+            orders: monthOrders.length,
+          });
+        }
+        setMonthlyData(months);
+
+        const productSales: Record<string, { sold: number; revenue: number; name: string }> = {};
+        orders.forEach((o: { items: { productId: string; name: string; price: number; quantity: number }[] }) => {
+          o.items.forEach((item) => {
+            if (!productSales[item.productId]) {
+              productSales[item.productId] = { sold: 0, revenue: 0, name: item.name };
+            }
+            productSales[item.productId].sold += item.quantity;
+            productSales[item.productId].revenue += item.price * item.quantity;
+          });
+        });
+        setTopProducts(
+          Object.values(productSales)
+            .sort((a, b) => b.sold - a.sold)
+            .slice(0, 5)
+        );
+      })
+      .catch(() => console.error("Failed to fetch analytics"))
+      .finally(() => { if (mounted) setLoading(false); });
+    return () => { mounted = false; };
+  }, []);
+
+  const maxRevenue = Math.max(...monthlyData.map((d) => d.revenue), 1);
+  const maxOrders = Math.max(...monthlyData.map((d) => d.orders), 1);
+  const maxSold = Math.max(...topProducts.map((p) => p.sold), 1);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#FFF8F0] flex">
+        <AdminSidebar />
+        <div className="flex-1 ml-64 pt-20 flex items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-[#DC0218]" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#FFF8F0] flex">
@@ -42,9 +113,11 @@ export default function AdminAnalyticsPage() {
                   <div className="w-12 h-12 rounded-xl bg-[#DC0218]/5 flex items-center justify-center">
                     <m.icon className="h-6 w-6 text-[#DC0218]" />
                   </div>
-                  <span className={`flex items-center gap-1 text-xs font-medium ${m.up ? "text-green-600" : "text-red-600"}`}>
-                    {m.up ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}{m.change}
-                  </span>
+                  {m.change && (
+                    <span className={`flex items-center gap-1 text-xs font-medium ${m.up ? "text-green-600" : "text-red-600"}`}>
+                      {m.up ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}{m.change}
+                    </span>
+                  )}
                 </div>
                 <p className="text-2xl font-bold text-[#1A1A1A]">{m.value}</p>
                 <p className="text-[#444444] text-sm mt-1">{m.label}</p>
@@ -83,15 +156,10 @@ export default function AdminAnalyticsPage() {
           <div className="bg-white p-6 rounded-2xl shadow-sm border border-[rgba(220,2,24,0.08)] mt-6">
             <h3 className="font-bold text-lg text-[#1A1A1A] mb-4">Top Selling Products</h3>
             <div className="space-y-4">
-              {[
-                { name: "Classic Butter Bliss", sold: 234, revenue: 58266 },
-                { name: "Caramel Crunch Delight", sold: 198, revenue: 59202 },
-                { name: "Spicy Szechuan Kick", sold: 167, revenue: 46593 },
-                { name: "Truffle Parmesan", sold: 145, revenue: 65105 },
-                { name: "Chocolate Drizzle", sold: 112, revenue: 39088 },
-              ].map((p, i) => {
-                const maxSold = 234;
-                return (
+              {topProducts.length === 0 ? (
+                <p className="text-[#444444] text-sm">No sales data yet.</p>
+              ) : (
+                topProducts.map((p, i) => (
                   <div key={p.name} className="flex items-center gap-4">
                     <span className="text-sm font-bold text-[#444444] w-6">{i + 1}</span>
                     <div className="flex-1">
@@ -104,8 +172,8 @@ export default function AdminAnalyticsPage() {
                       </div>
                     </div>
                   </div>
-                );
-              })}
+                ))
+              )}
             </div>
           </div>
         </div>

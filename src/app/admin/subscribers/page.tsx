@@ -1,28 +1,44 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import { Button } from "@/components/ui/button";
-import { Download } from "lucide-react";
+import { Download, Trash2, Loader2 } from "lucide-react";
 
 interface Subscriber {
+  _id: string;
   email: string;
-  whatsappNumber: string;
-  consent: boolean;
+  phone?: string;
+  name?: string;
+  isActive: boolean;
   createdAt: string;
 }
 
-const mockSubscribers: Subscriber[] = [
-  { email: "priya@example.com", whatsappNumber: "+91 9876543210", consent: true, createdAt: "2026-07-01" },
-  { email: "arjun@example.com", whatsappNumber: "+91 8765432109", consent: true, createdAt: "2026-06-28" },
-];
-
 export default function AdminSubscribersPage() {
-  const [subscribers] = useState<Subscriber[]>(mockSubscribers);
+  const [subscribers, setSubscribers] = useState<Subscriber[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let mounted = true;
+    fetch("/api/subscribers").then((r) => r.json()).then((data) => { if (mounted) { setSubscribers(data); setLoading(false); } }).catch(() => { if (mounted) setLoading(false); });
+    return () => { mounted = false; };
+  }, []);
+
+  const deleteSubscriber = async (id: string) => {
+    if (!confirm("Delete this subscriber?")) return;
+    try {
+      const res = await fetch(`/api/subscribers/${id}`, { method: "DELETE" });
+      if (res.ok) {
+        setSubscribers((prev) => prev.filter((s) => s._id !== id));
+      }
+    } catch {
+      console.error("Failed to delete");
+    }
+  };
 
   const exportCSV = () => {
-    const headers = "Email,WhatsApp,Consent,Created At\n";
-    const rows = subscribers.map((s) => `${s.email},${s.whatsappNumber},${s.consent},${s.createdAt}`).join("\n");
+    const headers = "Email,Name,Phone,Active,Created At\n";
+    const rows = subscribers.map((s) => `${s.email},${s.name || ""},${s.phone || ""},${s.isActive},${new Date(s.createdAt).toLocaleDateString()}`).join("\n");
     const blob = new Blob([headers + rows], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -46,38 +62,50 @@ export default function AdminSubscribersPage() {
               <Download className="h-4 w-4 mr-2" /> Export CSV
             </Button>
           </div>
-          <div className="bg-white rounded-2xl p-6 shadow-sm border border-[rgba(220,2,24,0.08)] overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-[rgba(220,2,24,0.08)] text-left text-[#444444]">
-                  <th className="pb-3 font-medium">Email</th>
-                  <th className="pb-3 font-medium">WhatsApp</th>
-                  <th className="pb-3 font-medium">Consent</th>
-                  <th className="pb-3 font-medium">Subscribed On</th>
-                </tr>
-              </thead>
-              <tbody>
-                {subscribers.length === 0 ? (
-                  <tr><td colSpan={4} className="py-8 text-center text-[#666666] text-sm">No subscribers yet.</td></tr>
-                ) : (
-                  subscribers.map((s, i) => (
-                    <tr key={i} className="border-b border-[rgba(220,2,24,0.06)] last:border-0">
-                      <td className="py-3 font-medium text-[#1A1A1A]">{s.email}</td>
-                      <td className="py-3 text-[#444444]">{s.whatsappNumber}</td>
-                      <td className="py-3">
-                        <span className="bg-green-100 text-green-700 text-xs font-medium px-2.5 py-1 rounded-full">Yes</span>
-                      </td>
-                      <td className="py-3 text-[#444444]">{s.createdAt}</td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-          <p className="text-[#666666] text-xs mt-4">
-            {/* TODO: connect MongoDB — replace mockSubscribers with live data from DB */}
-            Showing {subscribers.length} mock subscribers. Connect MongoDB to see live data.
-          </p>
+          {loading ? (
+            <div className="flex items-center justify-center py-20">
+              <Loader2 className="h-8 w-8 animate-spin text-[#DC0218]" />
+            </div>
+          ) : (
+            <div className="bg-white rounded-2xl p-6 shadow-sm border border-[rgba(220,2,24,0.08)] overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-[rgba(220,2,24,0.08)] text-left text-[#444444]">
+                    <th className="pb-3 font-medium">Email</th>
+                    <th className="pb-3 font-medium">Name</th>
+                    <th className="pb-3 font-medium">Phone</th>
+                    <th className="pb-3 font-medium">Active</th>
+                    <th className="pb-3 font-medium">Subscribed On</th>
+                    <th className="pb-3 font-medium">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {subscribers.length === 0 ? (
+                    <tr><td colSpan={6} className="py-8 text-center text-[#666666] text-sm">No subscribers yet.</td></tr>
+                  ) : (
+                    subscribers.map((s) => (
+                      <tr key={s._id} className="border-b border-[rgba(220,2,24,0.06)] last:border-0">
+                        <td className="py-3 font-medium text-[#1A1A1A]">{s.email}</td>
+                        <td className="py-3 text-[#444444]">{s.name || "-"}</td>
+                        <td className="py-3 text-[#444444]">{s.phone || "-"}</td>
+                        <td className="py-3">
+                          <span className={`${s.isActive ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"} text-xs font-medium px-2.5 py-1 rounded-full`}>
+                            {s.isActive ? "Yes" : "No"}
+                          </span>
+                        </td>
+                        <td className="py-3 text-[#444444]">{new Date(s.createdAt).toLocaleDateString()}</td>
+                        <td className="py-3">
+                          <button onClick={() => deleteSubscriber(s._id)} className="p-2 rounded-lg text-red-500 hover:bg-red-50 transition-colors">
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       </div>
     </div>

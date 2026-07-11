@@ -5,7 +5,7 @@ import Coupon from "@/lib/models/Coupon";
 export async function GET() {
   try {
     await connectDB();
-    const coupons = await Coupon.find({ isActive: true });
+    const coupons = await Coupon.find({}).sort({ createdAt: -1 });
     return NextResponse.json(coupons);
   } catch {
     return NextResponse.json({ error: "Failed" }, { status: 500 });

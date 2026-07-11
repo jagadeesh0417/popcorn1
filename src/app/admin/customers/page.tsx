@@ -1,7 +1,31 @@
-import { customers } from "@/lib/data";
+"use client";
+
+import { useState, useEffect } from "react";
+import { Loader2 } from "lucide-react";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
 
+interface AdminCustomer {
+  email: string;
+  firstName: string;
+  lastName: string;
+  phone: string;
+  orders: number;
+  totalSpent: number;
+  joined: string;
+}
+
 export default function AdminCustomersPage() {
+  const [customers, setCustomers] = useState<AdminCustomer[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch("/api/customers")
+      .then((r) => r.json())
+      .then((data) => setCustomers(data))
+      .catch(() => console.error("Failed to fetch customers"))
+      .finally(() => setLoading(false));
+  }, []);
+
   return (
     <div className="min-h-screen bg-[#FFF8F0] flex">
       <AdminSidebar />
@@ -14,32 +38,38 @@ export default function AdminCustomersPage() {
             </div>
             <span className="bg-[#DC0218] text-white text-sm font-medium px-4 py-2 rounded-xl">{customers.length} customers</span>
           </div>
-          <div className="bg-white rounded-2xl p-6 shadow-sm border border-[rgba(220,2,24,0.08)] overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-[rgba(220,2,24,0.08)] text-left text-[#444444]">
-                  <th className="pb-3 font-medium">Name</th>
-                  <th className="pb-3 font-medium">Email</th>
-                  <th className="pb-3 font-medium">Phone</th>
-                  <th className="pb-3 font-medium">Orders</th>
-                  <th className="pb-3 font-medium">Total Spent</th>
-                  <th className="pb-3 font-medium">Joined</th>
-                </tr>
-              </thead>
-              <tbody>
-                {customers.map((c) => (
-                  <tr key={c.email} className="border-b border-[rgba(220,2,24,0.06)] last:border-0">
-                    <td className="py-3 font-medium text-[#1A1A1A]">{c.name}</td>
-                    <td className="py-3 text-[#444444]">{c.email}</td>
-                    <td className="py-3 text-[#444444]">{c.phone}</td>
-                    <td className="py-3 text-[#444444]">{c.orders}</td>
-                    <td className="py-3 font-medium text-[#DC0218]">₹{c.totalSpent}</td>
-                    <td className="py-3 text-[#444444]">{c.joined}</td>
+          {loading ? (
+            <div className="flex items-center justify-center py-20">
+              <Loader2 className="h-8 w-8 animate-spin text-[#DC0218]" />
+            </div>
+          ) : (
+            <div className="bg-white rounded-2xl p-6 shadow-sm border border-[rgba(220,2,24,0.08)] overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-[rgba(220,2,24,0.08)] text-left text-[#444444]">
+                    <th className="pb-3 font-medium">Name</th>
+                    <th className="pb-3 font-medium">Email</th>
+                    <th className="pb-3 font-medium">Phone</th>
+                    <th className="pb-3 font-medium">Orders</th>
+                    <th className="pb-3 font-medium">Total Spent</th>
+                    <th className="pb-3 font-medium">Joined</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {customers.map((c) => (
+                    <tr key={c.email} className="border-b border-[rgba(220,2,24,0.06)] last:border-0">
+                      <td className="py-3 font-medium text-[#1A1A1A]">{c.firstName} {c.lastName}</td>
+                      <td className="py-3 text-[#444444]">{c.email}</td>
+                      <td className="py-3 text-[#444444]">{c.phone}</td>
+                      <td className="py-3 text-[#444444]">{c.orders}</td>
+                      <td className="py-3 font-medium text-[#DC0218]">₹{c.totalSpent?.toLocaleString()}</td>
+                      <td className="py-3 text-[#444444]">{c.joined ? new Date(c.joined).toLocaleDateString() : "-"}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       </div>
     </div>

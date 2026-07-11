@@ -1,23 +1,24 @@
 import { NextResponse } from "next/server";
+import { connectDB } from "@/lib/db";
+import Subscriber from "@/lib/models/Subscriber";
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { email, whatsappNumber, consent } = body;
+    const { email, phone, name, consent } = body;
 
     if (!email || !consent) {
       return NextResponse.json({ error: "Email and consent are required" }, { status: 400 });
     }
 
-    // TODO: connect MongoDB — save to `subscribers` collection
-    // const db = await connectDB();
-    // await db.collection("subscribers").insertOne({
-    //   email,
-    //   whatsappNumber,
-    //   consent: true,
-    //   createdAt: new Date(),
-    // });
-    void whatsappNumber;
+    await connectDB();
+
+    const existing = await Subscriber.findOne({ email });
+    if (existing) {
+      return NextResponse.json({ error: "Already subscribed" }, { status: 409 });
+    }
+
+    await Subscriber.create({ email, phone, name });
 
     return NextResponse.json({ success: true, message: "Subscribed successfully" });
   } catch {
