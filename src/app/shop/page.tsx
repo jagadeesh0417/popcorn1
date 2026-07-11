@@ -1,17 +1,31 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { ShoppingBag } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/lib/store";
-import { products, categories } from "@/lib/data";
+import { Product } from "@/lib/types";
+
+const categories = [
+  { id: "all", name: "All Flavours", icon: "🍿" },
+  { id: "savory", name: "Savory", icon: "🧂" },
+  { id: "sweet", name: "Sweet", icon: "🍯" },
+];
 
 export default function ShopPage() {
   const [activeCategory, setActiveCategory] = useState("all");
+  const [products, setProducts] = useState<Product[]>([]);
   const { addItem } = useCart();
+
+  useEffect(() => {
+    fetch("/api/products")
+      .then((r) => r.json())
+      .then((data) => { if (Array.isArray(data)) setProducts(data); })
+      .catch(console.error);
+  }, []);
 
   const filtered = activeCategory === "all" ? products : products.filter((p) => {
     const cat = p.category.toLowerCase();

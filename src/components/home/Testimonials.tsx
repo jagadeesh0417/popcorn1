@@ -2,7 +2,8 @@
 
 import { motion } from "framer-motion";
 import { Star, Quote } from "lucide-react";
-import { testimonials } from "@/lib/data";
+
+const testimonials: { id: string; name: string; rating: number; comment: string; role?: string }[] = [];
 
 export function Testimonials() {
   return (

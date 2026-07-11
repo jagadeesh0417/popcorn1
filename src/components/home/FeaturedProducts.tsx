@@ -1,16 +1,24 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { ShoppingBag, Star } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/lib/store";
-import { getFeaturedProducts } from "@/lib/data";
+import { Product } from "@/lib/types";
 
 export function FeaturedProducts() {
   const { addItem } = useCart();
-  const products = getFeaturedProducts();
+  const [products, setProducts] = useState<Product[]>([]);
+
+  useEffect(() => {
+    fetch("/api/products?featured=true")
+      .then((r) => r.json())
+      .then((data) => { if (Array.isArray(data)) setProducts(data); })
+      .catch(console.error);
+  }, []);
 
   return (
     <section className="py-24 bg-white">

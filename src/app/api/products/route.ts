@@ -2,10 +2,18 @@ import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import Product from "@/lib/models/Product";
 
-export async function GET() {
+export async function GET(req: Request) {
   try {
     await connectDB();
-    const products = await Product.find({}).sort({ createdAt: -1 });
+    const { searchParams } = new URL(req.url);
+    const slug = searchParams.get("slug");
+    const featured = searchParams.get("featured");
+    const bestSeller = searchParams.get("bestSeller");
+    const query: Record<string, unknown> = {};
+    if (slug) query.slug = slug;
+    if (featured === "true") query.isFeatured = true;
+    if (bestSeller === "true") query.isBestSeller = true;
+    const products = await Product.find(query).sort({ createdAt: -1 });
     return NextResponse.json(products);
   } catch (err) {
     console.error("Failed to fetch products", err);

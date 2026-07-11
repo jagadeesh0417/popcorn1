@@ -7,11 +7,18 @@ import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/lib/store";
-import { getBestSellers } from "@/lib/data";
+import { Product } from "@/lib/types";
 
 export function BestSellers() {
   const { addItem } = useCart();
-  const products = getBestSellers();
+  const [products, setProducts] = useState<Product[]>([]);
+
+  useEffect(() => {
+    fetch("/api/products?bestSeller=true")
+      .then((r) => r.json())
+      .then((data) => { if (Array.isArray(data)) setProducts(data); })
+      .catch(console.error);
+  }, []);
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
   const scrollContainerRef = useRef<HTMLDivElement>(null);

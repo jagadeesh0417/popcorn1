@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { motion } from "framer-motion";
 import { ShoppingBag, Star, Minus, Plus, Check, Truck, Shield, RotateCcw } from "lucide-react";
@@ -10,23 +10,40 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { useCart } from "@/lib/store";
-import { getProductBySlug, getRelatedProducts } from "@/lib/data";
 import { notFound } from "next/navigation";
 import { toast } from "sonner";
+import { Product } from "@/lib/types";
 
 export default function ProductDetailPage() {
   const params = useParams();
   const slug = params.slug as string;
-  const product = getProductBySlug(slug);
+  const [product, setProduct] = useState<Product | null>(null);
+  const [related, setRelated] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
   const { addItem } = useCart();
   const [quantity, setQuantity] = useState(1);
-  const [selectedSize, setSelectedSize] = useState<string>(product?.sizes?.[0]?.label ?? "");
+  const [selectedSize, setSelectedSize] = useState<string>("");
   const [activeTab, setActiveTab] = useState<"description" | "ingredients" | "nutrition" | "reviews">("description");
   const [added, setAdded] = useState(false);
 
-  if (!product) notFound();
+  useEffect(() => {
+    fetch("/api/products")
+      .then((r) => r.json())
+      .then((data) => {
+        if (!Array.isArray(data)) return;
+        const found = data.find((p: Product) => p.slug === slug);
+        if (found) {
+          setProduct(found);
+          setSelectedSize(found.sizes?.[0]?.label ?? "");
+          setRelated(data.filter((p: Product) => p.category === found.category && p.slug !== slug).slice(0, 4));
+        }
+      })
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, [slug]);
 
-  const related = getRelatedProducts(product);
+  if (loading) return <div className="min-h-screen pt-20 bg-white" />;
+  if (!product) notFound();
 
   const currentSize = product.sizes?.find((s) => s.label === selectedSize);
   const displayPrice = currentSize?.price ?? product.price;

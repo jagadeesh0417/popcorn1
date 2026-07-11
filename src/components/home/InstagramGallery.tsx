@@ -3,7 +3,15 @@
 import { motion } from "framer-motion";
 import { Camera } from "lucide-react";
 import Image from "next/image";
-import { galleryImages } from "@/lib/data";
+
+const galleryImages = [
+  "https://images.unsplash.com/photo-1578474846511-04ba529f0b88?w=400&q=80",
+  "https://images.unsplash.com/photo-1600959908209-755b03e7c66f?w=400&q=80",
+  "https://images.unsplash.com/photo-1578474846511-04ba529f0b88?w=400&q=80",
+  "https://images.unsplash.com/photo-1600959908209-755b03e7c66f?w=400&q=80",
+  "https://images.unsplash.com/photo-1578474846511-04ba529f0b88?w=400&q=80",
+  "https://images.unsplash.com/photo-1600959908209-755b03e7c66f?w=400&q=80",
+];
 
 export function InstagramGallery() {
   return (

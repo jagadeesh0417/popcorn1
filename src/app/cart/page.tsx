@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Trash2, Minus, Plus, ArrowLeft, Tag, ShoppingBag } from "lucide-react";
 import Image from "next/image";
@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { useCart } from "@/lib/store";
 import { useShipping } from "@/lib/shipping-settings";
-import { coupons } from "@/lib/data";
+import { Coupon } from "@/lib/types";
 
 export default function CartPage() {
   const { state, updateQuantity, removeItem, getSubtotal, getDiscount, getItemCount, applyCoupon } = useCart();
@@ -20,6 +20,14 @@ export default function CartPage() {
   const isFree = shippingCtx.qualifiesForFree(sub);
   const [couponInput, setCouponInput] = useState("");
   const [couponMsg, setCouponMsg] = useState("");
+  const [coupons, setCoupons] = useState<Coupon[]>([]);
+
+  useEffect(() => {
+    fetch("/api/coupons")
+      .then((r) => r.json())
+      .then((data) => { if (Array.isArray(data)) setCoupons(data); })
+      .catch(console.error);
+  }, []);
 
   const handleApplyCoupon = () => {
     const found = coupons.find((c) => c.code.toLowerCase() === couponInput.trim().toLowerCase());

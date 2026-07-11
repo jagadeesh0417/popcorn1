@@ -1,29 +1,42 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { ShoppingBag, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/lib/store";
-import { trioProducts } from "@/lib/data";
+import { Product } from "@/lib/types";
 import { toast } from "sonner";
+
+const TRIO_SLUGS = ["ghee-black-pepper", "ghee-curry-leaf", "coffee-chikki"];
 
 export function ProductGrid() {
   const { addItem } = useCart();
-  const initialSizes: Record<string, string> = {};
-  trioProducts.forEach((p) => {
-    if (p.sizes && p.sizes.length > 0) {
-      initialSizes[p.id] = p.sizes[0].label;
-    }
-  });
-  const [selectedSizes, setSelectedSizes] = useState<Record<string, string>>(initialSizes);
+  const [trioProducts, setTrioProducts] = useState<Product[]>([]);
+  const [selectedSizes, setSelectedSizes] = useState<Record<string, string>>({});
   const [addedFeedback, setAddedFeedback] = useState<Record<string, boolean>>({});
+
+  useEffect(() => {
+    fetch("/api/products")
+      .then((r) => r.json())
+      .then((data) => {
+        if (!Array.isArray(data)) return;
+        const trios = data.filter((p: Product) => TRIO_SLUGS.includes(p.slug));
+        setTrioProducts(trios);
+        const init: Record<string, string> = {};
+        trios.forEach((p: Product) => {
+          if (p.sizes && p.sizes.length > 0) init[p.id || p._id || ""] = p.sizes[0].label;
+        });
+        setSelectedSizes(init);
+      })
+      .catch(console.error);
+  }, []);
 
   const handleSizeSelect = (productId: string, label: string) => {
     setSelectedSizes((prev) => ({ ...prev, [productId]: label }));
   };
 
-  const handleAddToCart = (product: (typeof trioProducts)[0]) => {
+  const handleAddToCart = (product: Product) => {
     const sizeLabel = selectedSizes[product.id];
     if (!sizeLabel) return;
     const size = product.sizes?.find((s) => s.label === sizeLabel);

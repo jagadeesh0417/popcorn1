@@ -1,12 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Search, Package, CheckCircle, Clock, Truck, XCircle, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
-import { orders } from "@/lib/data";
+import { Order } from "@/lib/types";
 
 const statusIcons: Record<string, typeof Clock> = {
   pending: Clock,
@@ -40,8 +40,16 @@ const statusBg: Record<string, string> = {
 
 export default function OrderTrackingPage() {
   const [orderId, setOrderId] = useState("");
-  const [trackedOrder, setTrackedOrder] = useState<typeof orders[0] | null>(null);
+  const [trackedOrder, setTrackedOrder] = useState<Order | null>(null);
+  const [orders, setOrders] = useState<Order[]>([]);
   const [searched, setSearched] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/orders")
+      .then((r) => r.json())
+      .then((data) => { if (Array.isArray(data)) setOrders(data); })
+      .catch(console.error);
+  }, []);
 
   const handleSearch = () => {
     setSearched(true);
