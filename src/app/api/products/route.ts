@@ -4,7 +4,9 @@ import { successResponse, errorResponse } from "@/lib/api-utils";
 
 export async function GET(req: Request) {
   try {
+    console.log("[GET /api/products] Connecting to MongoDB...");
     await connectDB();
+    console.log("[GET /api/products] Connected, building query...");
     const { searchParams } = new URL(req.url);
     const slug = searchParams.get("slug");
     const featured = searchParams.get("featured");
@@ -13,10 +15,13 @@ export async function GET(req: Request) {
     if (slug) query.slug = slug;
     if (featured === "true") query.isFeatured = true;
     if (bestSeller === "true") query.isBestSeller = true;
+    console.log("[GET /api/products] Query:", JSON.stringify(query));
     const products = await Product.find(query).sort({ createdAt: -1 });
+    console.log(`[GET /api/products] Found ${products.length} products`);
     return successResponse(products);
   } catch (err) {
-    console.error("Failed to fetch products", err);
+    console.error("[GET /api/products] Error:", err instanceof Error ? err.message : err);
+    if (err instanceof Error && err.stack) console.error("[GET /api/products] Stack:", err.stack);
     return errorResponse("Failed to fetch products", 500);
   }
 }

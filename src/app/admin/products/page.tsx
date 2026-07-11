@@ -39,7 +39,7 @@ export default function AdminProductsPage() {
 
   useEffect(() => {
     let mounted = true;
-    fetch("/api/products").then((r) => r.json()).then((data) => { if (mounted) { if (data?.success) setProducts(data.data); setLoading(false); } }).catch(() => { if (mounted) { setError("Failed to load products"); setLoading(false); } });
+    fetch("/api/products").then((r) => r.json()).then((data) => { if (mounted) { if (data?.success) setProducts(data.data); else setError(data?.error || "Failed to load products"); setLoading(false); } }).catch(() => { if (mounted) { setError("Failed to load products"); setLoading(false); } });
     return () => { mounted = false; };
   }, []);
 
