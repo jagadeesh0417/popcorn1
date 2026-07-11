@@ -21,7 +21,7 @@ export default function AdminSubscribersPage() {
 
   useEffect(() => {
     let mounted = true;
-    fetch("/api/subscribers").then((r) => r.json()).then((data) => { if (mounted) { if (Array.isArray(data)) setSubscribers(data); setLoading(false); } }).catch(() => { if (mounted) { setError("Failed to load subscribers"); setLoading(false); } });
+    fetch("/api/subscribers").then((r) => r.json()).then((data) => { if (mounted) { if (data?.success) setSubscribers(data.data); setLoading(false); } }).catch(() => { if (mounted) { setError("Failed to load subscribers"); setLoading(false); } });
     return () => { mounted = false; };
   }, []);
 

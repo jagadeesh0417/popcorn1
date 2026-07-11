@@ -27,7 +27,7 @@ export default function AdminCouponsPage() {
 
   useEffect(() => {
     let mounted = true;
-    fetch("/api/coupons").then((r) => r.json()).then((data) => { if (mounted) { if (Array.isArray(data)) setCoupons(data); if (!Array.isArray(data)) setError("Invalid response"); setLoading(false); } }).catch(() => { if (mounted) { setError("Failed to load coupons"); setLoading(false); } });
+    fetch("/api/coupons").then((r) => r.json()).then((data) => { if (mounted) { if (data?.success) setCoupons(data.data); else setError("Invalid response"); setLoading(false); } }).catch(() => { if (mounted) { setError("Failed to load coupons"); setLoading(false); } });
     return () => { mounted = false; };
   }, []);
 
@@ -51,9 +51,9 @@ export default function AdminCouponsPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
       });
-      if (res.ok) {
-        const coupon = await res.json();
-        setCoupons((prev) => [coupon, ...prev]);
+      const result = await res.json();
+      if (result?.success) {
+        setCoupons((prev) => [result.data, ...prev]);
         setShowForm(false);
         setForm({ code: "", discount: 0, type: "percentage", minAmount: 0, maxUses: 100, expiryDate: "", isActive: true });
       }

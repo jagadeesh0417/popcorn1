@@ -16,7 +16,7 @@ export function FeaturedProducts() {
   useEffect(() => {
     fetch("/api/products?featured=true")
       .then((r) => r.json())
-      .then((data) => { if (Array.isArray(data)) setProducts(data); })
+      .then((data) => { if (data?.success) setProducts(data.data); })
       .catch(console.error);
   }, []);
 

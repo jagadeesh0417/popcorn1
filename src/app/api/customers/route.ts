@@ -1,6 +1,6 @@
-import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import Order from "@/lib/models/Order";
+import { successResponse, errorResponse } from "@/lib/api-utils";
 
 export async function GET() {
   try {
@@ -10,9 +10,9 @@ export async function GET() {
       { $project: { _id: 0, email: "$_id", firstName: 1, lastName: 1, phone: 1, orders: 1, totalSpent: 1, joined: 1 } },
       { $sort: { orders: -1 } },
     ]);
-    return NextResponse.json(customers);
+    return successResponse(customers);
   } catch (err) {
     console.error("Failed to fetch customers", err);
-    return NextResponse.json({ error: "Failed to fetch customers" }, { status: 500 });
+    return errorResponse("Failed to fetch customers", 500);
   }
 }

@@ -31,7 +31,7 @@ export default function AdminOrdersPage() {
 
   useEffect(() => {
     let mounted = true;
-    fetch("/api/orders").then((r) => r.json()).then((data) => { if (mounted) { if (Array.isArray(data)) setOrderList(data); setLoading(false); } }).catch(() => { if (mounted) { setError("Failed to load orders"); setLoading(false); } });
+    fetch("/api/orders").then((r) => r.json()).then((data) => { if (mounted) { if (data?.success) setOrderList(data.data); setLoading(false); } }).catch(() => { if (mounted) { setError("Failed to load orders"); setLoading(false); } });
     return () => { mounted = false; };
   }, []);
 

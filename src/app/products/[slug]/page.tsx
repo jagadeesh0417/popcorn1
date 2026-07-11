@@ -30,12 +30,13 @@ export default function ProductDetailPage() {
     fetch("/api/products")
       .then((r) => r.json())
       .then((data) => {
-        if (!Array.isArray(data)) return;
-        const found = data.find((p: Product) => p.slug === slug);
+        if (!data?.success) return;
+        const list = data.data as Product[];
+        const found = list.find((p: Product) => p.slug === slug);
         if (found) {
           setProduct(found);
           setSelectedSize(found.sizes?.[0]?.label ?? "");
-          setRelated(data.filter((p: Product) => p.category === found.category && p.slug !== slug).slice(0, 4));
+          setRelated(list.filter((p: Product) => p.category === found.category && p.slug !== slug).slice(0, 4));
         }
       })
       .catch(console.error)

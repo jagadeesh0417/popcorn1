@@ -27,20 +27,21 @@ export default function AdminProductsPage() {
   const [showForm, setShowForm] = useState(false);
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({
-    name: "", slug: "", description: "", shortDescription: "", price: 0, originalPrice: 0,
+    name: "", slug: "", tagline: "", description: "", shortDescription: "", price: 0, originalPrice: 0,
     category: "Classic", tags: "", ingredients: "", images: "", weight: "200g",
     stockQuantity: 100, inStock: true, isPublished: true, isBestSeller: false,
+    sizes: [{ label: "80g", grams: 80, price: 149 }],
     nutrition: { servingSize: "28g (1 cup)", calories: 0, totalFat: "0g", saturatedFat: "0g", transFat: "0g", cholesterol: "0mg", sodium: "0mg", totalCarb: "0g", fiber: "0g", sugar: "0g", protein: "0g" },
   });
 
   useEffect(() => {
     let mounted = true;
-    fetch("/api/products").then((r) => r.json()).then((data) => { if (mounted) { if (Array.isArray(data)) setProducts(data); setLoading(false); } }).catch(() => { if (mounted) { setError("Failed to load products"); setLoading(false); } });
+    fetch("/api/products").then((r) => r.json()).then((data) => { if (mounted) { if (data?.success) setProducts(data.data); setLoading(false); } }).catch(() => { if (mounted) { setError("Failed to load products"); setLoading(false); } });
     return () => { mounted = false; };
   }, []);
 
   const resetForm = () => {
-    setForm({ name: "", slug: "", description: "", shortDescription: "", price: 0, originalPrice: 0, category: "Classic", tags: "", ingredients: "", images: "", weight: "200g", stockQuantity: 100, inStock: true, isPublished: true, isBestSeller: false, nutrition: { servingSize: "28g (1 cup)", calories: 0, totalFat: "0g", saturatedFat: "0g", transFat: "0g", cholesterol: "0mg", sodium: "0mg", totalCarb: "0g", fiber: "0g", sugar: "0g", protein: "0g" } });
+    setForm({ name: "", slug: "", tagline: "", description: "", shortDescription: "", price: 0, originalPrice: 0, category: "Classic", tags: "", ingredients: "", images: "", weight: "200g", stockQuantity: 100, inStock: true, isPublished: true, isBestSeller: false, sizes: [{ label: "80g", grams: 80, price: 149 }], nutrition: { servingSize: "28g (1 cup)", calories: 0, totalFat: "0g", saturatedFat: "0g", transFat: "0g", cholesterol: "0mg", sodium: "0mg", totalCarb: "0g", fiber: "0g", sugar: "0g", protein: "0g" } });
     setError("");
   };
 
@@ -53,8 +54,10 @@ export default function AdminProductsPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name: form.name, slug: form.slug, description: form.description, shortDescription: form.shortDescription || form.description,
+          name: form.name, slug: form.slug, tagline: form.tagline || undefined,
+          description: form.description, shortDescription: form.shortDescription || form.description,
           price: form.price, originalPrice: form.originalPrice || undefined, category: form.category, weight: form.weight,
+          sizes: form.sizes.filter((s: { label: string; grams: number; price: number }) => s.label && s.grams && s.price),
           stockQuantity: form.stockQuantity, inStock: form.inStock, isPublished: form.isPublished, isBestSeller: form.isBestSeller,
           tags: form.tags ? form.tags.split(",").map((t: string) => t.trim()) : [],
           ingredients: form.ingredients ? form.ingredients.split(",").map((t: string) => t.trim()) : [],
@@ -62,13 +65,13 @@ export default function AdminProductsPage() {
           nutritionInfo: form.nutrition,
         }),
       });
-      const data = await res.json();
-      if (res.ok) {
-        setProducts((prev) => [data, ...prev]);
+      const result = await res.json();
+      if (result?.success) {
+        setProducts((prev) => [result.data, ...prev]);
         setShowForm(false);
         resetForm();
       } else {
-        setError(data.error || "Failed to create product");
+        setError(result.error || "Failed to create product");
       }
     } catch {
       setError("Failed to create product");
@@ -134,6 +137,10 @@ export default function AdminProductsPage() {
                   <input value={form.slug} onChange={(e) => setForm({ ...form, slug: e.target.value })} className="w-full px-3 py-2 border border-[rgba(220,2,24,0.12)] text-sm" />
                 </div>
                 <div>
+                  <label className="block text-sm font-medium text-[#1A1A1A] mb-1">Tagline</label>
+                  <input value={form.tagline} onChange={(e) => setForm({ ...form, tagline: e.target.value })} placeholder="e.g. One spice, done right." className="w-full px-3 py-2 border border-[rgba(220,2,24,0.12)] text-sm" />
+                </div>
+                <div>
                   <label className="block text-sm font-medium text-[#1A1A1A] mb-1">Category</label>
                   <input value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} className="w-full px-3 py-2 border border-[rgba(220,2,24,0.12)] text-sm" />
                 </div>
@@ -184,6 +191,18 @@ export default function AdminProductsPage() {
                   <label className="block text-sm font-medium text-[#1A1A1A] mb-1">Description</label>
                   <textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} rows={2} className="w-full px-3 py-2 border border-[rgba(220,2,24,0.12)] text-sm" />
                 </div>
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-[#1A1A1A] mb-2">Sizes (label, grams, price)</label>
+                {form.sizes.map((size, i) => (
+                  <div key={i} className="flex gap-2 mb-2">
+                    <input value={size.label} onChange={(e) => { const s = [...form.sizes]; s[i] = { ...s[i], label: e.target.value }; setForm({ ...form, sizes: s }); }} placeholder="80g" className="w-24 px-3 py-2 border border-[rgba(220,2,24,0.12)] text-sm" />
+                    <input type="number" value={size.grams} onChange={(e) => { const s = [...form.sizes]; s[i] = { ...s[i], grams: Number(e.target.value) }; setForm({ ...form, sizes: s }); }} placeholder="80" className="w-24 px-3 py-2 border border-[rgba(220,2,24,0.12)] text-sm" />
+                    <input type="number" value={size.price} onChange={(e) => { const s = [...form.sizes]; s[i] = { ...s[i], price: Number(e.target.value) }; setForm({ ...form, sizes: s }); }} placeholder="149" className="w-24 px-3 py-2 border border-[rgba(220,2,24,0.12)] text-sm" />
+                    <button onClick={() => setForm({ ...form, sizes: form.sizes.filter((_, j) => j !== i) })} className="px-3 py-2 text-red-500 hover:bg-red-50 text-sm">✕</button>
+                  </div>
+                ))}
+                <button onClick={() => setForm({ ...form, sizes: [...form.sizes, { label: "", grams: 0, price: 0 }] })} className="text-sm text-[#DC0218] hover:underline">+ Add size</button>
               </div>
               <div className="grid sm:grid-cols-3 gap-4 mb-4">
                 <div>

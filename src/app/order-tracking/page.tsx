@@ -47,7 +47,7 @@ export default function OrderTrackingPage() {
   useEffect(() => {
     fetch("/api/orders")
       .then((r) => r.json())
-      .then((data) => { if (Array.isArray(data)) setOrders(data); })
+      .then((data) => { if (data?.success) setOrders(data.data); })
       .catch(console.error);
   }, []);
 

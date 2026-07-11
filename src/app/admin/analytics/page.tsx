@@ -24,8 +24,8 @@ export default function AdminAnalyticsPage() {
     ])
       .then(([orders, customers]) => {
         if (!mounted) return;
-        const ordersArr = Array.isArray(orders) ? orders : [];
-        const customersArr = Array.isArray(customers) ? customers : [];
+        const ordersArr = orders?.success ? orders.data : [];
+        const customersArr = customers?.success ? customers.data : [];
         const now = new Date();
         const currentMonth = now.getMonth();
         const currentYear = now.getFullYear();

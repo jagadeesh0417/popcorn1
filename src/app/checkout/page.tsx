@@ -115,9 +115,10 @@ export default function CheckoutPage() {
           body: JSON.stringify(orderData),
         });
         if (!res.ok) throw new Error("Failed to create order");
-        const order = await res.json();
+        const result = await res.json();
+        if (!result.success) throw new Error("Failed to create order");
         clearCart();
-        router.push(`/thanks?order=${order.orderId}`);
+        router.push(`/thanks?order=${result.data.orderId}`);
         return;
       }
 
@@ -127,7 +128,8 @@ export default function CheckoutPage() {
         body: JSON.stringify({ amount: Math.round(total * 100), currency: "INR" }),
       });
       if (!orderRes.ok) throw new Error("Failed to create Razorpay order");
-      const { razorpayOrderId } = await orderRes.json();
+      const orderData_ = await orderRes.json();
+      const razorpayOrderId = orderData_.success ? orderData_.data.razorpayOrderId : orderData_.razorpayOrderId;
 
       const script = document.createElement("script");
       script.src = "https://checkout.razorpay.com/v1/checkout.js";

@@ -22,7 +22,7 @@ export default function AdminCustomersPage() {
   useEffect(() => {
     fetch("/api/customers")
       .then((r) => r.json())
-      .then((data) => { if (Array.isArray(data)) setCustomers(data); else setError("Invalid response from server"); })
+      .then((data) => { if (data?.success) setCustomers(data.data); else setError("Invalid response from server"); })
       .catch(() => setError("Failed to load customers"))
       .finally(() => setLoading(false));
   }, []);

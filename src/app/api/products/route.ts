@@ -1,6 +1,6 @@
-import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import Product from "@/lib/models/Product";
+import { successResponse, errorResponse } from "@/lib/api-utils";
 
 export async function GET(req: Request) {
   try {
@@ -14,10 +14,10 @@ export async function GET(req: Request) {
     if (featured === "true") query.isFeatured = true;
     if (bestSeller === "true") query.isBestSeller = true;
     const products = await Product.find(query).sort({ createdAt: -1 });
-    return NextResponse.json(products);
+    return successResponse(products);
   } catch (err) {
     console.error("Failed to fetch products", err);
-    return NextResponse.json({ error: "Failed to fetch products" }, { status: 500 });
+    return errorResponse("Failed to fetch products", 500);
   }
 }
 
@@ -26,16 +26,16 @@ export async function POST(req: Request) {
     await connectDB();
     const body = await req.json();
     if (!body.name || !body.slug || !body.price) {
-      return NextResponse.json({ error: "Name, slug, and price are required" }, { status: 400 });
+      return errorResponse("Name, slug, and price are required", 400);
     }
     const existing = await Product.findOne({ slug: body.slug });
     if (existing) {
-      return NextResponse.json({ error: "Product with this slug already exists" }, { status: 409 });
+      return errorResponse("Product with this slug already exists", 409);
     }
     const product = await Product.create(body);
-    return NextResponse.json(product, { status: 201 });
+    return successResponse(product, 201);
   } catch (err) {
     console.error("Failed to create product", err);
-    return NextResponse.json({ error: "Failed to create product" }, { status: 500 });
+    return errorResponse("Failed to create product", 500);
   }
 }

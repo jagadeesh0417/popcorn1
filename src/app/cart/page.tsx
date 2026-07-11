@@ -25,7 +25,7 @@ export default function CartPage() {
   useEffect(() => {
     fetch("/api/coupons")
       .then((r) => r.json())
-      .then((data) => { if (Array.isArray(data)) setCoupons(data); })
+      .then((data) => { if (data?.success) setCoupons(data.data); })
       .catch(console.error);
   }, []);
 

@@ -37,9 +37,9 @@ export default function AdminDashboard() {
       fetch("/api/products").then((r) => r.json()),
       fetch("/api/customers").then((r) => r.json()),
     ]).then(([orders, products, customers]) => {
-      const ordersArr = Array.isArray(orders) ? orders : [];
-      const productsArr = Array.isArray(products) ? products : [];
-      const customersArr = Array.isArray(customers) ? customers : [];
+      const ordersArr = orders?.success ? orders.data : [];
+      const productsArr = products?.success ? products.data : [];
+      const customersArr = customers?.success ? customers.data : [];
       const totalRevenue = ordersArr.reduce((s: number, o: { total: number }) => s + (o.total || 0), 0);
       const pendingOrders = ordersArr.filter((o: { status: string }) => o.status === "pending").length;
       const lowStock = productsArr.filter((p: { stockQuantity: number }) => (p.stockQuantity || 0) <= 10).length;

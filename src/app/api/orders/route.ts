@@ -1,15 +1,15 @@
-import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import Order from "@/lib/models/Order";
+import { successResponse, errorResponse } from "@/lib/api-utils";
 
 export async function GET() {
   try {
     await connectDB();
     const orders = await Order.find({}).sort({ createdAt: -1 });
-    return NextResponse.json(orders);
+    return successResponse(orders);
   } catch (err) {
     console.error("Failed to fetch orders", err);
-    return NextResponse.json({ error: "Failed" }, { status: 500 });
+    return errorResponse("Failed to fetch orders", 500);
   }
 }
 
@@ -21,9 +21,9 @@ export async function POST(req: Request) {
       ...body,
       statusTimeline: [{ status: "pending", date: new Date(), note: "Order placed" }],
     });
-    return NextResponse.json(order, { status: 201 });
+    return successResponse(order, 201);
   } catch (err) {
     console.error("Failed to create order", err);
-    return NextResponse.json({ error: "Failed to create order" }, { status: 500 });
+    return errorResponse("Failed to create order", 500);
   }
 }

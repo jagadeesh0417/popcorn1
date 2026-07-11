@@ -21,7 +21,7 @@ export default function AdminInventoryPage() {
 
   useEffect(() => {
     let mounted = true;
-    fetch("/api/inventory").then((r) => r.json()).then((data) => { if (mounted) { if (Array.isArray(data)) setItems(data); setLoading(false); } }).catch(() => { if (mounted) { setError("Failed to load inventory"); setLoading(false); } });
+    fetch("/api/inventory").then((r) => r.json()).then((data) => { if (mounted) { if (data?.success) setItems(data.data); setLoading(false); } }).catch(() => { if (mounted) { setError("Failed to load inventory"); setLoading(false); } });
     return () => { mounted = false; };
   }, []);
 

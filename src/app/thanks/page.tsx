@@ -45,7 +45,7 @@ function ThankYouContent() {
         return res.json();
       })
       .then((data) => {
-        setOrder(data);
+        if (data?.success) setOrder(data.data);
         setLoading(false);
       })
       .catch(() => {

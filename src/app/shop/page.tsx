@@ -23,7 +23,7 @@ export default function ShopPage() {
   useEffect(() => {
     fetch("/api/products")
       .then((r) => r.json())
-      .then((data) => { if (Array.isArray(data)) setProducts(data); })
+      .then((data) => { if (data?.success) setProducts(data.data); })
       .catch(console.error);
   }, []);
 

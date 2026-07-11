@@ -20,8 +20,9 @@ export function ProductGrid() {
     fetch("/api/products")
       .then((r) => r.json())
       .then((data) => {
-        if (!Array.isArray(data)) return;
-        const trios = data.filter((p: Product) => TRIO_SLUGS.includes(p.slug));
+        if (!data?.success) return;
+        const list = data.data as Product[];
+        const trios = list.filter((p: Product) => TRIO_SLUGS.includes(p.slug));
         setTrioProducts(trios);
         const init: Record<string, string> = {};
         trios.forEach((p: Product) => {
