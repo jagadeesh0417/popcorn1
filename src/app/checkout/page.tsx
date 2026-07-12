@@ -1,15 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { CreditCard, MapPin, User, Lock, ShoppingBag, Store, Building, Home, Briefcase } from "lucide-react";
+import { CreditCard, MapPin, User, Lock, ShoppingBag, Store, Building, Home, Briefcase, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useCart } from "@/lib/store";
 import { useShipping } from "@/lib/shipping-settings";
@@ -43,13 +42,26 @@ export default function CheckoutPage() {
   const [loading, setLoading] = useState(false);
   const [shippingMethod, setShippingMethod] = useState<ShippingMethod>("shipping");
   const [addressType, setAddressType] = useState<AddressType>("home");
-  const [paymentMethod, setPaymentMethod] = useState<"razorpay" | "cod">("razorpay");
+  const [paymentMethod, setPaymentMethod] = useState<"razorpay" | "cod" | "whatsapp">("razorpay");
+  const [paymentMode, setPaymentMode] = useState<"razorpay" | "whatsapp">("razorpay");
+  const [whatsappNumber, setWhatsappNumber] = useState("918197175807");
   const [form, setForm] = useState({
     firstName: "", lastName: "", phone: "", email: "",
     addressLine1: "", addressLine2: "", area: "", landmark: "",
     city: "", state: "", pincode: "",
     deliveryInstructions: "",
   });
+
+  useEffect(() => {
+    fetch("/api/settings").then((r) => r.json()).then((d) => {
+      if (d?.success && d.data?.payments) {
+        const p = d.data.payments;
+        setPaymentMode(p.mode || "razorpay");
+        setPaymentMethod((p.mode === "whatsapp") ? "whatsapp" : "razorpay");
+        if (p.whatsappNumber) setWhatsappNumber(p.whatsappNumber.replace(/[^0-9]/g, ""));
+      }
+    }).catch(() => {});
+  }, []);
 
   const updateField = (field: string, value: string) => setForm((prev) => ({ ...prev, [field]: value }));
 
@@ -90,7 +102,53 @@ export default function CheckoutPage() {
     }],
   });
 
+  const handleWhatsAppOrder = async () => {
+    if (!form.firstName || !form.phone || !form.email) {
+      toast.error("Please fill in your name, phone, and email");
+      return;
+    }
+    if (shippingMethod === "shipping" && (!form.addressLine1 || !form.city || !form.state || !form.pincode)) {
+      toast.error("Please fill in your delivery address");
+      return;
+    }
+    if (state.items.length === 0) {
+      toast.error("Your cart is empty");
+      return;
+    }
+    setLoading(true);
+    try {
+      const total = getSubtotal() - getDiscount() + shipping;
+      const orderData = buildOrderData("WhatsApp", undefined, orderId);
+      const res = await fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(orderData),
+      });
+      if (!res.ok) throw new Error("Failed to create order");
+      const result = await res.json();
+      if (!result.success) throw new Error("Failed to create order");
+      clearCart();
+
+      const itemsList = state.items.map((i) => `• ${i.product.name} × ${i.quantity} = ₹${(i.product.price * i.quantity).toLocaleString()}`).join("\n");
+      const addressStr = shippingMethod === "shipping"
+        ? `\n\nDelivery Address:\n${form.addressLine1}${form.addressLine2 ? ", " + form.addressLine2 : ""}${form.area ? ", " + form.area : ""}\n${form.city}, ${form.state} - ${form.pincode}`
+        : "\n\nPickup: #30, Sri Nivasa, RCE Layout, Vijayanagar, Mysore";
+      const msg = `🛒 *New Order — Poprika*\n\nOrder ID: ${orderData.orderId}\nCustomer: ${form.firstName} ${form.lastName}\nPhone: ${form.phone}\nEmail: ${form.email}\n\n*Items:*\n${itemsList}\n\nSubtotal: ₹${getSubtotal().toLocaleString()}${getDiscount() > 0 ? `\nDiscount: -₹${getDiscount().toLocaleString()}` : ""}\nShipping: ₹${shipping}\n*Total: ₹${total.toLocaleString()}*${addressStr}${form.deliveryInstructions ? `\n\nNotes: ${form.deliveryInstructions}` : ""}`;
+
+      window.open(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(msg)}`, "_blank");
+      router.push(`/thanks?order=${result.data.orderId}`);
+    } catch (err) {
+      console.error("WhatsApp order error:", err);
+      toast.error("Failed to create order. Please try again.");
+      setLoading(false);
+    }
+  };
+
   const handlePayment = async () => {
+    if (paymentMethod === "whatsapp") {
+      await handleWhatsAppOrder();
+      return;
+    }
     if (!form.firstName || !form.phone || !form.email) {
       toast.error("Please fill in your name, phone, and email");
       return;
@@ -280,7 +338,6 @@ export default function CheckoutPage() {
                   <MapPin className="h-5 w-5 text-[#DC0218]" />
                   <h2 className="font-bold text-lg text-[#1A1A1A]">Delivery address</h2>
                 </div>
-
                 <div className="space-y-4">
                   <div className="grid sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
@@ -292,7 +349,6 @@ export default function CheckoutPage() {
                       <Input id="addressLine2" value={form.addressLine2} onChange={(e) => updateField("addressLine2", e.target.value)} placeholder="Apartment / unit" className="bg-white border-[rgba(220,2,24,0.12)]" />
                     </div>
                   </div>
-
                   <div className="grid sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="area" className="text-[#1A1A1A]">Area / Locality</Label>
@@ -303,7 +359,6 @@ export default function CheckoutPage() {
                       <Input id="landmark" value={form.landmark} onChange={(e) => updateField("landmark", e.target.value)} placeholder="Near..." className="bg-white border-[rgba(220,2,24,0.12)]" />
                     </div>
                   </div>
-
                   <div className="grid sm:grid-cols-3 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="city" className="text-[#1A1A1A]">City *</Label>
@@ -327,7 +382,6 @@ export default function CheckoutPage() {
                       <Input id="pincode" value={form.pincode} onChange={(e) => updateField("pincode", e.target.value)} placeholder="400001" className="bg-white border-[rgba(220,2,24,0.12)]" />
                     </div>
                   </div>
-
                   <div className="space-y-2">
                     <Label className="text-[#1A1A1A]">Address type</Label>
                     <div className="flex gap-3">
@@ -350,7 +404,6 @@ export default function CheckoutPage() {
                       ))}
                     </div>
                   </div>
-
                 </div>
               </div>
             )}
@@ -391,53 +444,66 @@ export default function CheckoutPage() {
                 <h2 className="font-bold text-lg text-[#1A1A1A]">Payment method</h2>
               </div>
               <div className="space-y-3">
-                <button
-                  onClick={() => setPaymentMethod("razorpay")}
-                  className={`w-full flex items-center gap-4 p-4 border text-left transition-all ${
-                    paymentMethod === "razorpay"
-                      ? "border-[#072654] bg-[#f8faff]"
-                      : "border-[rgba(0,0,0,0.08)] bg-white"
-                  }`}
-                >
-                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${
-                    paymentMethod === "razorpay" ? "border-[#072654]" : "border-[#999]"
-                  }`}>
-                    {paymentMethod === "razorpay" && <div className="w-2.5 h-2.5 rounded-full bg-[#072654]" />}
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <svg viewBox="0 0 100 30" className="h-6" xmlns="http://www.w3.org/2000/svg">
-                        <rect width="100" height="30" rx="4" fill="#072654" />
-                        <text x="12" y="20" fill="white" fontWeight="bold" fontSize="12" fontFamily="Arial">Razorpay</text>
-                      </svg>
-                      <span className="bg-[#3395FF]/10 text-[#072654] text-[10px] px-2 py-0.5 font-semibold uppercase">Pay Online</span>
-                    </div>
-                    <p className="text-xs text-[#444444]">UPI · Cards · Net Banking · Wallets · EMI</p>
-                  </div>
-                </button>
-
-                {shippingCtx.settings.codEnabled && (
-                  <button
-                    onClick={() => setPaymentMethod("cod")}
-                    className={`w-full flex items-center gap-4 p-4 border text-left transition-all ${
-                      paymentMethod === "cod"
-                        ? "border-[#DC0218] bg-[#FFF8F0]"
-                        : "border-[rgba(0,0,0,0.08)] bg-white"
-                    }`}
-                  >
-                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${
-                      paymentMethod === "cod" ? "border-[#DC0218]" : "border-[#999]"
-                    }`}>
-                      {paymentMethod === "cod" && <div className="w-2.5 h-2.5 rounded-full bg-[#DC0218]" />}
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="font-bold text-sm text-[#1A1A1A]">Cash on Delivery</span>
-                        <span className="bg-[#DC0218]/10 text-[#DC0218] text-[10px] px-2 py-0.5 font-semibold uppercase">Pay Later</span>
+                {paymentMode === "razorpay" && (
+                  <>
+                    <button
+                      onClick={() => setPaymentMethod("razorpay")}
+                      className={`w-full flex items-center gap-4 p-4 border text-left transition-all ${
+                        paymentMethod === "razorpay"
+                          ? "border-[#072654] bg-[#f8faff]"
+                          : "border-[rgba(0,0,0,0.08)] bg-white"
+                      }`}
+                    >
+                      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${
+                        paymentMethod === "razorpay" ? "border-[#072654]" : "border-[#999]"
+                      }`}>
+                        {paymentMethod === "razorpay" && <div className="w-2.5 h-2.5 rounded-full bg-[#072654]" />}
                       </div>
-                      <p className="text-xs text-[#444444]">Pay when you receive your order · No extra charges</p>
-                    </div>
-                  </button>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <svg viewBox="0 0 100 30" className="h-6" xmlns="http://www.w3.org/2000/svg">
+                            <rect width="100" height="30" rx="4" fill="#072654" />
+                            <text x="12" y="20" fill="white" fontWeight="bold" fontSize="12" fontFamily="Arial">Razorpay</text>
+                          </svg>
+                          <span className="bg-[#3395FF]/10 text-[#072654] text-[10px] px-2 py-0.5 font-semibold uppercase">Pay Online</span>
+                        </div>
+                        <p className="text-xs text-[#444444]">UPI · Cards · Net Banking · Wallets · EMI</p>
+                      </div>
+                    </button>
+
+                    {shippingCtx.settings.codEnabled && (
+                      <button
+                        onClick={() => setPaymentMethod("cod")}
+                        className={`w-full flex items-center gap-4 p-4 border text-left transition-all ${
+                          paymentMethod === "cod"
+                            ? "border-[#DC0218] bg-[#FFF8F0]"
+                            : "border-[rgba(0,0,0,0.08)] bg-white"
+                        }`}
+                      >
+                        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${
+                          paymentMethod === "cod" ? "border-[#DC0218]" : "border-[#999]"
+                        }`}>
+                          {paymentMethod === "cod" && <div className="w-2.5 h-2.5 rounded-full bg-[#DC0218]" />}
+                        </div>
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="font-bold text-sm text-[#1A1A1A]">Cash on Delivery</span>
+                            <span className="bg-[#DC0218]/10 text-[#DC0218] text-[10px] px-2 py-0.5 font-semibold uppercase">Pay Later</span>
+                          </div>
+                          <p className="text-xs text-[#444444]">Pay when you receive your order · No extra charges</p>
+                        </div>
+                      </button>
+                    )}
+                  </>
+                )}
+
+                {paymentMode === "whatsapp" && (
+                  <div className="bg-[#F0FFF4] border border-green-200 p-6 text-center">
+                    <MessageCircle className="h-12 w-12 text-green-500 mx-auto mb-3" />
+                    <h3 className="font-bold text-lg text-[#1A1A1A] mb-1">WhatsApp Checkout</h3>
+                    <p className="text-sm text-[#444444] mb-2">You&apos;ll place this order via WhatsApp.</p>
+                    <p className="text-xs text-[#444444]">Our team will confirm and share payment details.</p>
+                  </div>
                 )}
 
                 {paymentMethod === "razorpay" && (
@@ -482,26 +548,43 @@ export default function CheckoutPage() {
               </div>
 
               <motion.div whileTap={{ scale: 0.97 }}>
-                <Button
-                  className={`w-full mt-6 h-12 text-base shadow-lg ${
-                    paymentMethod === "cod"
-                      ? "bg-[#DC0218] hover:bg-[#C70015] text-white shadow-[#DC0218]/20 hover:shadow-[#DC0218]/30"
-                      : "bg-[#072654] hover:bg-[#051d3f] text-white shadow-[#072654]/20 hover:shadow-[#072654]/30"
-                  }`}
-                  onClick={handlePayment}
-                  disabled={loading}
-                >
-                  {loading ? (
-                    <span className="flex items-center gap-2">
-                      <span className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" />
-                      Processing...
-                    </span>
-                  ) : paymentMethod === "cod" ? (
-                    <span className="flex items-center gap-2"><Lock className="h-4 w-4" /> Place Order (COD)</span>
-                  ) : (
-                    <span className="flex items-center gap-2"><Lock className="h-4 w-4" /> Pay ₹{getSubtotal() - getDiscount() + shipping} securely</span>
-                  )}
-                </Button>
+                {paymentMethod === "whatsapp" ? (
+                  <Button
+                    className="w-full mt-6 h-12 text-base bg-green-600 hover:bg-green-700 text-white shadow-lg shadow-green-600/20"
+                    onClick={handleWhatsAppOrder}
+                    disabled={loading}
+                  >
+                    {loading ? (
+                      <span className="flex items-center gap-2">
+                        <span className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" />
+                        Processing...
+                      </span>
+                    ) : (
+                      <span className="flex items-center gap-2"><MessageCircle className="h-5 w-5" /> Order via WhatsApp</span>
+                    )}
+                  </Button>
+                ) : (
+                  <Button
+                    className={`w-full mt-6 h-12 text-base shadow-lg ${
+                      paymentMethod === "cod"
+                        ? "bg-[#DC0218] hover:bg-[#C70015] text-white shadow-[#DC0218]/20"
+                        : "bg-[#072654] hover:bg-[#051d3f] text-white shadow-[#072654]/20"
+                    }`}
+                    onClick={handlePayment}
+                    disabled={loading}
+                  >
+                    {loading ? (
+                      <span className="flex items-center gap-2">
+                        <span className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" />
+                        Processing...
+                      </span>
+                    ) : paymentMethod === "cod" ? (
+                      <span className="flex items-center gap-2"><Lock className="h-4 w-4" /> Place Order (COD)</span>
+                    ) : (
+                      <span className="flex items-center gap-2"><Lock className="h-4 w-4" /> Pay ₹{getSubtotal() - getDiscount() + shipping} securely</span>
+                    )}
+                  </Button>
+                )}
               </motion.div>
               {paymentMethod === "razorpay" && (
                 <p className="text-[10px] text-[#444444] text-center mt-3 flex items-center justify-center gap-1">

@@ -4,18 +4,23 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
 import { motion } from "framer-motion";
-import { Package, ShoppingBag, Users, Percent, Box, TrendingUp, LayoutDashboard, Mail, Gift, Truck, CreditCard, LogOut } from "lucide-react";
+import {
+  LayoutDashboard, Package, ShoppingBag, Users, Percent, Box, TrendingUp,
+  Mail, Gift, Truck, CreditCard, LogOut, Image, QrCode, Store
+} from "lucide-react";
 
 const navItems = [
   { icon: LayoutDashboard, label: "Dashboard", href: "/admin" },
   { icon: Package, label: "Orders", href: "/admin/orders" },
   { icon: ShoppingBag, label: "Products", href: "/admin/products" },
   { icon: Gift, label: "Bundle", href: "/admin/bundle" },
+  { icon: Image, label: "Banners", href: "/admin/banners" },
+  { icon: Percent, label: "Coupons", href: "/admin/coupons" },
   { icon: Users, label: "Customers", href: "/admin/customers" },
   { icon: Mail, label: "Subscribers", href: "/admin/subscribers" },
-  { icon: Percent, label: "Coupons", href: "/admin/coupons" },
   { icon: Box, label: "Inventory", href: "/admin/inventory" },
   { icon: TrendingUp, label: "Analytics", href: "/admin/analytics" },
+  { icon: QrCode, label: "QR Codes", href: "/admin/qrcodes" },
 ];
 
 export function AdminSidebar() {
@@ -64,7 +69,8 @@ export function AdminSidebar() {
             <span className="text-[#F9D976]/60 text-[10px] uppercase tracking-[0.15em] font-semibold">Settings</span>
           </div>
           {[
-            { icon: Truck, label: "Shipping", href: "/admin/settings/shipping" },
+            { icon: Store, label: "General", href: "/admin/settings/general" },
+            { icon: Truck, label: "Delivery", href: "/admin/settings/shipping" },
             { icon: CreditCard, label: "Payments", href: "/admin/settings/payments" },
           ].map((item) => {
             const isActive = pathname === item.href;

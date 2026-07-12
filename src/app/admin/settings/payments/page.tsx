@@ -1,16 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Save, CreditCard, CheckCircle, XCircle, TrendingUp, IndianRupee } from "lucide-react";
+import { Save, CreditCard, CheckCircle, XCircle, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 interface PaymentConfig {
   enabled: boolean;
+  mode: "razorpay" | "whatsapp";
   keyId: string;
   keySecret: string;
   testMode: boolean;
@@ -20,12 +21,14 @@ interface PaymentConfig {
   walletsEnabled: boolean;
   codEnabled: boolean;
   codCharge: number;
+  whatsappNumber: string;
 }
 
-const defaultConfig: PaymentConfig = {
+const defaults: PaymentConfig = {
   enabled: true,
-  keyId: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "rzp_test_xxxxxxxx",
-  keySecret: "xxxxxxxxxxxxxxxx",
+  mode: "razorpay",
+  keyId: "",
+  keySecret: "",
   testMode: true,
   upiEnabled: true,
   cardsEnabled: true,
@@ -33,23 +36,45 @@ const defaultConfig: PaymentConfig = {
   walletsEnabled: true,
   codEnabled: false,
   codCharge: 20,
+  whatsappNumber: "8197175807",
 };
 
-const stats = [
-  { icon: IndianRupee, label: "Total Payments", value: "₹1,28,490", change: "+12.5%", up: true },
-  { icon: CheckCircle, label: "Successful", value: "472", change: "+11.2%", up: true },
-  { icon: XCircle, label: "Failed", value: "14", change: "-5.3%", up: false },
-  { icon: TrendingUp, label: "Avg. Order Value", value: "₹264", change: "+3.8%", up: true },
-];
-
 export default function AdminPaymentSettings() {
-  const [config, setConfig] = useState<PaymentConfig>(defaultConfig);
+  const [config, setConfig] = useState<PaymentConfig>(defaults);
   const [showSecret, setShowSecret] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/settings").then((r) => r.json()).then((d) => {
+      if (d?.success && d.data?.payments) {
+        setConfig({ ...defaults, ...d.data.payments });
+      }
+      setLoading(false);
+    }).catch(() => setLoading(false));
+  }, []);
 
   const toggle = (key: keyof PaymentConfig) => {
     if (typeof config[key] === "boolean") {
       setConfig({ ...config, [key]: !config[key] as boolean });
     }
+  };
+
+  const save = async () => {
+    setSaving(true);
+    try {
+      const res = await fetch("/api/settings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ key: "payments", value: config }),
+      });
+      const d = await res.json();
+      if (!d.success) throw new Error("Save failed");
+      toast.success("Payment settings saved!");
+    } catch {
+      toast.error("Failed to save settings");
+    }
+    setSaving(false);
   };
 
   const paymentMethods = [
@@ -59,6 +84,17 @@ export default function AdminPaymentSettings() {
     { key: "walletsEnabled" as const, label: "Wallets", desc: "Paytm, Mobikwik, Freecharge" },
     { key: "codEnabled" as const, label: "Cash on Delivery", desc: "Pay at doorstep" },
   ];
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#FFF8F0] flex">
+        <AdminSidebar />
+        <div className="flex-1 ml-64 pt-20 flex items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-[#DC0218]" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-[#FFFDF9] flex">
@@ -70,35 +106,37 @@ export default function AdminPaymentSettings() {
             <h1 className="text-3xl font-bold text-[#1A1A1A] mt-1">Payment Settings</h1>
           </motion.div>
 
-          {/* Status banner */}
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}
             className={`mt-6 flex items-center gap-3 px-5 py-3 border ${config.enabled ? "bg-green-50 border-green-200" : "bg-red-50 border-red-200"}`}>
             {config.enabled
               ? <CheckCircle className="h-5 w-5 text-green-600" />
               : <XCircle className="h-5 w-5 text-red-500" />}
             <span className={`text-sm font-medium ${config.enabled ? "text-green-700" : "text-red-700"}`}>
-              Gateway {config.enabled ? "Active" : "Disabled"}
-              {config.testMode && config.enabled && " · Test Mode"}
+              {config.mode === "whatsapp" ? "WhatsApp Checkout" : "Razorpay Gateway"} {config.enabled ? "Active" : "Disabled"}
+              {config.testMode && config.enabled && config.mode === "razorpay" && " · Test Mode"}
             </span>
           </motion.div>
 
-          {/* Stats */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
-            {stats.map((stat, i) => (
-              <motion.div key={stat.label} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 + i * 0.05 }}
-                whileHover={{ y: -2 }}
-                className="bg-[#FFFDF9] p-4 border border-[rgba(0,0,0,0.05)] shadow-sm">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="w-8 h-8 bg-[#DC0218]/5 flex items-center justify-center">
-                    <stat.icon className="h-4 w-4 text-[#DC0218]" />
-                  </div>
-                  <span className={`text-[10px] font-medium ${stat.up ? "text-green-600" : "text-red-600"}`}>{stat.change}</span>
-                </div>
-                <p className="text-lg font-bold text-[#1A1A1A]">{stat.value}</p>
-                <p className="text-[10px] text-[#444444]">{stat.label}</p>
-              </motion.div>
-            ))}
-          </div>
+          {/* Payment Mode Toggle */}
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
+            className="bg-[#FFFDF9] p-6 border border-[rgba(0,0,0,0.05)] shadow-sm mt-6">
+            <h3 className="font-bold text-lg text-[#1A1A1A] mb-5">Checkout Mode</h3>
+            <div className="flex gap-4">
+              {(["razorpay", "whatsapp"] as const).map((m) => (
+                <button key={m} onClick={() => setConfig({ ...config, mode: m })}
+                  className={`flex-1 p-4 border text-center transition-all ${
+                    config.mode === m
+                      ? "border-[#DC0218] bg-[#FFF8F0]"
+                      : "border-[rgba(0,0,0,0.08)] bg-white"
+                  }`}>
+                  <p className="font-bold text-sm text-[#1A1A1A] capitalize">{m === "razorpay" ? "Razorpay" : "WhatsApp"}</p>
+                  <p className="text-xs text-[#444444] mt-1">
+                    {m === "razorpay" ? "Online payments (UPI, Cards, etc.)" : "Orders via WhatsApp message"}
+                  </p>
+                </button>
+              ))}
+            </div>
+          </motion.div>
 
           <div className="grid lg:grid-cols-2 gap-8 mt-8">
             {/* Gateway Config */}
@@ -168,20 +206,22 @@ export default function AdminPaymentSettings() {
                       className="bg-white border-[rgba(220,2,24,0.12)] w-28" />
                   </div>
                 )}
+                <div className="pt-2 border-t border-[rgba(0,0,0,0.05)] space-y-1.5">
+                  <Label className="text-[#1A1A1A] text-xs">WhatsApp Number (for orders)</Label>
+                  <Input value={config.whatsappNumber}
+                    onChange={(e) => setConfig({ ...config, whatsappNumber: e.target.value })}
+                    className="bg-white border-[rgba(220,2,24,0.12)]" />
+                </div>
               </div>
             </motion.div>
           </div>
 
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} className="mt-8 flex justify-end">
-            <motion.div whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.97 }}>
-              <Button onClick={() => toast.success("Payment settings saved!")} className="bg-[#DC0218] hover:bg-[#C70015] text-white px-8 h-12 shadow-lg shadow-[#DC0218]/20">
-                <Save className="h-4 w-4 mr-2" /> Save Changes
-              </Button>
-            </motion.div>
+            <Button onClick={save} disabled={saving}
+              className="bg-[#DC0218] hover:bg-[#C70015] text-white px-8 h-12 shadow-lg shadow-[#DC0218]/20">
+              <Save className="h-4 w-4 mr-2" /> {saving ? "Saving..." : "Save Changes"}
+            </Button>
           </motion.div>
-          <p className="text-[#666666] text-[10px] mt-3 text-right">
-            TODO: connect to MongoDB.
-          </p>
         </div>
       </div>
     </div>

@@ -1,28 +1,97 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Save, Truck, Store, Zap, IndianRupee } from "lucide-react";
-import { useShipping } from "@/lib/shipping-settings";
+import { Save, Truck, Store, Zap, IndianRupee, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
+interface ShippingSettings {
+  freeShippingEnabled: boolean;
+  freeShippingThreshold: number;
+  panIndiaShippingEnabled: boolean;
+  panIndiaShippingFee: number;
+  flatDeliveryCharge: number;
+  mysuruPickupEnabled: boolean;
+  mysuruPickupFee: number;
+  localMysuruDeliveryEnabled: boolean;
+  localMysuruDeliveryFee: number;
+  expressDeliveryEnabled: boolean;
+  expressDeliveryCharge: number;
+  codEnabled: boolean;
+  codCharge: number;
+}
+
+const defaults: ShippingSettings = {
+  freeShippingEnabled: true,
+  freeShippingThreshold: 500,
+  panIndiaShippingEnabled: true,
+  panIndiaShippingFee: 80,
+  flatDeliveryCharge: 50,
+  mysuruPickupEnabled: true,
+  mysuruPickupFee: 0,
+  localMysuruDeliveryEnabled: true,
+  localMysuruDeliveryFee: 20,
+  expressDeliveryEnabled: false,
+  expressDeliveryCharge: 100,
+  codEnabled: true,
+  codCharge: 20,
+};
+
 export default function AdminShippingSettings() {
-  const { settings, updateSettings } = useShipping();
+  const [settings, setSettings] = useState<ShippingSettings>(defaults);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
 
-  const toggle = (key: keyof typeof settings) => {
-    updateSettings({ ...settings, [key]: !settings[key] as boolean });
-  };
+  useEffect(() => {
+    fetch("/api/settings").then((r) => r.json()).then((d) => {
+      if (d?.success && d.data?.shipping) {
+        setSettings({ ...defaults, ...d.data.shipping });
+      }
+      setLoading(false);
+    }).catch(() => setLoading(false));
+  }, []);
 
-  const set = (key: keyof typeof settings, value: number | boolean) => {
-    if (typeof value === "boolean") {
-      updateSettings({ ...settings, [key]: value });
-    } else {
-      updateSettings({ ...settings, [key]: value });
+  const toggle = (key: keyof ShippingSettings) => {
+    if (typeof settings[key] === "boolean") {
+      setSettings({ ...settings, [key]: !settings[key] });
     }
   };
+
+  const set = (key: keyof ShippingSettings, value: number | boolean) => {
+    setSettings({ ...settings, [key]: value });
+  };
+
+  const save = async () => {
+    setSaving(true);
+    try {
+      const res = await fetch("/api/settings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ key: "shipping", value: settings }),
+      });
+      const d = await res.json();
+      if (!d.success) throw new Error("Save failed");
+      toast.success("Shipping settings saved!");
+    } catch {
+      toast.error("Failed to save settings");
+    }
+    setSaving(false);
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#FFF8F0] flex">
+        <AdminSidebar />
+        <div className="flex-1 ml-64 pt-20 flex items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-[#DC0218]" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-[#FFFDF9] flex">
@@ -178,15 +247,11 @@ export default function AdminShippingSettings() {
           </div>
 
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} className="mt-8 flex justify-end">
-            <motion.div whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.97 }}>
-              <Button onClick={() => toast.success("Shipping settings saved!")} className="bg-[#DC0218] hover:bg-[#C70015] text-white px-8 h-12 shadow-lg shadow-[#DC0218]/20">
-                <Save className="h-4 w-4 mr-2" /> Save Changes
-              </Button>
-            </motion.div>
+            <Button onClick={save} disabled={saving}
+              className="bg-[#DC0218] hover:bg-[#C70015] text-white px-8 h-12 shadow-lg shadow-[#DC0218]/20">
+              <Save className="h-4 w-4 mr-2" /> {saving ? "Saving..." : "Save Changes"}
+            </Button>
           </motion.div>
-          <p className="text-[#666666] text-[10px] mt-3 text-right">
-            Settings saved locally. TODO: persist to MongoDB.
-          </p>
         </div>
       </div>
     </div>
