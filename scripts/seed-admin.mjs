@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 
-const MONGODB_URI = "mongodb+srv://popcorn:poprika123@cluster0.6lswpmy.mongodb.net/popcorn?appName=Cluster0";
+const MONGODB_URI = "mongodb+srv://popcorn:poprika123@cluster0.6lswpmy.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
 
 const UserSchema = new mongoose.Schema({
   name: String,
