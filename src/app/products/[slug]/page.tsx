@@ -12,7 +12,23 @@ import { Separator } from "@/components/ui/separator";
 import { useCart } from "@/lib/store";
 import { notFound } from "next/navigation";
 import { toast } from "sonner";
-import { Product, ProductVariant } from "@/lib/types";
+import { Product, ProductVariant, Review } from "@/lib/types";
+
+function safeStr(v: unknown, fallback = ""): string {
+  if (typeof v === "string") return v;
+  if (typeof v === "number" || typeof v === "boolean") return String(v);
+  return fallback;
+}
+
+function safeArray<T>(v: unknown): T[] {
+  return Array.isArray(v) ? v : [];
+}
+
+function safeImgSrc(images: unknown): string | null {
+  const arr = safeArray<string>(images);
+  const first = arr[0];
+  return typeof first === "string" && first.length > 0 ? first : null;
+}
 
 export default function ProductDetailPage() {
   const params = useParams();
@@ -26,21 +42,25 @@ export default function ProductDetailPage() {
   const [activeTab, setActiveTab] = useState<"description" | "ingredients" | "nutrition" | "reviews">("description");
   const [added, setAdded] = useState(false);
 
-  const variants: ProductVariant[] = product?.sizes || product?.variants || [];
+  const variants: ProductVariant[] = safeArray(product?.sizes).length > 0
+    ? safeArray(product?.sizes)
+    : safeArray(product?.variants);
 
   useEffect(() => {
     fetch("/api/products")
       .then((r) => r.json())
       .then((data) => {
         if (!data?.success) return;
-        const list = data.data as Product[];
-        const found = list.find((p: Product) => p.slug === slug);
+        const list = safeArray<Product>(data.data);
+        const found = list.find((p) => p.slug === slug);
         if (found) {
           setProduct(found);
-          const v = found.sizes || found.variants || [];
+          const v = safeArray<ProductVariant>(found.sizes).length > 0
+            ? safeArray<ProductVariant>(found.sizes)
+            : safeArray<ProductVariant>(found.variants);
           const defaultVar = v.find((s) => s.isDefault) || v[0];
           setSelectedSize(defaultVar?.label ?? "");
-          setRelated(list.filter((p: Product) => p.category === found.category && p.slug !== slug).slice(0, 4));
+          setRelated(list.filter((p) => (p.category || "") === (found.category || "") && p.slug !== slug).slice(0, 4));
         }
       })
       .catch(console.error)
@@ -51,17 +71,19 @@ export default function ProductDetailPage() {
   if (!product) notFound();
 
   const currentVariant = variants.find((s) => s.label === selectedSize);
-  const displayPrice = currentVariant?.price ?? product.price;
+  const displayPrice = currentVariant?.price ?? product.price ?? 0;
   const displayOriginal = currentVariant?.originalPrice ?? product.originalPrice;
   const displayDiscount = currentVariant
-    ? (currentVariant.originalPrice && currentVariant.originalPrice > currentVariant.price
-        ? Math.round((1 - currentVariant.price / currentVariant.originalPrice) * 100)
+    ? (currentVariant.originalPrice && currentVariant.originalPrice > (currentVariant.price ?? 0)
+        ? Math.round((1 - (currentVariant.price ?? 0) / currentVariant.originalPrice) * 100)
         : currentVariant.discount || 0)
     : 0;
   const savings = displayOriginal && displayOriginal > displayPrice ? displayOriginal - displayPrice : 0;
 
   const handleAdd = () => {
-    if (!currentVariant || !currentVariant.inStock) return;
+    if (!currentVariant) return;
+    const inStock = currentVariant.inStock !== false;
+    if (!inStock) return;
     addItem(product, currentVariant, quantity);
     setAdded(true);
     setQuantity(1);
@@ -77,29 +99,32 @@ export default function ProductDetailPage() {
           <span className="mx-2">/</span>
           <Link href="/shop" className="hover:text-[#DC0218] transition-colors">Shop</Link>
           <span className="mx-2">/</span>
-          <span className="text-[#1A1A1A]">{product.name}</span>
+          <span className="text-[#1A1A1A]">{safeStr(product.name, "Product")}</span>
         </nav>
 
         <div className="grid lg:grid-cols-2 gap-12 mb-16">
           <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
             <div className="relative h-80 sm:h-96 lg:h-[500px] overflow-hidden bg-[#FFF8F0]">
-              {product.images?.[0] ? (
-                <Image src={product.images[0]} alt={product.name} fill className="object-cover" sizes="(max-width: 1024px) 100vw, 50vw" priority />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center text-[#444444] text-sm">No image</div>
-              )}
+              {(() => {
+                const src = safeImgSrc(product.images);
+                return src ? (
+                  <Image src={src} alt={safeStr(product.name)} fill className="object-cover" sizes="(max-width: 1024px) 100vw, 50vw" priority />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-[#444444] text-sm">No image</div>
+                );
+              })()}
             </div>
           </motion.div>
 
           <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="flex flex-col">
             <div className="flex items-center gap-2 mb-3">
-              <Badge variant="secondary" className="bg-[#FFF8F0] text-[#1A1A1A] border-0">{product.category}</Badge>
+              <Badge variant="secondary" className="bg-[#FFF8F0] text-[#1A1A1A] border-0">{safeStr(product.category, "Category")}</Badge>
               {product.isBestSeller && (
                 <Badge className="bg-[#F9D976] text-[#C70015] flex items-center gap-1 border-0">
                   <Star className="h-3 w-3 fill-current" /> Best Seller
                 </Badge>
               )}
-              {currentVariant && !currentVariant.inStock && (
+              {currentVariant && (currentVariant.inStock === false) && (
                 <Badge className="bg-red-100 text-red-700 border-0">Out of Stock</Badge>
               )}
             </div>
@@ -108,9 +133,9 @@ export default function ProductDetailPage() {
               <div className="gold-rule" />
             </div>
 
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl text-[#1A1A1A]" style={{ fontFamily: "var(--font-playfair)" }}>{product.name}</h1>
-            <p className="text-[#DC0218] text-sm italic mt-1">{product.tagline}</p>
-            <p className="text-[#444444] mt-4 leading-relaxed">{product.description}</p>
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl text-[#1A1A1A]" style={{ fontFamily: "var(--font-playfair)" }}>{safeStr(product.name)}</h1>
+            <p className="text-[#DC0218] text-sm italic mt-1">{safeStr(product.tagline)}</p>
+            <p className="text-[#444444] mt-4 leading-relaxed">{safeStr(product.description, "No description available.")}</p>
 
             <Separator className="my-6 bg-[rgba(220,2,24,0.08)]" />
 
@@ -120,20 +145,21 @@ export default function ProductDetailPage() {
                 <div className="flex flex-wrap gap-3">
                   {variants.map((size) => {
                     const isSelected = selectedSize === size.label;
+                    const sizeInStock = size.inStock !== false;
                     return (
                       <button
                         key={size.label}
-                        onClick={() => size.inStock && setSelectedSize(size.label)}
-                        disabled={!size.inStock}
+                        onClick={() => sizeInStock && setSelectedSize(size.label)}
+                        disabled={!sizeInStock}
                         className={`px-5 py-3 text-xs uppercase tracking-[0.06em] font-medium border transition-all ${
-                          !size.inStock
+                          !sizeInStock
                             ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed line-through"
                             : isSelected
                             ? "bg-[#DC0218] text-white border-[#DC0218]"
                             : "bg-white text-[#1A1A1A] border-[rgba(220,2,24,0.2)] hover:border-[#DC0218]"
                         }`}
                       >
-                        {size.label} <span className="opacity-70">— ₹{size.price}</span>
+                        {safeStr(size.label)} <span className="opacity-70">— ₹{size.price ?? 0}</span>
                       </button>
                     );
                   })}
@@ -155,7 +181,7 @@ export default function ProductDetailPage() {
             {savings > 0 && (
               <p className="text-sm text-green-600 font-medium mb-2">You save ₹{savings}</p>
             )}
-            <p className="text-sm text-[#444444] mb-6">{currentVariant?.grams || 0}g per pack</p>
+            <p className="text-sm text-[#444444] mb-6">{currentVariant?.grams ?? 0}g per pack</p>
 
             <div className="flex items-center gap-4 mt-auto">
               <div className="flex items-center border border-[rgba(220,2,24,0.15)] overflow-hidden">
@@ -169,7 +195,7 @@ export default function ProductDetailPage() {
               </div>
               <Button
                 size="lg"
-                disabled={!currentVariant || !currentVariant.inStock}
+                disabled={!currentVariant || currentVariant.inStock === false}
                 onClick={handleAdd}
                 className={`flex-1 h-12 text-base rounded-xl transition-all ${
                   added
@@ -206,7 +232,7 @@ export default function ProductDetailPage() {
               { id: "description" as const, label: "Description" },
               { id: "ingredients" as const, label: "Ingredients" },
               { id: "nutrition" as const, label: "Nutrition" },
-              { id: "reviews" as const, label: `Reviews (${(product.reviews || []).length})` },
+              { id: "reviews" as const, label: `Reviews (${safeArray(product.reviews).length})` },
             ].map((tab) => (
               <button
                 key={tab.id}
@@ -223,27 +249,30 @@ export default function ProductDetailPage() {
           <motion.div key={activeTab} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
             {activeTab === "description" && (
               <div className="prose max-w-none text-[#444444] leading-relaxed">
-                <p>{product.description}</p>
+                <p>{safeStr(product.description, "No description available.")}</p>
                 <p className="mt-4">Each batch is freshly popped and packed with care to ensure you get the perfect crunch in every bite.</p>
               </div>
             )}
             {activeTab === "ingredients" && (
-              (product.ingredients || []).length > 0 ? (
-                <ul className="space-y-2">
-                  {(product.ingredients || []).map((ing, i) => (
-                    <li key={i} className="flex items-center gap-3 text-[#444444]">
-                      <Check className="h-4 w-4 text-[#DC0218] shrink-0" />
-                      {ing}
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="text-[#444444]">Ingredients information not available.</p>
-              )
+              (() => {
+                const ings = safeArray<string>(product.ingredients);
+                return ings.length > 0 ? (
+                  <ul className="space-y-2">
+                    {ings.map((ing, i) => (
+                      <li key={i} className="flex items-center gap-3 text-[#444444]">
+                        <Check className="h-4 w-4 text-[#DC0218] shrink-0" />
+                        {safeStr(ing)}
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-[#444444]">Ingredients information not available.</p>
+                );
+              })()
             )}
             {activeTab === "nutrition" && (
               <div className="max-w-md">
-                <p className="text-sm text-[#444444] mb-4">Serving Size: {product.nutritionInfo?.servingSize || "28g (1 cup)"}</p>
+                <p className="text-sm text-[#444444] mb-4">Serving Size: {safeStr(product.nutritionInfo?.servingSize, "28g (1 cup)")}</p>
                 <div className="border border-[rgba(220,2,24,0.08)] overflow-hidden">
                   <div className="bg-[#FFF8F0] px-4 py-2 flex justify-between font-semibold text-sm text-[#1A1A1A]">
                     <span>Nutrient</span>
@@ -251,15 +280,15 @@ export default function ProductDetailPage() {
                   </div>
                   {[
                     { label: "Calories", value: `${product.nutritionInfo?.calories ?? 0}` },
-                    { label: "Total Fat", value: product.nutritionInfo?.totalFat || "0g" },
-                    { label: "Saturated Fat", value: product.nutritionInfo?.saturatedFat || "0g" },
-                    { label: "Trans Fat", value: product.nutritionInfo?.transFat || "0g" },
-                    { label: "Cholesterol", value: product.nutritionInfo?.cholesterol || "0mg" },
-                    { label: "Sodium", value: product.nutritionInfo?.sodium || "0mg" },
-                    { label: "Total Carbohydrates", value: product.nutritionInfo?.totalCarb || "0g" },
-                    { label: "Dietary Fiber", value: product.nutritionInfo?.fiber || "0g" },
-                    { label: "Sugar", value: product.nutritionInfo?.sugar || "0g" },
-                    { label: "Protein", value: product.nutritionInfo?.protein || "0g" },
+                    { label: "Total Fat", value: safeStr(product.nutritionInfo?.totalFat, "0g") },
+                    { label: "Saturated Fat", value: safeStr(product.nutritionInfo?.saturatedFat, "0g") },
+                    { label: "Trans Fat", value: safeStr(product.nutritionInfo?.transFat, "0g") },
+                    { label: "Cholesterol", value: safeStr(product.nutritionInfo?.cholesterol, "0mg") },
+                    { label: "Sodium", value: safeStr(product.nutritionInfo?.sodium, "0mg") },
+                    { label: "Total Carbohydrates", value: safeStr(product.nutritionInfo?.totalCarb, "0g") },
+                    { label: "Dietary Fiber", value: safeStr(product.nutritionInfo?.fiber, "0g") },
+                    { label: "Sugar", value: safeStr(product.nutritionInfo?.sugar, "0g") },
+                    { label: "Protein", value: safeStr(product.nutritionInfo?.protein, "0g") },
                   ].map((row, i) => (
                     <div key={row.label} className={`px-4 py-2 flex justify-between text-sm ${i % 2 === 0 ? "bg-white" : "bg-[#FFF8F0]/50"}`}>
                       <span className="text-[#444444]">{row.label}</span>
@@ -271,29 +300,32 @@ export default function ProductDetailPage() {
             )}
             {activeTab === "reviews" && (
               <div className="space-y-5">
-                {(product.reviews || []).length === 0 ? (
-                  <p className="text-[#444444]">No reviews yet. Be the first to review this product!</p>
-                ) : (
-                  (product.reviews || []).map((review) => (
-                    <div key={review.id || review._id} className="p-5 bg-[#FFF8F0]">
-                      <div className="flex items-center gap-3 mb-2">
-                        <div className="w-10 h-10 bg-[#DC0218]/10 flex items-center justify-center text-[#DC0218] font-bold text-sm">
-                          {(review.name || "A").split(" ").map((n) => n[0]).join("").slice(0, 2)}
-                        </div>
-                        <div>
-                          <p className="font-semibold text-sm text-[#1A1A1A]">{review.name}</p>
-                          <div className="flex gap-0.5">
-                            {Array.from({ length: 5 }).map((_, i) => (
-                              <Star key={i} className={`h-3 w-3 ${i < review.rating ? "text-[#F9D976] fill-[#F9D976]" : "text-gray-300"}`} />
-                            ))}
+                {(() => {
+                  const revs: Review[] = safeArray(product.reviews);
+                  return revs.length === 0 ? (
+                    <p className="text-[#444444]">No reviews yet. Be the first to review this product!</p>
+                  ) : (
+                    revs.map((review) => (
+                      <div key={review.id || review._id} className="p-5 bg-[#FFF8F0]">
+                        <div className="flex items-center gap-3 mb-2">
+                          <div className="w-10 h-10 bg-[#DC0218]/10 flex items-center justify-center text-[#DC0218] font-bold text-sm">
+                            {safeStr(review.name, "A").split(" ").map((n) => n[0]).join("").slice(0, 2)}
                           </div>
+                          <div>
+                            <p className="font-semibold text-sm text-[#1A1A1A]">{safeStr(review.name, "Customer")}</p>
+                            <div className="flex gap-0.5">
+                              {Array.from({ length: 5 }).map((_, i) => (
+                                <Star key={i} className={`h-3 w-3 ${i < (review.rating ?? 0) ? "text-[#F9D976] fill-[#F9D976]" : "text-gray-300"}`} />
+                              ))}
+                            </div>
+                          </div>
+                          <span className="ml-auto text-xs text-[#444444]">{safeStr(review.date)}</span>
                         </div>
-                        <span className="ml-auto text-xs text-[#444444]">{review.date}</span>
+                        <p className="text-sm text-[#444444]">{safeStr(review.comment, "No comment.")}</p>
                       </div>
-                      <p className="text-sm text-[#444444]">{review.comment}</p>
-                    </div>
-                  ))
-                )}
+                    ))
+                  );
+                })()}
               </div>
             )}
           </motion.div>
@@ -304,11 +336,15 @@ export default function ProductDetailPage() {
             <h2 className="text-2xl font-bold text-[#1A1A1A] mb-6" style={{ fontFamily: "var(--font-playfair)" }}>You May Also Like</h2>
             <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {related.map((p, i) => {
-                const pVariants: ProductVariant[] = p.sizes || p.variants || [];
-                const minPrice = pVariants.length > 0 ? Math.min(...pVariants.map((s) => s.price)) : (p.price ?? 0);
+                const pVariants: ProductVariant[] = safeArray(p.sizes).length > 0
+                  ? safeArray(p.sizes)
+                  : safeArray(p.variants);
+                const prices = pVariants.map((s) => s.price ?? 0).filter((pr) => typeof pr === "number" && !isNaN(pr));
+                const minPrice = prices.length > 0 ? Math.min(...prices) : (p.price ?? 0);
+                const imgSrc = safeImgSrc(p.images);
                 return (
                   <motion.div
-                    key={p.id}
+                    key={p.id || p._id || i}
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
@@ -317,8 +353,8 @@ export default function ProductDetailPage() {
                   >
                     <Link href={`/products/${p.slug}`}>
                       <div className="relative h-40 overflow-hidden bg-[#FFF8F0]">
-                        {p.images?.[0] ? (
-                          <Image src={p.images[0]} alt={p.name} fill className="object-cover group-hover:scale-105 transition-transform duration-500" sizes="(max-width: 640px) 100vw, 25vw" />
+                        {imgSrc ? (
+                          <Image src={imgSrc} alt={safeStr(p.name)} fill className="object-cover group-hover:scale-105 transition-transform duration-500" sizes="(max-width: 640px) 100vw, 25vw" />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center text-[#444444] text-xs">No image</div>
                         )}
@@ -326,9 +362,9 @@ export default function ProductDetailPage() {
                     </Link>
                     <div className="p-4">
                       <Link href={`/products/${p.slug}`}>
-                        <h3 className="font-semibold text-lg text-[#1A1A1A]" style={{ fontFamily: "var(--font-playfair)" }}>{p.name}</h3>
+                        <h3 className="font-semibold text-lg text-[#1A1A1A]" style={{ fontFamily: "var(--font-playfair)" }}>{safeStr(p.name)}</h3>
                       </Link>
-                      <p className="text-[#DC0218] text-xs italic mt-0.5">{p.tagline}</p>
+                      <p className="text-[#DC0218] text-xs italic mt-0.5">{safeStr(p.tagline)}</p>
                       <div className="flex items-center justify-between mt-3 pt-3 border-t border-[rgba(220,2,24,0.08)]">
                         <span className="font-semibold text-sm text-[#1A1A1A]">From ₹{minPrice}</span>
                         <Button size="sm" className="bg-[#DC0218] hover:bg-[#C70015] text-white h-8 px-3 text-xs" onClick={() => {
