@@ -30,9 +30,11 @@ export function AdminSidebar() {
     <aside className="fixed left-0 top-0 h-full w-64 bg-[#C70015] z-40 flex flex-col shadow-2xl">
       <div className="p-6 border-b border-white/10">
         <Link href="/admin" className="flex items-center gap-2.5">
-          <div className="w-9 h-9 bg-white flex items-center justify-center shadow-lg">
-            <span className="text-[#C70015] font-bold text-base">P</span>
-          </div>
+          <img
+            src="https://res.cloudinary.com/drp7pfa2w/image/upload/f_auto,q_auto,h_36,c_fit/v1783831995/poprika/poprika-logo.png"
+            alt="Poprika"
+            className="h-9 w-auto brightness-0 invert"
+          />
           <div>
             <span className="text-white font-bold text-lg">Poprika</span>
             <span className="block text-[#F9D976] text-[10px] uppercase tracking-widest font-medium">Admin</span>

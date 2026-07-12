@@ -13,10 +13,11 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
           <div>
             <div className="flex items-center gap-2.5 mb-4">
-              <div className="w-9 h-9 bg-white flex items-center justify-center">
-                <span className="text-[#C70015] font-bold text-base">P</span>
-              </div>
-              <span className="font-semibold text-lg" style={{ fontFamily: "var(--font-playfair)" }}>Poprika</span>
+              <img
+                src="https://res.cloudinary.com/drp7pfa2w/image/upload/f_auto,q_auto,h_36,c_fit/v1783831995/poprika/poprika-logo.png"
+                alt="Poprika"
+                className="h-9 w-auto brightness-0 invert"
+              />
             </div>
             <p className="text-white/60 text-xs leading-relaxed mb-5 max-w-xs">
               Small-batch popcorn. Bold Indian flavors. Made in Mysuru.
