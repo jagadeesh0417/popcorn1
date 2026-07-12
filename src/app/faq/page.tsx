@@ -40,7 +40,7 @@ const faqs = [
   },
   {
     q: "Do you ship internationally?",
-    a: "Currently we ship across India. We're working on expanding internationally — stay tuned for updates by joining our newsletter!",
+    a: "Currently we ship across India. We're working on expanding internationally — stay tuned for updates!",
   },
   {
     q: "What payment methods do you accept?",

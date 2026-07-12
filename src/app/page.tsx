@@ -5,7 +5,6 @@ import { ProductGrid } from "@/components/home/ProductGrid";
 import { BundleCard } from "@/components/home/BundleCard";
 import { DeliveryInfo } from "@/components/home/DeliveryInfo";
 import { InstagramGallery } from "@/components/home/InstagramGallery";
-import { Newsletter } from "@/components/home/Newsletter";
 
 function SectionDivider() {
   return (
@@ -29,8 +28,6 @@ export default function HomePage() {
       <WhyChooseUs />
       <SectionDivider />
       <InstagramGallery />
-      <SectionDivider />
-      <Newsletter />
     </>
   );
 }

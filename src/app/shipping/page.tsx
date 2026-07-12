@@ -40,7 +40,7 @@ const policies = [
     items: [
       "We currently deliver across all states in India",
       "Serviceable pin codes are verified at checkout",
-      "International shipping coming soon — join our newsletter for updates",
+      "International shipping coming soon — stay tuned for updates",
       "Bulk/corporate orders can be arranged for any location",
     ],
   },

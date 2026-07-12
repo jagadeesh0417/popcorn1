@@ -4,23 +4,17 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
 import { motion } from "framer-motion";
-import {
-  LayoutDashboard, Package, ShoppingBag, Users, Percent, Box, TrendingUp,
-  Mail, Gift, Truck, CreditCard, LogOut, Image, QrCode, Store
-} from "lucide-react";
+import { Package, ShoppingBag, Users, Percent, Box, TrendingUp, LayoutDashboard, Gift, Truck, CreditCard, LogOut } from "lucide-react";
 
 const navItems = [
   { icon: LayoutDashboard, label: "Dashboard", href: "/admin" },
   { icon: Package, label: "Orders", href: "/admin/orders" },
   { icon: ShoppingBag, label: "Products", href: "/admin/products" },
   { icon: Gift, label: "Bundle", href: "/admin/bundle" },
-  { icon: Image, label: "Banners", href: "/admin/banners" },
-  { icon: Percent, label: "Coupons", href: "/admin/coupons" },
   { icon: Users, label: "Customers", href: "/admin/customers" },
-  { icon: Mail, label: "Subscribers", href: "/admin/subscribers" },
+  { icon: Percent, label: "Coupons", href: "/admin/coupons" },
   { icon: Box, label: "Inventory", href: "/admin/inventory" },
   { icon: TrendingUp, label: "Analytics", href: "/admin/analytics" },
-  { icon: QrCode, label: "QR Codes", href: "/admin/qrcodes" },
 ];
 
 export function AdminSidebar() {
@@ -30,11 +24,9 @@ export function AdminSidebar() {
     <aside className="fixed left-0 top-0 h-full w-64 bg-[#C70015] z-40 flex flex-col shadow-2xl">
       <div className="p-6 border-b border-white/10">
         <Link href="/admin" className="flex items-center gap-2.5">
-          <img
-            src="https://res.cloudinary.com/drp7pfa2w/image/upload/f_auto,q_auto,h_36,c_fit/v1783831995/poprika/poprika-logo.png"
-            alt="Poprika"
-            className="h-9 w-auto brightness-0 invert"
-          />
+          <div className="w-9 h-9 bg-white flex items-center justify-center shadow-lg">
+            <span className="text-[#C70015] font-bold text-base">P</span>
+          </div>
           <div>
             <span className="text-white font-bold text-lg">Poprika</span>
             <span className="block text-[#F9D976] text-[10px] uppercase tracking-widest font-medium">Admin</span>
@@ -71,8 +63,7 @@ export function AdminSidebar() {
             <span className="text-[#F9D976]/60 text-[10px] uppercase tracking-[0.15em] font-semibold">Settings</span>
           </div>
           {[
-            { icon: Store, label: "General", href: "/admin/settings/general" },
-            { icon: Truck, label: "Delivery", href: "/admin/settings/shipping" },
+            { icon: Truck, label: "Shipping", href: "/admin/settings/shipping" },
             { icon: CreditCard, label: "Payments", href: "/admin/settings/payments" },
           ].map((item) => {
             const isActive = pathname === item.href;

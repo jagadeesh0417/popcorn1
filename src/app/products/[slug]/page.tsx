@@ -72,7 +72,11 @@ export default function ProductDetailPage() {
         <div className="grid lg:grid-cols-2 gap-12 mb-16">
           <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
             <div className="relative h-80 sm:h-96 lg:h-[500px] overflow-hidden bg-[#FFF8F0]">
-              <Image src={product.images[0]} alt={product.name} fill className="object-cover" sizes="(max-width: 1024px) 100vw, 50vw" priority />
+              {product.images?.[0] ? (
+                <Image src={product.images[0]} alt={product.name} fill className="object-cover" sizes="(max-width: 1024px) 100vw, 50vw" priority />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-[#444444] text-sm">No image</div>
+              )}
             </div>
           </motion.div>
 
@@ -176,7 +180,7 @@ export default function ProductDetailPage() {
               { id: "description" as const, label: "Description" },
               { id: "ingredients" as const, label: "Ingredients" },
               { id: "nutrition" as const, label: "Nutrition" },
-              { id: "reviews" as const, label: `Reviews (${product.reviews.length})` },
+              { id: "reviews" as const, label: `Reviews (${(product.reviews || []).length})` },
             ].map((tab) => (
               <button
                 key={tab.id}
@@ -198,34 +202,38 @@ export default function ProductDetailPage() {
               </div>
             )}
             {activeTab === "ingredients" && (
-              <ul className="space-y-2">
-                {product.ingredients.map((ing, i) => (
-                  <li key={i} className="flex items-center gap-3 text-[#444444]">
-                    <Check className="h-4 w-4 text-[#DC0218] shrink-0" />
-                    {ing}
-                  </li>
-                ))}
-              </ul>
+              (product.ingredients || []).length > 0 ? (
+                <ul className="space-y-2">
+                  {(product.ingredients || []).map((ing, i) => (
+                    <li key={i} className="flex items-center gap-3 text-[#444444]">
+                      <Check className="h-4 w-4 text-[#DC0218] shrink-0" />
+                      {ing}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-[#444444]">Ingredients information not available.</p>
+              )
             )}
             {activeTab === "nutrition" && (
               <div className="max-w-md">
-                <p className="text-sm text-[#444444] mb-4">Serving Size: {product.nutritionInfo.servingSize}</p>
+                <p className="text-sm text-[#444444] mb-4">Serving Size: {product.nutritionInfo?.servingSize || "28g (1 cup)"}</p>
                 <div className="border border-[rgba(220,2,24,0.08)] overflow-hidden">
                   <div className="bg-[#FFF8F0] px-4 py-2 flex justify-between font-semibold text-sm text-[#1A1A1A]">
                     <span>Nutrient</span>
                     <span>Amount per serving</span>
                   </div>
                   {[
-                    { label: "Calories", value: `${product.nutritionInfo.calories}` },
-                    { label: "Total Fat", value: product.nutritionInfo.totalFat },
-                    { label: "Saturated Fat", value: product.nutritionInfo.saturatedFat },
-                    { label: "Trans Fat", value: product.nutritionInfo.transFat },
-                    { label: "Cholesterol", value: product.nutritionInfo.cholesterol },
-                    { label: "Sodium", value: product.nutritionInfo.sodium },
-                    { label: "Total Carbohydrates", value: product.nutritionInfo.totalCarb },
-                    { label: "Dietary Fiber", value: product.nutritionInfo.fiber },
-                    { label: "Sugar", value: product.nutritionInfo.sugar },
-                    { label: "Protein", value: product.nutritionInfo.protein },
+                    { label: "Calories", value: `${product.nutritionInfo?.calories ?? 0}` },
+                    { label: "Total Fat", value: product.nutritionInfo?.totalFat || "0g" },
+                    { label: "Saturated Fat", value: product.nutritionInfo?.saturatedFat || "0g" },
+                    { label: "Trans Fat", value: product.nutritionInfo?.transFat || "0g" },
+                    { label: "Cholesterol", value: product.nutritionInfo?.cholesterol || "0mg" },
+                    { label: "Sodium", value: product.nutritionInfo?.sodium || "0mg" },
+                    { label: "Total Carbohydrates", value: product.nutritionInfo?.totalCarb || "0g" },
+                    { label: "Dietary Fiber", value: product.nutritionInfo?.fiber || "0g" },
+                    { label: "Sugar", value: product.nutritionInfo?.sugar || "0g" },
+                    { label: "Protein", value: product.nutritionInfo?.protein || "0g" },
                   ].map((row, i) => (
                     <div key={row.label} className={`px-4 py-2 flex justify-between text-sm ${i % 2 === 0 ? "bg-white" : "bg-[#FFF8F0]/50"}`}>
                       <span className="text-[#444444]">{row.label}</span>
@@ -237,14 +245,14 @@ export default function ProductDetailPage() {
             )}
             {activeTab === "reviews" && (
               <div className="space-y-5">
-                {product.reviews.length === 0 ? (
+                {(product.reviews || []).length === 0 ? (
                   <p className="text-[#444444]">No reviews yet. Be the first to review this product!</p>
                 ) : (
-                  product.reviews.map((review) => (
-                    <div key={review.id} className="p-5 bg-[#FFF8F0]">
+                  (product.reviews || []).map((review) => (
+                    <div key={review.id || review._id} className="p-5 bg-[#FFF8F0]">
                       <div className="flex items-center gap-3 mb-2">
                         <div className="w-10 h-10 bg-[#DC0218]/10 flex items-center justify-center text-[#DC0218] font-bold text-sm">
-                          {review.name.split(" ").map((n) => n[0]).join("").slice(0, 2)}
+                          {(review.name || "A").split(" ").map((n) => n[0]).join("").slice(0, 2)}
                         </div>
                         <div>
                           <p className="font-semibold text-sm text-[#1A1A1A]">{review.name}</p>
@@ -280,7 +288,11 @@ export default function ProductDetailPage() {
                 >
                   <Link href={`/products/${p.slug}`}>
                     <div className="relative h-40 overflow-hidden bg-[#FFF8F0]">
-                      <Image src={p.images[0]} alt={p.name} fill className="object-cover group-hover:scale-105 transition-transform duration-500" sizes="(max-width: 640px) 100vw, 25vw" />
+                      {p.images?.[0] ? (
+                        <Image src={p.images[0]} alt={p.name} fill className="object-cover group-hover:scale-105 transition-transform duration-500" sizes="(max-width: 640px) 100vw, 25vw" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-[#444444] text-xs">No image</div>
+                      )}
                     </div>
                   </Link>
                   <div className="p-4">
@@ -289,7 +301,7 @@ export default function ProductDetailPage() {
                     </Link>
                     <p className="text-[#DC0218] text-xs italic mt-0.5">{p.tagline}</p>
                     <div className="flex items-center justify-between mt-3 pt-3 border-t border-[rgba(220,2,24,0.08)]">
-                      <span className="font-semibold text-sm text-[#1A1A1A]">From ₹{Math.min(...(p.sizes?.map((s) => s.price) || [p.price]))}</span>
+                      <span className="font-semibold text-sm text-[#1A1A1A]">From ₹{Math.min(...(p.sizes?.map((s) => s.price) || [p.price ?? 0]))}</span>
                       <Button size="sm" className="bg-[#DC0218] hover:bg-[#C70015] text-white h-8 px-3 text-xs" onClick={() => addItem(p)}>Add</Button>
                     </div>
                   </div>
