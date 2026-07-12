@@ -43,6 +43,8 @@ export default function CartPage() {
     }
   };
 
+  const getPrice = (item: typeof state.items[0]) => item.variant?.price ?? item.product.price ?? 0;
+
   if (state.items.length === 0) {
     return (
       <div className="min-h-screen pt-20 flex items-center justify-center bg-white">
@@ -88,44 +90,49 @@ export default function CartPage() {
 
         <div className="grid lg:grid-cols-3 gap-10">
           <div className="lg:col-span-2 space-y-4">
-            {state.items.map((item, index) => (
-              <motion.div
-                key={item.product.id}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.05 }}
-                className="flex gap-4 p-4 bg-white rounded-2xl border border-[rgba(220,2,24,0.08)] shadow-sm"
-              >
-                <Link href={`/products/${item.product.slug}`}>
-                  <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-xl overflow-hidden bg-[#FFF8F0] shrink-0">
-                    <Image src={item.product.images[0]} alt={item.product.name} fill className="object-cover" sizes="112px" />
-                  </div>
-                </Link>
-                <div className="flex-1 min-w-0">
+            {state.items.map((item, index) => {
+              const price = getPrice(item);
+              return (
+                <motion.div
+                  key={item.cartId}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.05 }}
+                  className="flex gap-4 p-4 bg-white rounded-2xl border border-[rgba(220,2,24,0.08)] shadow-sm"
+                >
                   <Link href={`/products/${item.product.slug}`}>
-                    <h3 className="font-semibold text-[#1A1A1A] hover:text-[#DC0218] transition-colors">{item.product.name}</h3>
-                  </Link>
-                  <p className="text-xs text-[#444444] mt-0.5">{item.product.weight}</p>
-                  <div className="flex items-center justify-between mt-3">
-                    <div className="flex items-center border border-[rgba(220,2,24,0.15)] rounded-lg overflow-hidden">
-                      <button onClick={() => updateQuantity(item.product.id, item.quantity - 1)} className="p-1.5 hover:bg-[#FFF8F0] transition-colors">
-                        <Minus className="h-3.5 w-3.5 text-[#1A1A1A]" />
-                      </button>
-                      <span className="px-4 text-sm font-medium min-w-[2rem] text-center text-[#1A1A1A]">{item.quantity}</span>
-                      <button onClick={() => updateQuantity(item.product.id, item.quantity + 1)} className="p-1.5 hover:bg-[#FFF8F0] transition-colors">
-                        <Plus className="h-3.5 w-3.5 text-[#1A1A1A]" />
-                      </button>
+                    <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-xl overflow-hidden bg-[#FFF8F0] shrink-0">
+                      <Image src={item.product.images[0]} alt={item.product.name} fill className="object-cover" sizes="112px" />
                     </div>
-                    <div className="flex items-center gap-3">
-                      <span className="font-bold text-lg text-[#DC0218]">₹{item.product.price * item.quantity}</span>
-                      <button onClick={() => removeItem(item.product.id)} className="text-[#444444] hover:text-[#DC0218] transition-colors">
-                        <Trash2 className="h-4 w-4" />
-                      </button>
+                  </Link>
+                  <div className="flex-1 min-w-0">
+                    <Link href={`/products/${item.product.slug}`}>
+                      <h3 className="font-semibold text-[#1A1A1A] hover:text-[#DC0218] transition-colors">{item.product.name}</h3>
+                    </Link>
+                    <p className="text-xs text-[#444444] mt-0.5">
+                      {item.variant ? `${item.variant.label} · ₹${price}/pack` : item.product.weight}
+                    </p>
+                    <div className="flex items-center justify-between mt-3">
+                      <div className="flex items-center border border-[rgba(220,2,24,0.15)] rounded-lg overflow-hidden">
+                        <button onClick={() => updateQuantity(item.cartId, item.quantity - 1)} className="p-1.5 hover:bg-[#FFF8F0] transition-colors">
+                          <Minus className="h-3.5 w-3.5 text-[#1A1A1A]" />
+                        </button>
+                        <span className="px-4 text-sm font-medium min-w-[2rem] text-center text-[#1A1A1A]">{item.quantity}</span>
+                        <button onClick={() => updateQuantity(item.cartId, item.quantity + 1)} className="p-1.5 hover:bg-[#FFF8F0] transition-colors">
+                          <Plus className="h-3.5 w-3.5 text-[#1A1A1A]" />
+                        </button>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span className="font-bold text-lg text-[#DC0218]">₹{price * item.quantity}</span>
+                        <button onClick={() => removeItem(item.cartId)} className="text-[#444444] hover:text-[#DC0218] transition-colors">
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </motion.div>
-            ))}
+                </motion.div>
+              );
+            })}
           </div>
 
           <div>

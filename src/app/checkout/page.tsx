@@ -53,14 +53,17 @@ export default function CheckoutPage() {
 
   const updateField = (field: string, value: string) => setForm((prev) => ({ ...prev, [field]: value }));
 
+  const getPrice = (item: typeof state.items[0]) => item.variant?.price ?? item.product.price ?? 0;
+
   const buildOrderData = (method: string, pid: string | undefined, oid: string) => ({
     orderId: oid,
     items: state.items.map((i) => ({
       productId: i.product.id || i.product._id || "",
       name: i.product.name,
-      price: i.product.price,
+      price: getPrice(i),
       quantity: i.quantity,
       image: i.product.images?.[0] || "",
+      variant: i.variant ? { label: i.variant.label, grams: i.variant.grams } : null,
     })),
     subtotal: getSubtotal(),
     shipping,
@@ -457,16 +460,21 @@ export default function CheckoutPage() {
             <div className="bg-[#FFFDF9] p-6 border border-[rgba(0,0,0,0.05)] shadow-sm sticky top-28">
               <h3 className="font-bold text-lg text-[#1A1A1A] mb-4">Order summary</h3>
               <div className="space-y-3 max-h-60 overflow-y-auto mb-4">
-                {state.items.map((item) => (
-                  <div key={item.product.id} className="flex items-center gap-3 bg-white p-3 border border-[rgba(220,2,24,0.06)]">
-                    <div className="w-12 h-12 bg-[#FFF8F0] shrink-0 flex items-center justify-center text-xs font-bold text-[#444444]">x{item.quantity}</div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-[#1A1A1A] truncate">{item.product.name}</p>
-                      <p className="text-xs text-[#444444]">₹{item.product.price} each</p>
+                {state.items.map((item) => {
+                  const price = getPrice(item);
+                  return (
+                    <div key={item.cartId} className="flex items-center gap-3 bg-white p-3 border border-[rgba(220,2,24,0.06)]">
+                      <div className="w-12 h-12 bg-[#FFF8F0] shrink-0 flex items-center justify-center text-xs font-bold text-[#444444]">x{item.quantity}</div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-[#1A1A1A] truncate">{item.product.name}</p>
+                        <p className="text-xs text-[#444444]">
+                          {item.variant ? `${item.variant.label} · ₹${price} each` : `₹${price} each`}
+                        </p>
+                      </div>
+                      <span className="font-semibold text-sm text-[#1A1A1A]">₹{price * item.quantity}</span>
                     </div>
-                    <span className="font-semibold text-sm text-[#1A1A1A]">₹{item.product.price * item.quantity}</span>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
 
               <Separator className="mb-4 bg-[rgba(220,2,24,0.08)]" />

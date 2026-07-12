@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { ShoppingBag, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/lib/store";
-import { Product } from "@/lib/types";
+import { Product, ProductVariant } from "@/lib/types";
 import { toast } from "sonner";
 
 const TRIO_SLUGS = ["ghee-black-pepper", "ghee-curry-leaf", "coffee-chikki"];
@@ -26,7 +26,8 @@ export function ProductGrid() {
         setTrioProducts(trios);
         const init: Record<string, string> = {};
         trios.forEach((p: Product) => {
-          if (p.sizes && p.sizes.length > 0) init[p.id || p._id || ""] = p.sizes[0].label;
+          const variants: ProductVariant[] = p.sizes || p.variants || [];
+          if (variants.length > 0) init[p.id || p._id || ""] = variants[0].label;
         });
         setSelectedSizes(init);
       })
@@ -40,9 +41,10 @@ export function ProductGrid() {
   const handleAddToCart = (product: Product) => {
     const sizeLabel = selectedSizes[product.id];
     if (!sizeLabel) return;
-    const size = product.sizes?.find((s) => s.label === sizeLabel);
-    const productToAdd = { ...product, price: size?.price || product.price };
-    addItem(productToAdd);
+    const variants: ProductVariant[] = product.sizes || product.variants || [];
+    const variant = variants.find((s) => s.label === sizeLabel);
+    if (!variant) return;
+    addItem(product, variant);
     setAddedFeedback((prev) => ({ ...prev, [product.id]: true }));
     toast.success("Added to Cart ✓");
     setTimeout(() => {
@@ -72,8 +74,9 @@ export function ProductGrid() {
 
         <div className="grid md:grid-cols-3 gap-8">
           {trioProducts.map((product, index) => {
+            const variants: ProductVariant[] = product.sizes || product.variants || [];
             const selectedSize = selectedSizes[product.id];
-            const sizeData = product.sizes?.find((s) => s.label === selectedSize);
+            const sizeData = variants.find((s) => s.label === selectedSize);
             const displayPrice = sizeData?.price || product.price;
 
             return (
@@ -104,7 +107,7 @@ export function ProductGrid() {
                   <p className="text-[#444444] text-xs mt-3 leading-relaxed">{product.description}</p>
 
                   <div className="flex gap-2 mt-5">
-                    {product.sizes?.map((size) => {
+                    {variants.map((size) => {
                       const isSelected = selectedSizes[product.id] === size.label;
                       return (
                         <button

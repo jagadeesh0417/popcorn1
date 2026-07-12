@@ -1,7 +1,15 @@
-export interface ProductSize {
+export interface ProductVariant {
   label: string;
   grams: number;
   price: number;
+  originalPrice?: number;
+  discount?: number;
+  sku?: string;
+  barcode?: string;
+  stock?: number;
+  inStock?: boolean;
+  isDefault?: boolean;
+  displayOrder?: number;
 }
 
 export interface Product {
@@ -14,7 +22,8 @@ export interface Product {
   tagline?: string;
   price: number;
   originalPrice?: number;
-  sizes?: ProductSize[];
+  sizes?: ProductVariant[];
+  variants?: ProductVariant[];
   images: string[];
   category: string;
   tags: string[];
@@ -58,13 +67,15 @@ export interface Review {
 
 export interface CartItem {
   product: Product;
+  variant: ProductVariant | null;
   quantity: number;
+  cartId: string;
 }
 
 export interface Order {
   _id?: string;
   id: string;
-  items: CartItem[];
+  items: OrderItem[];
   total: number;
   subtotal: number;
   shipping: number;
@@ -80,6 +91,15 @@ export interface Order {
   orderDate: string;
   statusTimeline: StatusEvent[];
   userId?: string;
+}
+
+export interface OrderItem {
+  productId: string;
+  name: string;
+  price: number;
+  quantity: number;
+  image: string;
+  variant?: { label: string; grams: number } | null;
 }
 
 export interface StatusEvent {

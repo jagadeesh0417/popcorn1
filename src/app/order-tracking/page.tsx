@@ -156,9 +156,9 @@ export default function OrderTrackingPage() {
                       <div className="w-10 h-10 rounded-lg bg-[#FFF8F0] flex items-center justify-center text-sm font-bold text-[#DC0218]">
                         x{item.quantity}
                       </div>
-                      <span className="font-medium text-sm text-[#1A1A1A]">{item.product.name}</span>
+                      <span className="font-medium text-sm text-[#1A1A1A]">{item.name}{item.variant?.label ? ` (${item.variant.label})` : ""}</span>
                     </div>
-                    <span className="font-medium text-sm text-[#DC0218]">₹{item.product.price * item.quantity}</span>
+                    <span className="font-medium text-sm text-[#DC0218]">₹{item.price * item.quantity}</span>
                   </div>
                 ))}
               </div>

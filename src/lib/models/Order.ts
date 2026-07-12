@@ -2,7 +2,7 @@ import mongoose, { Schema, Document } from "mongoose";
 
 export interface IOrder extends Document {
   orderId: string;
-  items: { productId: string; name: string; price: number; quantity: number; image: string }[];
+  items: { productId: string; name: string; price: number; quantity: number; image: string; variant?: { label: string; grams: number } }[];
   total: number;
   subtotal: number;
   shipping: number;
@@ -28,7 +28,7 @@ export interface IOrder extends Document {
   statusTimeline: { status: string; date: Date; note?: string }[];
   userId?: string;
   createdAt: Date;
-}
+};
 
 const OrderSchema = new Schema<IOrder>(
   {
@@ -40,6 +40,10 @@ const OrderSchema = new Schema<IOrder>(
         price: Number,
         quantity: Number,
         image: String,
+        variant: {
+          label: String,
+          grams: Number,
+        },
       },
     ],
     total: { type: Number, required: true },

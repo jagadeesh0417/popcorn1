@@ -7,7 +7,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/lib/store";
-import { Product } from "@/lib/types";
+import { Product, ProductVariant } from "@/lib/types";
 
 export function FeaturedProducts() {
   const { addItem } = useCart();
@@ -19,6 +19,11 @@ export function FeaturedProducts() {
       .then((data) => { if (data?.success) setProducts(data.data); })
       .catch(console.error);
   }, []);
+
+  const getDefaultVariant = (p: Product): ProductVariant | null => {
+    const variants: ProductVariant[] = p.sizes || p.variants || [];
+    return variants.find((v) => v.isDefault) || variants[0] || null;
+  };
 
   return (
     <section className="py-24 bg-white">
@@ -39,63 +44,68 @@ export function FeaturedProducts() {
         </motion.div>
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {products.slice(0, 8).map((product, index) => (
-            <motion.div
-              key={product.id}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-50px" }}
-              transition={{ delay: index * 0.08 }}
-              whileHover={{ y: -8 }}
-              className="group bg-white rounded-[28px] overflow-hidden shadow-[0_2px_20px_rgba(0,0,0,0.04)] hover:shadow-[0_10px_40px_rgba(0,0,0,0.06)] transition-all duration-500 border border-[rgba(220,2,24,0.08)]"
-            >
-              <Link href={`/products/${product.slug}`}>
-                <div className="relative h-56 overflow-hidden bg-[#FFF8F0]">
-                  <Image
-                    src={product.images[0]}
-                    alt={product.name}
-                    fill
-                    className="object-cover group-hover:scale-105 transition-transform duration-700"
-                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                  />
-                  {product.originalPrice && (
-                    <div className="absolute top-3 left-3 bg-[#DC0218] text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg">
-                      SAVE ₹{product.originalPrice - product.price}
-                    </div>
-                  )}
-                  {product.isBestSeller && (
-                    <div className="absolute top-3 right-3 bg-[#F9D976] text-[#C70015] text-xs font-bold px-3 py-1.5 rounded-full flex items-center gap-1 shadow-lg">
-                      <Star className="h-3 w-3 fill-current" /> Best Seller
-                    </div>
-                  )}
-                </div>
-              </Link>
-              <div className="p-5">
+          {products.slice(0, 8).map((product, index) => {
+            const defaultVar = getDefaultVariant(product);
+            const displayPrice = defaultVar?.price ?? product.price;
+            const displayOriginal = defaultVar?.originalPrice ?? product.originalPrice;
+            return (
+              <motion.div
+                key={product.id}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-50px" }}
+                transition={{ delay: index * 0.08 }}
+                whileHover={{ y: -8 }}
+                className="group bg-white rounded-[28px] overflow-hidden shadow-[0_2px_20px_rgba(0,0,0,0.04)] hover:shadow-[0_10px_40px_rgba(0,0,0,0.06)] transition-all duration-500 border border-[rgba(220,2,24,0.08)]"
+              >
                 <Link href={`/products/${product.slug}`}>
-                  <h3 className="font-bold text-base text-[#1A1A1A] group-hover:text-[#DC0218] transition-colors">
-                    {product.name}
-                  </h3>
-                </Link>
-                <p className="text-[#444444] text-xs mt-1.5 line-clamp-2 leading-relaxed">{product.shortDescription}</p>
-                <div className="flex items-center justify-between mt-4 pt-4 border-t border-[rgba(220,2,24,0.08)]">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xl font-bold text-[#DC0218]">₹{product.price}</span>
-                    {product.originalPrice && (
-                      <span className="text-[#444444] line-through text-sm">₹{product.originalPrice}</span>
+                  <div className="relative h-56 overflow-hidden bg-[#FFF8F0]">
+                    <Image
+                      src={product.images[0]}
+                      alt={product.name}
+                      fill
+                      className="object-cover group-hover:scale-105 transition-transform duration-700"
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                    />
+                    {displayOriginal && displayOriginal > displayPrice && (
+                      <div className="absolute top-3 left-3 bg-[#DC0218] text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg">
+                        SAVE ₹{displayOriginal - displayPrice}
+                      </div>
+                    )}
+                    {product.isBestSeller && (
+                      <div className="absolute top-3 right-3 bg-[#F9D976] text-[#C70015] text-xs font-bold px-3 py-1.5 rounded-full flex items-center gap-1 shadow-lg">
+                        <Star className="h-3 w-3 fill-current" /> Best Seller
+                      </div>
                     )}
                   </div>
-                  <Button
-                    size="sm"
-                    className="bg-[#DC0218] hover:bg-[#C70015] text-white rounded-xl text-xs px-4 h-9 transition-all duration-300"
-                    onClick={() => addItem(product)}
-                  >
-                    <ShoppingBag className="h-3.5 w-3.5 mr-1.5" />
-                    Add to Cart
-                  </Button>
+                </Link>
+                <div className="p-5">
+                  <Link href={`/products/${product.slug}`}>
+                    <h3 className="font-bold text-base text-[#1A1A1A] group-hover:text-[#DC0218] transition-colors">
+                      {product.name}
+                    </h3>
+                  </Link>
+                  <p className="text-[#444444] text-xs mt-1.5 line-clamp-2 leading-relaxed">{product.shortDescription}</p>
+                  <div className="flex items-center justify-between mt-4 pt-4 border-t border-[rgba(220,2,24,0.08)]">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xl font-bold text-[#DC0218]">₹{displayPrice}</span>
+                      {displayOriginal && displayOriginal > displayPrice && (
+                        <span className="text-[#444444] line-through text-sm">₹{displayOriginal}</span>
+                      )}
+                    </div>
+                    <Button
+                      size="sm"
+                      className="bg-[#DC0218] hover:bg-[#C70015] text-white rounded-xl text-xs px-4 h-9 transition-all duration-300"
+                      onClick={() => addItem(product, defaultVar)}
+                    >
+                      <ShoppingBag className="h-3.5 w-3.5 mr-1.5" />
+                      Add to Cart
+                    </Button>
+                  </div>
                 </div>
-              </div>
-            </motion.div>
-          ))}
+              </motion.div>
+            );
+          })}
         </div>
 
         <motion.div

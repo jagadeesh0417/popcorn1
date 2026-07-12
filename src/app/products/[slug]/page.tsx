@@ -12,7 +12,7 @@ import { Separator } from "@/components/ui/separator";
 import { useCart } from "@/lib/store";
 import { notFound } from "next/navigation";
 import { toast } from "sonner";
-import { Product } from "@/lib/types";
+import { Product, ProductVariant } from "@/lib/types";
 
 export default function ProductDetailPage() {
   const params = useParams();
@@ -26,6 +26,8 @@ export default function ProductDetailPage() {
   const [activeTab, setActiveTab] = useState<"description" | "ingredients" | "nutrition" | "reviews">("description");
   const [added, setAdded] = useState(false);
 
+  const variants: ProductVariant[] = product?.sizes || product?.variants || [];
+
   useEffect(() => {
     fetch("/api/products")
       .then((r) => r.json())
@@ -35,7 +37,9 @@ export default function ProductDetailPage() {
         const found = list.find((p: Product) => p.slug === slug);
         if (found) {
           setProduct(found);
-          setSelectedSize(found.sizes?.[0]?.label ?? "");
+          const v = found.sizes || found.variants || [];
+          const defaultVar = v.find((s) => s.isDefault) || v[0];
+          setSelectedSize(defaultVar?.label ?? "");
           setRelated(list.filter((p: Product) => p.category === found.category && p.slug !== slug).slice(0, 4));
         }
       })
@@ -46,12 +50,19 @@ export default function ProductDetailPage() {
   if (loading) return <div className="min-h-screen pt-20 bg-white" />;
   if (!product) notFound();
 
-  const currentSize = product.sizes?.find((s) => s.label === selectedSize);
-  const displayPrice = currentSize?.price ?? product.price;
+  const currentVariant = variants.find((s) => s.label === selectedSize);
+  const displayPrice = currentVariant?.price ?? product.price;
+  const displayOriginal = currentVariant?.originalPrice ?? product.originalPrice;
+  const displayDiscount = currentVariant
+    ? (currentVariant.originalPrice && currentVariant.originalPrice > currentVariant.price
+        ? Math.round((1 - currentVariant.price / currentVariant.originalPrice) * 100)
+        : currentVariant.discount || 0)
+    : 0;
+  const savings = displayOriginal && displayOriginal > displayPrice ? displayOriginal - displayPrice : 0;
 
   const handleAdd = () => {
-    if (!currentSize) return;
-    addItem({ ...product, price: displayPrice }, quantity);
+    if (!currentVariant || !currentVariant.inStock) return;
+    addItem(product, currentVariant, quantity);
     setAdded(true);
     setQuantity(1);
     toast.success("Added to Cart ✓");
@@ -88,6 +99,9 @@ export default function ProductDetailPage() {
                   <Star className="h-3 w-3 fill-current" /> Best Seller
                 </Badge>
               )}
+              {currentVariant && !currentVariant.inStock && (
+                <Badge className="bg-red-100 text-red-700 border-0">Out of Stock</Badge>
+              )}
             </div>
 
             <div className="flex justify-start mb-2">
@@ -100,18 +114,21 @@ export default function ProductDetailPage() {
 
             <Separator className="my-6 bg-[rgba(220,2,24,0.08)]" />
 
-            {product.sizes && product.sizes.length > 0 && (
+            {variants.length > 0 && (
               <div className="mb-6">
                 <p className="text-xs uppercase tracking-[0.08em] text-[#444444] mb-3">Choose size</p>
                 <div className="flex flex-wrap gap-3">
-                  {product.sizes.map((size) => {
+                  {variants.map((size) => {
                     const isSelected = selectedSize === size.label;
                     return (
                       <button
                         key={size.label}
-                        onClick={() => setSelectedSize(size.label)}
+                        onClick={() => size.inStock && setSelectedSize(size.label)}
+                        disabled={!size.inStock}
                         className={`px-5 py-3 text-xs uppercase tracking-[0.06em] font-medium border transition-all ${
-                          isSelected
+                          !size.inStock
+                            ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed line-through"
+                            : isSelected
                             ? "bg-[#DC0218] text-white border-[#DC0218]"
                             : "bg-white text-[#1A1A1A] border-[rgba(220,2,24,0.2)] hover:border-[#DC0218]"
                         }`}
@@ -124,12 +141,21 @@ export default function ProductDetailPage() {
               </div>
             )}
 
-            <div className="flex items-baseline gap-3 mb-6">
+            <div className="flex items-baseline gap-3 mb-2">
               <span className="text-3xl font-bold text-[#1A1A1A]" style={{ fontFamily: "var(--font-playfair)" }}>
                 ₹{displayPrice}
               </span>
-              <span className="text-sm text-[#444444]">/ {currentSize?.grams}g</span>
+              {displayOriginal && displayOriginal > displayPrice && (
+                <span className="text-lg text-[#444444] line-through">₹{displayOriginal}</span>
+              )}
+              {displayDiscount > 0 && (
+                <span className="text-sm font-semibold text-green-600">{displayDiscount}% OFF</span>
+              )}
             </div>
+            {savings > 0 && (
+              <p className="text-sm text-green-600 font-medium mb-2">You save ₹{savings}</p>
+            )}
+            <p className="text-sm text-[#444444] mb-6">{currentVariant?.grams || 0}g per pack</p>
 
             <div className="flex items-center gap-4 mt-auto">
               <div className="flex items-center border border-[rgba(220,2,24,0.15)] overflow-hidden">
@@ -143,7 +169,7 @@ export default function ProductDetailPage() {
               </div>
               <Button
                 size="lg"
-                disabled={!currentSize}
+                disabled={!currentVariant || !currentVariant.inStock}
                 onClick={handleAdd}
                 className={`flex-1 h-12 text-base rounded-xl transition-all ${
                   added
@@ -277,36 +303,43 @@ export default function ProductDetailPage() {
           <div>
             <h2 className="text-2xl font-bold text-[#1A1A1A] mb-6" style={{ fontFamily: "var(--font-playfair)" }}>You May Also Like</h2>
             <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {related.map((p, i) => (
-                <motion.div
-                  key={p.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.1 }}
-                  className="group border border-[rgba(220,2,24,0.08)] bg-white overflow-hidden hover:border-[rgba(220,2,24,0.2)] transition-colors"
-                >
-                  <Link href={`/products/${p.slug}`}>
-                    <div className="relative h-40 overflow-hidden bg-[#FFF8F0]">
-                      {p.images?.[0] ? (
-                        <Image src={p.images[0]} alt={p.name} fill className="object-cover group-hover:scale-105 transition-transform duration-500" sizes="(max-width: 640px) 100vw, 25vw" />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-[#444444] text-xs">No image</div>
-                      )}
-                    </div>
-                  </Link>
-                  <div className="p-4">
+              {related.map((p, i) => {
+                const pVariants: ProductVariant[] = p.sizes || p.variants || [];
+                const minPrice = pVariants.length > 0 ? Math.min(...pVariants.map((s) => s.price)) : (p.price ?? 0);
+                return (
+                  <motion.div
+                    key={p.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: i * 0.1 }}
+                    className="group border border-[rgba(220,2,24,0.08)] bg-white overflow-hidden hover:border-[rgba(220,2,24,0.2)] transition-colors"
+                  >
                     <Link href={`/products/${p.slug}`}>
-                      <h3 className="font-semibold text-lg text-[#1A1A1A]" style={{ fontFamily: "var(--font-playfair)" }}>{p.name}</h3>
+                      <div className="relative h-40 overflow-hidden bg-[#FFF8F0]">
+                        {p.images?.[0] ? (
+                          <Image src={p.images[0]} alt={p.name} fill className="object-cover group-hover:scale-105 transition-transform duration-500" sizes="(max-width: 640px) 100vw, 25vw" />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-[#444444] text-xs">No image</div>
+                        )}
+                      </div>
                     </Link>
-                    <p className="text-[#DC0218] text-xs italic mt-0.5">{p.tagline}</p>
-                    <div className="flex items-center justify-between mt-3 pt-3 border-t border-[rgba(220,2,24,0.08)]">
-                      <span className="font-semibold text-sm text-[#1A1A1A]">From ₹{Math.min(...(p.sizes?.map((s) => s.price) || [p.price ?? 0]))}</span>
-                      <Button size="sm" className="bg-[#DC0218] hover:bg-[#C70015] text-white h-8 px-3 text-xs" onClick={() => addItem(p)}>Add</Button>
+                    <div className="p-4">
+                      <Link href={`/products/${p.slug}`}>
+                        <h3 className="font-semibold text-lg text-[#1A1A1A]" style={{ fontFamily: "var(--font-playfair)" }}>{p.name}</h3>
+                      </Link>
+                      <p className="text-[#DC0218] text-xs italic mt-0.5">{p.tagline}</p>
+                      <div className="flex items-center justify-between mt-3 pt-3 border-t border-[rgba(220,2,24,0.08)]">
+                        <span className="font-semibold text-sm text-[#1A1A1A]">From ₹{minPrice}</span>
+                        <Button size="sm" className="bg-[#DC0218] hover:bg-[#C70015] text-white h-8 px-3 text-xs" onClick={() => {
+                          const defaultVar = pVariants.find((v) => v.isDefault) || pVariants[0] || null;
+                          addItem(p, defaultVar);
+                        }}>Add</Button>
+                      </div>
                     </div>
-                  </div>
-                </motion.div>
-              ))}
+                  </motion.div>
+                );
+              })}
             </div>
           </div>
         )}

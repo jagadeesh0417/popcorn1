@@ -4,11 +4,17 @@ import { useState, useEffect } from "react";
 import { Loader2 } from "lucide-react";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
 
+interface OrderItem {
+  name: string;
+  quantity: number;
+  variant?: { label: string; grams: number } | null;
+}
+
 interface AdminOrder {
   _id: string;
   orderId: string;
   customerDetails: { firstName: string; lastName: string };
-  items: { quantity: number }[];
+  items: OrderItem[];
   total: number;
   status: string;
   paymentMethod?: string;
@@ -28,6 +34,7 @@ export default function AdminOrdersPage() {
   const [orderList, setOrderList] = useState<AdminOrder[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
 
   useEffect(() => {
     let mounted = true;
@@ -89,7 +96,28 @@ export default function AdminOrdersPage() {
                     <tr key={order._id} className="border-b border-[rgba(220,2,24,0.06)] last:border-0">
                       <td className="py-3 font-medium text-[#1A1A1A]">{order.orderId}</td>
                       <td className="py-3 text-[#444444]">{order.customerDetails.firstName} {order.customerDetails.lastName}</td>
-                      <td className="py-3 text-[#444444]">{order.items.reduce((s, i) => s + i.quantity, 0)}</td>
+                      <td className="py-3 text-[#444444]">
+                        <div className="flex items-center gap-2">
+                          <span>{order.items.reduce((s, i) => s + i.quantity, 0)} items</span>
+                          <button
+                            onClick={() => setExpandedOrder(expandedOrder === order._id ? null : order._id)}
+                            className="text-[#DC0218] text-xs hover:underline"
+                          >
+                            {expandedOrder === order._id ? "Hide" : "View"}
+                          </button>
+                        </div>
+                        {expandedOrder === order._id && (
+                          <div className="mt-2 space-y-1">
+                            {order.items.map((item, idx) => (
+                              <div key={idx} className="text-xs text-[#666666]">
+                                {item.name}
+                                {item.variant?.label ? ` (${item.variant.label})` : ""}
+                                {" — "}x{item.quantity}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </td>
                       <td className="py-3 font-medium text-[#DC0218]">₹{order.total}</td>
                       <td className="py-3">
                         <select

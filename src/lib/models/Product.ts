@@ -1,5 +1,19 @@
 import mongoose, { Schema, Document } from "mongoose";
 
+export interface IVariant {
+  label: string;
+  grams: number;
+  price: number;
+  originalPrice?: number;
+  discount?: number;
+  sku?: string;
+  barcode?: string;
+  stock: number;
+  inStock: boolean;
+  isDefault?: boolean;
+  displayOrder?: number;
+}
+
 export interface IProduct extends Document {
   name: string;
   slug: string;
@@ -8,7 +22,7 @@ export interface IProduct extends Document {
   shortDescription: string;
   price: number;
   originalPrice?: number;
-  sizes?: { label: string; grams: number; price: number }[];
+  sizes?: IVariant[];
   images: string[];
   category: string;
   tags: string[];
@@ -36,6 +50,20 @@ export interface IProduct extends Document {
   updatedAt: Date;
 }
 
+const VariantSchema = new Schema<IVariant>({
+  label: { type: String, required: true },
+  grams: { type: Number, required: true },
+  price: { type: Number, required: true },
+  originalPrice: { type: Number },
+  discount: { type: Number },
+  sku: { type: String },
+  barcode: { type: String },
+  stock: { type: Number, default: 100 },
+  inStock: { type: Boolean, default: true },
+  isDefault: { type: Boolean, default: false },
+  displayOrder: { type: Number, default: 0 },
+});
+
 const ProductSchema = new Schema<IProduct>(
   {
     name: { type: String, required: true },
@@ -45,11 +73,7 @@ const ProductSchema = new Schema<IProduct>(
     shortDescription: { type: String, required: true },
     price: { type: Number, required: true },
     originalPrice: { type: Number },
-    sizes: [{
-      label: { type: String, required: true },
-      grams: { type: Number, required: true },
-      price: { type: Number, required: true },
-    }],
+    sizes: [VariantSchema],
     images: [{ type: String }],
     category: { type: String, required: true },
     tags: [{ type: String }],

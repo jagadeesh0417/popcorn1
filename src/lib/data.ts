@@ -114,21 +114,21 @@ export const customers: Customer[] = [
 
 export const orders: Order[] = [
   {
-    id: "ORD-001", items: [{ product: products[0], quantity: 2 }], total: 498, subtotal: 498, shipping: 0, discount: 0,
+    id: "ORD-001", items: [{ productId: products[0].id, name: products[0].name, price: products[0].price, quantity: 2, image: products[0].images[0] }], total: 498, subtotal: 498, shipping: 0, discount: 0,
     status: "delivered", customerDetails: { firstName: "Priya", lastName: "Sharma", email: "priya@example.com", phone: "9876543210", address: "42, Lake View Apartments", city: "Mumbai", state: "Maharashtra", zipCode: "400001" },
     paymentId: "pay_abc123", orderDate: "2026-06-15",
     statusTimeline: [{ status: "pending", date: "2026-06-15", note: "Order placed" }, { status: "confirmed", date: "2026-06-15", note: "Order confirmed" }, { status: "packed", date: "2026-06-16", note: "Packed securely" }, { status: "shipped", date: "2026-06-17", note: "Dispatched via Delhivery" }, { status: "delivered", date: "2026-06-19", note: "Delivered successfully" }],
     trackingId: "DLV-12345678", courierPartner: "Delhivery", estimatedDelivery: "2026-06-20",
   },
   {
-    id: "ORD-002", items: [{ product: products[1], quantity: 1 }, { product: products[0], quantity: 1 }], total: 498, subtotal: 498, shipping: 0, discount: 0,
+    id: "ORD-002", items: [{ productId: products[1].id, name: products[1].name, price: products[1].price, quantity: 1, image: products[1].images[0] }, { productId: products[0].id, name: products[0].name, price: products[0].price, quantity: 1, image: products[0].images[0] }], total: 498, subtotal: 498, shipping: 0, discount: 0,
     status: "shipped", customerDetails: { firstName: "Arjun", lastName: "Mehta", email: "arjun@example.com", phone: "8765432109", address: "15, Green Park Colony", city: "Delhi", state: "Delhi", zipCode: "110001" },
     paymentId: "pay_def456", orderDate: "2026-06-14",
     statusTimeline: [{ status: "pending", date: "2026-06-14", note: "Order placed" }, { status: "confirmed", date: "2026-06-14", note: "Order confirmed" }, { status: "packed", date: "2026-06-15", note: "Packed" }, { status: "shipped", date: "2026-06-16", note: "In transit" }],
     trackingId: "DLV-87654321", courierPartner: "Delhivery", estimatedDelivery: "2026-06-18",
   },
   {
-    id: "ORD-003", items: [{ product: products[2], quantity: 3 }], total: 507, subtotal: 507, shipping: 0, discount: 0,
+    id: "ORD-003", items: [{ productId: products[2].id, name: products[2].name, price: products[2].price, quantity: 3, image: products[2].images[0] }], total: 507, subtotal: 507, shipping: 0, discount: 0,
     status: "pending", customerDetails: { firstName: "Neha", lastName: "Kapoor", email: "neha@example.com", phone: "7654321098", address: "7, Sunrise Towers", city: "Bangalore", state: "Karnataka", zipCode: "560001" },
     orderDate: "2026-06-13",
     statusTimeline: [{ status: "pending", date: "2026-06-13", note: "Order placed" }],

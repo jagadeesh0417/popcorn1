@@ -7,10 +7,11 @@ import { CheckCircle, Package, ArrowRight, MapPin, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
+import { OrderItem } from "@/lib/types";
 
 interface OrderDetails {
   orderId: string;
-  items: { name: string; price: number; quantity: number }[];
+  items: OrderItem[];
   total: number;
   subtotal: number;
   shipping: number;
@@ -121,7 +122,11 @@ function ThankYouContent() {
               <div className="space-y-2">
                 {order.items.map((item, i) => (
                   <div key={i} className="flex justify-between text-sm">
-                    <span className="text-[#444444]">{item.name} <span className="text-[#999]">x{item.quantity}</span></span>
+                    <span className="text-[#444444]">
+                      {item.name}
+                      {item.variant ? <span className="text-[#999]"> ({item.variant.label})</span> : ""}
+                      <span className="text-[#999]"> x{item.quantity}</span>
+                    </span>
                     <span className="font-medium text-[#1A1A1A]">₹{item.price * item.quantity}</span>
                   </div>
                 ))}
