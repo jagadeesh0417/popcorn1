@@ -10,6 +10,12 @@ const UserSchema = new mongoose.Schema({
   role: String,
 }, { timestamps: true });
 
+// IMPORTANT: This schema has NO pre-save hook (unlike the app's User model).
+// We must hash the password here ourselves.
+UserSchema.methods.comparePassword = async function (candidatePassword) {
+  return bcrypt.compare(candidatePassword, this.password);
+};
+
 const User = mongoose.models.User || mongoose.model("User", UserSchema);
 
 async function seed() {
@@ -17,22 +23,28 @@ async function seed() {
   console.log("Connected to MongoDB");
 
   const email = "poprika.official@gmail.com";
-  const password = "Admin@123";
+  const rawPassword = "Admin@123";
 
   const existing = await User.findOne({ email: new RegExp(`^${email.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`, "i") });
   if (existing) {
     console.log("Admin user already exists:");
     console.log("  Email:", existing.email);
     console.log("  Role:", existing.role);
-    console.log("  Password stored as hash:", existing.password ? "yes" : "no");
+    console.log("  Hash preview:", existing.password?.substring(0, 20) || "MISSING");
+
+    const match = await existing.comparePassword(rawPassword);
+    console.log("  Password Admin@123 matches:", match);
+    if (!match) {
+      console.log("  WARNING: Password mismatch! The stored hash is not for 'Admin@123'.");
+      console.log("  This can happen if the password was double-hashed by the pre-save hook.");
+    }
   } else {
-    const hashed = await bcrypt.hash(password, 12);
+    // Manually hash — this schema has no pre-save hook
+    const hashed = await bcrypt.hash(rawPassword, 12);
     await User.create({ name: "Admin", email, password: hashed, role: "admin" });
     console.log("Admin user created successfully:");
     console.log("  Email:", email);
-    console.log("  Password:", password);
-    console.log();
-    console.log("IMPORTANT: Change the password after first login.");
+    console.log("  Password:", rawPassword);
   }
 
   await mongoose.disconnect();
