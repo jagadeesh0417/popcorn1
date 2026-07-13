@@ -24,7 +24,7 @@ interface PaymentConfig {
 
 const defaultConfig: PaymentConfig = {
   enabled: true,
-  keyId: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "rzp_test_xxxxxxxx",
+  keyId: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "",
   keySecret: "xxxxxxxxxxxxxxxx",
   testMode: true,
   upiEnabled: true,
