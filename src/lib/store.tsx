@@ -114,7 +114,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     if (subtotal < state.coupon.minAmount) return 0;
     return state.coupon.type === "percentage" ? (subtotal * state.coupon.discount) / 100 : state.coupon.discount;
   };
-  const getShipping = () => (getSubtotal() >= 300 ? 0 : 40);
+  const getShipping = () => 0;
   const getTotal = () => getSubtotal() - getDiscount() + getShipping();
   const getItemCount = () => state.items.reduce((sum, i) => sum + i.quantity, 0);
 

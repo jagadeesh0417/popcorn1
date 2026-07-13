@@ -16,7 +16,7 @@ const faqs = [
   },
   {
     q: "Do you offer free shipping?",
-    a: "Yes! We offer free shipping on all orders above ₹300. For orders below ₹300, a flat ₹40 shipping fee applies.",
+    a: "We offer free shipping on all orders across India.",
   },
   {
     q: "What is your return policy?",

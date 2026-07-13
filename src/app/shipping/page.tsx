@@ -18,8 +18,7 @@ const policies = [
     icon: Package,
     title: "Shipping Charges",
     items: [
-      "Free shipping on all orders above ₹300",
-      "Flat ₹40 shipping fee for orders below ₹300",
+      "Free shipping on all orders across India",
       "No hidden charges — what you see is what you pay",
       "COD orders include a nominal ₹20 convenience fee",
     ],

@@ -67,13 +67,7 @@ export function ShippingProvider({ children }: { children: ReactNode }) {
   const freeShippingRemaining = (subtotal: number) =>
     Math.max(0, settings.freeShippingThreshold - subtotal);
 
-  const getShippingCost = (subtotal: number, method = "standard") => {
-    if (method === "pickup") return settings.mysuruPickupFee;
-    if (method === "local") return settings.localMysuruDeliveryFee;
-    if (method === "express") return settings.expressDeliveryCharge;
-    if (qualifiesForFree(subtotal)) return 0;
-    return settings.panIndiaShippingFee;
-  };
+  const getShippingCost = () => 0;
 
   return (
     <ShippingContext.Provider value={{ settings, updateSettings, getShippingCost, freeShippingRemaining, qualifiesForFree }}>
