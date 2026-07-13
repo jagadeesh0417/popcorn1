@@ -24,6 +24,7 @@ export interface IOrder extends Document {
     deliveryInstructions?: string;
   };
   paymentId?: string;
+  razorpayOrderId?: string;
   paymentMethod?: string;
   statusTimeline: { status: string; date: Date; note?: string }[];
   userId?: string;
@@ -71,6 +72,7 @@ const OrderSchema = new Schema<IOrder>(
       deliveryInstructions: { type: String },
     },
     paymentId: { type: String },
+    razorpayOrderId: { type: String },
     paymentMethod: { type: String },
     statusTimeline: [
       {

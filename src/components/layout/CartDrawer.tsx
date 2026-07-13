@@ -69,35 +69,38 @@ export function CartDrawer() {
               ) : (
                 <>
                   <div className="flex-1 overflow-y-auto p-6 space-y-4">
-                    {state.items.map((item) => (
-                      <div key={item.product.id} className="flex gap-4 border-b border-[rgba(220,2,24,0.06)] pb-4">
+                    {state.items.map((item) => {
+                      const price = item.variant?.price ?? item.product.price ?? 0;
+                      return (
+                      <div key={item.cartId} className="flex gap-4 border-b border-[rgba(220,2,24,0.06)] pb-4">
                         <div className="w-20 h-20 bg-[#FFF8F0] rounded flex items-center justify-center text-2xl shrink-0">
                           🍿
                         </div>
                         <div className="flex-1 min-w-0">
                           <h4 className="font-medium text-sm text-[#1A1A1A]">{item.product.name}</h4>
-                          <p className="text-[#DC0218] font-semibold text-sm mt-1">₹{item.product.price}</p>
+                          <p className="text-[#DC0218] font-semibold text-sm mt-1">₹{price}</p>
                           <div className="flex items-center gap-3 mt-2">
                             <button
-                              onClick={() => updateQuantity(item.product.id, item.quantity - 1)}
+                              onClick={() => updateQuantity(item.cartId, item.quantity - 1)}
                               className="p-1 rounded hover:bg-[#FFF8F0] transition-colors"
                             >
                               {item.quantity === 1 ? <Trash2 className="h-4 w-4 text-red-500" /> : <Minus className="h-4 w-4" />}
                             </button>
                             <span className="text-sm font-medium w-6 text-center">{item.quantity}</span>
                             <button
-                              onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
+                              onClick={() => updateQuantity(item.cartId, item.quantity + 1)}
                               className="p-1 rounded hover:bg-[#FFF8F0] transition-colors"
                             >
                               <Plus className="h-4 w-4" />
                             </button>
                           </div>
                         </div>
-                        <button onClick={() => removeItem(item.product.id)} className="p-1 self-start text-[#444444] hover:text-red-500 transition-colors">
+                        <button onClick={() => removeItem(item.cartId)} className="p-1 self-start text-[#444444] hover:text-red-500 transition-colors">
                           <Trash2 className="h-4 w-4" />
                         </button>
                       </div>
-                    ))}
+                      );
+                    })}
                   </div>
                   <div className="p-6 border-t border-[rgba(220,2,24,0.08)] space-y-3">
                     <div className="flex justify-between text-sm">

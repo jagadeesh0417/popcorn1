@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import crypto from "crypto";
 import { connectDB } from "@/lib/db";
 import Order from "@/lib/models/Order";
+import Product from "@/lib/models/Product";
 import { errorResponse } from "@/lib/api-utils";
 
 export async function POST(req: Request) {
@@ -56,11 +57,34 @@ export async function POST(req: Request) {
       status: "confirmed",
       paymentMethod: "Razorpay",
       paymentId: razorpay_payment_id,
+      razorpayOrderId: razorpay_order_id,
       customerDetails: orderData.customerDetails,
       statusTimeline: [{ status: "confirmed", date: new Date(), note: "Payment verified" }],
     });
 
     console.log("[PAYMENT] order created", { orderId: order.orderId, paymentId: razorpay_payment_id });
+
+    // Deduct inventory for each item
+    for (const item of orderData.items || []) {
+      const product = await Product.findOne({
+        $or: [{ slug: item.productId }, { _id: item.productId }],
+      });
+      if (product) {
+        if (item.variant?.label && product.sizes?.length) {
+          const variant = product.sizes.find(
+            (v: { label: string }) => v.label === item.variant.label
+          );
+          if (variant) {
+            variant.stock = Math.max(0, (variant.stock || 0) - item.quantity);
+          }
+        } else {
+          product.stockQuantity = Math.max(0, (product.stockQuantity || 0) - item.quantity);
+        }
+        product.inStock = product.stockQuantity > 0;
+        await product.save();
+        console.log("[INVENTORY] deducted", { productId: item.productId, qty: item.quantity });
+      }
+    }
 
     return NextResponse.json({ success: true, data: { order } });
   } catch (err) {

@@ -155,30 +155,38 @@ export default function CheckoutPage() {
           contact: form.phone,
         },
         handler: async (response: RazorpayResponse) => {
-          const orderData = buildOrderData("Razorpay", response.razorpay_payment_id, orderId);
-          const verifyRes = await fetch("/api/razorpay/verify", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              razorpay_order_id: response.razorpay_order_id,
-              razorpay_payment_id: response.razorpay_payment_id,
-              razorpay_signature: response.razorpay_signature,
-              orderData,
-            }),
-          });
-          if (!verifyRes.ok) {
-            toast.error("Payment verification failed. Please contact support.");
+          try {
+            const orderData = buildOrderData("Razorpay", response.razorpay_payment_id, orderId);
+            const verifyRes = await fetch("/api/razorpay/verify", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+                orderData,
+              }),
+            });
+            if (!verifyRes.ok) {
+              let errMsg = "Payment verification failed. Please contact support.";
+              try { const e = await verifyRes.json(); if (e.error) errMsg = e.error; } catch {}
+              toast.error(errMsg);
+              setLoading(false);
+              return;
+            }
+            const verifyResult = await verifyRes.json();
+            if (!verifyResult?.success) {
+              toast.error("Payment verification failed. Please contact support.");
+              setLoading(false);
+              return;
+            }
+            clearCart();
+            router.push(`/thanks?order=${orderData.orderId}`);
+          } catch (err) {
+            console.error("[CHECKOUT] handler error:", err);
+            toast.error("Something went wrong after payment. Please note your payment ID and contact support.");
             setLoading(false);
-            return;
           }
-          const verifyResult = await verifyRes.json();
-          if (!verifyResult?.success) {
-            toast.error("Payment verification failed. Please contact support.");
-            setLoading(false);
-            return;
-          }
-          clearCart();
-          router.push(`/thanks?order=${orderData.orderId}`);
         },
         modal: {
           ondismiss: () => {

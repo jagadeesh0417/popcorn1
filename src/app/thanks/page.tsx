@@ -40,19 +40,41 @@ function ThankYouContent() {
 
   useEffect(() => {
     if (isInvalidId) return;
-    fetch(`/api/orders/${orderId}`)
-      .then((res) => {
-        if (!res.ok) throw new Error("Order not found");
-        return res.json();
-      })
-      .then((data) => {
-        if (data?.success) setOrder(data.data);
-        setLoading(false);
-      })
-      .catch(() => {
-        setError("Could not load order details");
-        setLoading(false);
-      });
+    let cancelled = false;
+    let retries = 0;
+    const maxRetries = 5;
+    const fetchOrder = () => {
+      fetch(`/api/orders/${orderId}`)
+        .then((res) => {
+          if (!res.ok) throw new Error("Order not found");
+          return res.json();
+        })
+        .then((data) => {
+          if (cancelled) return;
+          if (data?.success) {
+            setOrder(data.data);
+            setLoading(false);
+          } else if (retries < maxRetries) {
+            retries++;
+            setTimeout(fetchOrder, 800);
+          } else {
+            setError("Could not load order details");
+            setLoading(false);
+          }
+        })
+        .catch(() => {
+          if (cancelled) return;
+          if (retries < maxRetries) {
+            retries++;
+            setTimeout(fetchOrder, 800);
+          } else {
+            setError("Could not load order details");
+            setLoading(false);
+          }
+        });
+    };
+    fetchOrder();
+    return () => { cancelled = true; };
   }, [orderId]);
 
   if (isInvalidId) {
