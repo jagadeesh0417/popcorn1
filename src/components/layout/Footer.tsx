@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { Camera, MessageCircle, Mail, MapPin, Phone, Clock } from "lucide-react";
 
 const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "918197175807";
@@ -12,11 +13,8 @@ export function Footer() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
           <div>
-            <div className="flex items-center gap-2.5 mb-4">
-              <div className="w-9 h-9 bg-white flex items-center justify-center">
-                <span className="text-[#C70015] font-bold text-base">P</span>
-              </div>
-              <span className="font-semibold text-lg" style={{ fontFamily: "var(--font-playfair)" }}>Poprika</span>
+            <div className="mb-4">
+              <Image src="/logo.png" alt="Poprika" width={2508} height={1214} className="h-8 w-auto brightness-0 invert" />
             </div>
             <p className="text-white/60 text-xs leading-relaxed mb-5 max-w-xs">
               Small-batch popcorn. Bold Indian flavors. Made in Mysuru.
