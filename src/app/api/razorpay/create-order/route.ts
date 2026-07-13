@@ -5,7 +5,10 @@ export async function POST(req: Request) {
   try {
     const { amount, currency } = await req.json();
 
+    console.log("[RAZORPAY] create-order request", { amount, currency });
+
     if (!amount || amount <= 0) {
+      console.error("[RAZORPAY] invalid amount", { amount });
       return errorResponse("Invalid amount", 400);
     }
 

@@ -7,10 +7,14 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
   try {
     await connectDB();
     const order = await Order.findOne({ orderId: id });
-    if (!order) return errorResponse("Not found", 404);
+    if (!order) {
+      console.log("[ORDERS] GET by ID — not found", { orderId: id });
+      return errorResponse("Not found", 404);
+    }
+    console.log("[ORDERS] GET by ID — found", { orderId: id, status: order.status });
     return successResponse(order);
   } catch (err) {
-    console.error("Failed to fetch order", err);
+    console.error("[ORDERS] Failed to fetch order", err);
     return errorResponse("Failed to fetch order", 500);
   }
 }

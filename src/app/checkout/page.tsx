@@ -155,6 +155,7 @@ export default function CheckoutPage() {
           contact: form.phone,
         },
         handler: async (response: RazorpayResponse) => {
+          const orderData = buildOrderData("Razorpay", response.razorpay_payment_id, orderId);
           const verifyRes = await fetch("/api/razorpay/verify", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -162,6 +163,7 @@ export default function CheckoutPage() {
               razorpay_order_id: response.razorpay_order_id,
               razorpay_payment_id: response.razorpay_payment_id,
               razorpay_signature: response.razorpay_signature,
+              orderData,
             }),
           });
           if (!verifyRes.ok) {
@@ -169,14 +171,9 @@ export default function CheckoutPage() {
             setLoading(false);
             return;
           }
-          const orderData = buildOrderData("Razorpay", response.razorpay_payment_id, orderId);
-          const saveRes = await fetch("/api/orders", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(orderData),
-          });
-          if (!saveRes.ok) {
-            toast.error("Payment succeeded but order could not be saved. Contact support.");
+          const verifyResult = await verifyRes.json();
+          if (!verifyResult?.success) {
+            toast.error("Payment verification failed. Please contact support.");
             setLoading(false);
             return;
           }
