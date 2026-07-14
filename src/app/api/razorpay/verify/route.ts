@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import crypto from "crypto";
 import { connectDB } from "@/lib/db";
 import Order from "@/lib/models/Order";
+import OrphanPayment from "@/lib/models/OrphanPayment";
 import Product from "@/lib/models/Product";
 import { errorResponse } from "@/lib/api-utils";
 
@@ -123,8 +124,30 @@ export async function POST(req: Request) {
       const ve = (e as { errors: Record<string, { message: string }> }).errors;
       console.error("[PAYMENT] validation errors:", JSON.stringify(ve));
     }
+
+    // Write orphan payment record so captured money is never lost
+    try {
+      await OrphanPayment.create({
+        razorpay_payment_id,
+        razorpay_order_id,
+        amount: orderData.total,
+        email: orderData.customerDetails?.email,
+        status: "needs_review",
+        orderData,
+        error: msg,
+      });
+      console.log("[PAYMENT] orphan payment recorded", { razorpay_payment_id });
+    } catch (orphanErr) {
+      console.error("[PAYMENT] failed to record orphan payment:", orphanErr);
+    }
+
     return NextResponse.json(
-      { success: false, error: "Failed to create order", detail: msg },
+      {
+        success: false,
+        error: "Failed to create order",
+        payment_id: razorpay_payment_id,
+        detail: msg,
+      },
       { status: 500 }
     );
   }

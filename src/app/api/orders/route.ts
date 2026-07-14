@@ -1,5 +1,6 @@
 import { connectDB } from "@/lib/db";
 import Order from "@/lib/models/Order";
+import OrphanPayment from "@/lib/models/OrphanPayment";
 import { successResponse, errorResponse } from "@/lib/api-utils";
 
 export async function GET() {
@@ -42,6 +43,21 @@ export async function POST(req: Request) {
     return successResponse(order, 201);
   } catch (err) {
     console.error("[ORDERS] Failed to create order", err);
+    if (err && typeof err === "object" && "errors" in err) {
+      console.error("[ORDERS] validation errors:", JSON.stringify((err as { errors: Record<string, { message: string }> }).errors));
+    }
+
+    // Write orphan record for manual review
+    try {
+      const body = await req.clone().json().catch(() => ({}));
+      await OrphanPayment.create({
+        razorpay_order_id: body.orderId,
+        status: "needs_review",
+        orderData: body,
+        error: err instanceof Error ? err.message : String(err),
+      });
+    } catch { /* orphan write failure is non-fatal */ }
+
     return errorResponse("Failed to create order", 500);
   }
 }

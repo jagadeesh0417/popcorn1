@@ -14,7 +14,7 @@ export interface IOrder extends Document {
   estimatedDelivery?: string;
   customerDetails: {
     firstName: string;
-    lastName: string;
+    lastName?: string;
     email: string;
     phone: string;
     address: string;
@@ -62,7 +62,7 @@ const OrderSchema = new Schema<IOrder>(
     estimatedDelivery: { type: String },
     customerDetails: {
       firstName: { type: String, required: true },
-      lastName: { type: String, required: true },
+      lastName: { type: String, default: '', trim: true },
       email: { type: String, required: true },
       phone: { type: String, required: true },
       address: { type: String, required: true },
