@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { Loader2 } from "lucide-react";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
+import { OrderDetailModal } from "@/components/admin/OrderDetailModal";
 
 interface OrderItem {
   name: string;
@@ -35,6 +36,7 @@ export default function AdminOrdersPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
+  const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
 
   useEffect(() => {
     let mounted = true;
@@ -132,7 +134,7 @@ export default function AdminOrdersPage() {
                       </td>
                       <td className="py-3 text-[#444444]">{order.paymentId || order.paymentMethod ? "Paid" : "Pending"}</td>
                       <td className="py-3">
-                        <button className="text-[#DC0218] text-xs font-medium hover:underline">View</button>
+                        <button onClick={() => setSelectedOrderId(order.orderId)} className="text-[#DC0218] text-xs font-medium hover:underline">View</button>
                       </td>
                     </tr>
                   ))}
@@ -142,6 +144,7 @@ export default function AdminOrdersPage() {
           )}
         </div>
       </div>
+      <OrderDetailModal orderId={selectedOrderId} onClose={() => setSelectedOrderId(null)} />
     </div>
   );
 }
