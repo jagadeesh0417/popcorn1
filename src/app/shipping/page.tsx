@@ -1,47 +1,54 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Truck, Package, Clock, MapPin } from "lucide-react";
+import { MapPin, Bike, Truck, Camera } from "lucide-react";
 
-const policies = [
-  {
-    icon: Truck,
-    title: "Delivery Timeline",
-    items: [
-      "Orders are dispatched within 24 hours of placement",
-      "Standard delivery: 2-3 business days across India",
-      "Metro cities: 1-2 business days",
-      "Remote locations: 3-5 business days",
-    ],
-  },
-  {
-    icon: Package,
-    title: "Shipping Charges",
-    items: [
-      "Free shipping on all orders across India",
-      "No hidden charges — what you see is what you pay",
-      "COD orders include a nominal ₹20 convenience fee",
-    ],
-  },
-  {
-    icon: Clock,
-    title: "Order Processing",
-    items: [
-      "All orders are freshly popped on the day of dispatch",
-      "Orders placed before 2 PM are shipped the same day",
-      "Orders placed after 2 PM are shipped the next business day",
-      "You will receive a tracking link once your order ships",
-    ],
-  },
+const sections = [
   {
     icon: MapPin,
-    title: "Serviceable Areas",
+    title: "Pick Up in Mysore",
+    badge: "FREE",
+    description:
+      "Order online and collect your popcorn from our kitchen in Vijayanagar 4th Stage. Simply choose \"Mysuru Pickup\" during checkout, and we'll notify you as soon as your order is ready.",
+    address: (
+      <>
+        <strong>Pickup Address:</strong>
+        <br />
+        #30, Sri Nivasa, RCE Layout
+        <br />
+        Vijayanagar 4th Stage
+        <br />
+        Mysore – 570032
+      </>
+    ),
+  },
+  {
+    icon: Bike,
+    title: "Mysuru Local Delivery",
+    badge: null,
+    description:
+      "Enjoy fresh popcorn delivered anywhere within Mysuru city. Choose \"Mysuru Local Delivery\" during checkout. We offer same-day or next-day delivery based on your order time and location.",
+    note: "A local delivery charge may apply depending on the delivery area.",
+  },
+  {
+    icon: Truck,
+    title: "Home Delivery",
+    badge: null,
+    description:
+      "Get your favorite Poprika popcorn delivered safely to your doorstep across Karnataka and the rest of India.",
     items: [
-      "We currently deliver across all states in India",
-      "Serviceable pin codes are verified at checkout",
-      "International shipping coming soon — stay tuned for updates",
-      "Bulk/corporate orders can be arranged for any location",
+      "Orders are dispatched within 2 working days",
+      "Typically arrive within 3–7 business days depending on your location",
+      "Free shipping on orders above ₹399",
     ],
+  },
+  {
+    icon: Camera,
+    title: "Follow Us on Instagram",
+    badge: null,
+    description:
+      'Stay updated with our latest flavours, offers, and behind-the-scenes content by following <strong>@poprika_official</strong> on Instagram.',
+    isHtml: true,
   },
 ];
 
@@ -64,25 +71,47 @@ export default function ShippingPage() {
       <section className="py-24 bg-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-2 gap-8">
-            {policies.map((p, i) => (
+            {sections.map((s, i) => (
               <motion.div
-                key={p.title}
+                key={s.title}
                 initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
                 transition={{ delay: i * 0.08 }}
                 className="bg-[#FFF8F0] p-8 rounded-2xl border border-[rgba(220,2,24,0.08)]"
               >
                 <div className="w-12 h-12 rounded-xl bg-[#DC0218]/5 flex items-center justify-center mb-5">
-                  <p.icon className="h-6 w-6 text-[#DC0218]" />
+                  <s.icon className="h-6 w-6 text-[#DC0218]" />
                 </div>
-                <h3 className="text-xl font-bold text-[#1A1A1A] mb-4">{p.title}</h3>
-                <ul className="space-y-2.5">
-                  {p.items.map((item, j) => (
-                    <li key={j} className="text-[#444444] text-sm flex items-start gap-2">
-                      <span className="text-[#DC0218] mt-0.5">•</span>
-                      {item}
-                    </li>
-                  ))}
-                </ul>
+                <div className="flex items-center gap-3 mb-4">
+                  <h3 className="text-xl font-bold text-[#1A1A1A]">{s.title}</h3>
+                  {s.badge && (
+                    <span className="bg-green-100 text-green-700 text-xs font-semibold px-3 py-1 rounded-full">
+                      {s.badge}
+                    </span>
+                  )}
+                </div>
+                {s.isHtml ? (
+                  <p className="text-[#444444] text-sm leading-relaxed" dangerouslySetInnerHTML={{ __html: s.description }} />
+                ) : (
+                  <p className="text-[#444444] text-sm leading-relaxed">{s.description}</p>
+                )}
+                {s.address && (
+                  <div className="mt-4 p-4 bg-white rounded-xl border border-[rgba(220,2,24,0.06)] text-sm text-[#444444] leading-relaxed">
+                    {s.address}
+                  </div>
+                )}
+                {s.items && (
+                  <ul className="mt-4 space-y-2">
+                    {s.items.map((item, j) => (
+                      <li key={j} className="text-[#444444] text-sm flex items-start gap-2">
+                        <span className="text-[#DC0218] mt-0.5">•</span>
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                {s.note && (
+                  <p className="mt-4 text-xs text-[#888] italic">{s.note}</p>
+                )}
               </motion.div>
             ))}
           </div>
