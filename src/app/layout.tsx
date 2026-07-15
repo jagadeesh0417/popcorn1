@@ -34,7 +34,7 @@ export const metadata: Metadata = {
   description: "Handcrafted gourmet popcorn made in small batches in Mysuru. No palm oil, no preservatives, no artificial anything. Just real spices, real ghee, and popcorn done properly.",
   keywords: "premium popcorn, gourmet popcorn, Mysuru popcorn, artisanal popcorn, ghee popcorn, small batch popcorn, Indian gourmet snacks",
   openGraph: {
-    title: "Poprika — Small-Batch Gourmet Popcorn from Mysuru",
+  title: "Poprika — Small-Batch Gourmet Popcorn from Mysuru, India",
     description: "Handcrafted gourmet popcorn made in small batches in Mysuru. No palm oil, no preservatives, no artificial anything.",
     type: "website",
     siteName: "Poprika",
