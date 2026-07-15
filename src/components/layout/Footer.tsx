@@ -29,7 +29,7 @@ export function Footer() {
                 <Camera className="h-4 w-4" />
               </a>
               <a
-                href="https://youtube.com/@poprika"
+                href="https://www.youtube.com/@Poprika-07"
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="YouTube"
