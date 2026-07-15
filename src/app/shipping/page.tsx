@@ -1,19 +1,24 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { MapPin, Bike, Truck, Camera } from "lucide-react";
+import { MapPin, Bike, Truck } from "lucide-react";
 
-const sections = [
+const sections: {
+  icon: typeof MapPin;
+  title: string;
+  badge: string | null;
+  description: string;
+  address?: React.ReactNode;
+  items?: string[];
+}[] = [
   {
     icon: MapPin,
     title: "Pick Up in Mysore",
     badge: "FREE",
     description:
-      "Order online and collect your popcorn from our kitchen in Vijayanagar 4th Stage. Simply choose \"Mysuru Pickup\" during checkout, and we'll notify you as soon as your order is ready.",
+      "Order online and collect your popcorn from our kitchen in Vijayanagar 4th Stage. Simply choose \"Mysuru Pickup\" during checkout and we'll notify you when your order is ready.",
     address: (
       <>
-        <strong>Pickup Address:</strong>
-        <br />
         #30, Sri Nivasa, RCE Layout
         <br />
         Vijayanagar 4th Stage
@@ -24,31 +29,19 @@ const sections = [
   },
   {
     icon: Bike,
-    title: "Mysuru Local Delivery",
+    title: "Home Delivery in Mysore",
     badge: null,
     description:
-      "Enjoy fresh popcorn delivered anywhere within Mysuru city. Choose \"Mysuru Local Delivery\" during checkout. We offer same-day or next-day delivery based on your order time and location.",
-    note: "A local delivery charge may apply depending on the delivery area.",
+      "Fresh popcorn delivered right to your doorstep anywhere within Mysore city. Choose \"Local Delivery\" during checkout.",
+    items: ["Same-day or next-day delivery depending on order time."],
   },
   {
     icon: Truck,
-    title: "Home Delivery",
+    title: "Pan-India Shipping",
     badge: null,
     description:
-      "Get your favorite Poprika popcorn delivered safely to your doorstep across Karnataka and the rest of India.",
-    items: [
-      "Orders are dispatched within 2 working days",
-      "Typically arrive within 3–7 business days depending on your location",
-      "Free shipping on orders above ₹399",
-    ],
-  },
-  {
-    icon: Camera,
-    title: "Follow Us on Instagram",
-    badge: null,
-    description:
-      'Stay updated with our latest flavours, offers, and behind-the-scenes content by following <strong>@poprika_official</strong> on Instagram.',
-    isHtml: true,
+      "We ship across India via India Post. Orders are dispatched within 2 working days and usually arrive in 3–7 days, depending on your location.",
+    items: ["Free shipping on orders over ₹399"],
   },
 ];
 
@@ -59,10 +52,10 @@ export default function ShippingPage() {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight">
-              Shipping <span className="text-[#F9D976]">Policy</span>
+              How you&apos;ll <span className="text-[#F9D976]">get it</span>
             </h1>
             <p className="text-white/70 mt-4 text-lg max-w-lg mx-auto">
-              How we get your popcorn fresh to your doorstep.
+              Pickup, local delivery, and shipping options.
             </p>
           </motion.div>
         </div>
@@ -89,11 +82,7 @@ export default function ShippingPage() {
                     </span>
                   )}
                 </div>
-                {s.isHtml ? (
-                  <p className="text-[#444444] text-sm leading-relaxed" dangerouslySetInnerHTML={{ __html: s.description }} />
-                ) : (
-                  <p className="text-[#444444] text-sm leading-relaxed">{s.description}</p>
-                )}
+                <p className="text-[#444444] text-sm leading-relaxed">{s.description}</p>
                 {s.address && (
                   <div className="mt-4 p-4 bg-white rounded-xl border border-[rgba(220,2,24,0.06)] text-sm text-[#444444] leading-relaxed">
                     {s.address}
@@ -109,9 +98,7 @@ export default function ShippingPage() {
                     ))}
                   </ul>
                 )}
-                {s.note && (
-                  <p className="mt-4 text-xs text-[#888] italic">{s.note}</p>
-                )}
+
               </motion.div>
             ))}
           </div>

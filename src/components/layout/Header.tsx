@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, ShoppingBag } from "lucide-react";
 import { useCart } from "@/lib/store";
@@ -37,7 +36,7 @@ export function Header() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 md:h-20">
           <Link href="/" className="flex items-center">
-            <Image src="/logo.png" alt="Poprika" width={2508} height={1214} className="h-11 w-auto" priority />
+            <img src="/logo.png" alt="Poprika" className="h-11 md:h-14 w-auto" />
           </Link>
 
           <nav className="hidden md:flex items-center gap-10">

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { CreditCard, MapPin, User, Lock, ShoppingBag, Store, Building, Home, Briefcase } from "lucide-react";
+import { CreditCard, MapPin, User, Lock, ShoppingBag, Store, Building, Home, Briefcase, Bike } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -22,7 +22,7 @@ interface RazorpayResponse {
   razorpay_signature: string;
 }
 
-type ShippingMethod = "shipping" | "pickup";
+type ShippingMethod = "shipping" | "pickup" | "local";
 type AddressType = "home" | "office" | "other";
 
 const indianStates = [
@@ -80,10 +80,12 @@ export default function CheckoutPage() {
       phone: form.phone,
       address: shippingMethod === "shipping"
         ? `${form.addressLine1}${form.addressLine2 ? ", " + form.addressLine2 : ""}${form.area ? ", " + form.area : ""}${form.landmark ? " (" + form.landmark + ")" : ""}`
+        : shippingMethod === "local"
+        ? `${form.addressLine1}${form.addressLine2 ? ", " + form.addressLine2 : ""}${form.area ? ", " + form.area : ""}${form.landmark ? " (" + form.landmark + ")" : ""}`
         : "Mysuru Pickup",
-      city: shippingMethod === "shipping" ? form.city : "Mysuru",
-      state: shippingMethod === "shipping" ? form.state : "Karnataka",
-      zipCode: shippingMethod === "shipping" ? form.pincode : "570032",
+      city: shippingMethod === "shipping" || shippingMethod === "local" ? form.city : "Mysuru",
+      state: shippingMethod === "shipping" || shippingMethod === "local" ? form.state : "Karnataka",
+      zipCode: shippingMethod === "shipping" || shippingMethod === "local" ? form.pincode : "570032",
       deliveryInstructions: form.deliveryInstructions || undefined,
     },
     statusTimeline: [{
@@ -98,7 +100,7 @@ export default function CheckoutPage() {
       toast.error("Please fill in your name, phone, and email");
       return;
     }
-    if (shippingMethod === "shipping" && (!form.addressLine1 || !form.city || !form.state || !form.pincode)) {
+    if ((shippingMethod === "shipping" || shippingMethod === "local") && (!form.addressLine1 || !form.city || !form.state || !form.pincode)) {
       toast.error("Please fill in your delivery address");
       return;
     }
@@ -223,7 +225,7 @@ export default function CheckoutPage() {
     );
   }
 
-  const shipping = shippingMethod === "pickup" ? 0 : shippingCtx.getShippingCost(getSubtotal());
+  const shipping = shippingMethod === "pickup" ? 0 : shippingMethod === "local" ? shippingCtx.settings.localMysuruDeliveryFee : shippingCtx.getShippingCost(getSubtotal());
 
   return (
     <div className="min-h-screen pt-20 bg-gradient-to-b from-white to-[#FFFDF9]">
@@ -251,6 +253,7 @@ export default function CheckoutPage() {
                 <SelectContent>
                   <SelectItem value="shipping">Shipping — Pan-India (3-7 days)</SelectItem>
                   <SelectItem value="pickup">Mysuru Pickup — Free</SelectItem>
+                  <SelectItem value="local">Mysuru Local Delivery — Same day</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -282,11 +285,11 @@ export default function CheckoutPage() {
             </div>
 
             {/* Shipping Address */}
-            {shippingMethod === "shipping" && (
+            {(shippingMethod === "shipping" || shippingMethod === "local") && (
               <div className="bg-[#FFFDF9] p-6 border border-[rgba(0,0,0,0.05)] shadow-sm">
                 <div className="flex items-center gap-2 mb-5">
                   <MapPin className="h-5 w-5 text-[#DC0218]" />
-                  <h2 className="font-bold text-lg text-[#1A1A1A]">Delivery address</h2>
+                  <h2 className="font-bold text-lg text-[#1A1A1A]">{shippingMethod === "local" ? "Local delivery address" : "Delivery address"}</h2>
                 </div>
 
                 <div className="space-y-4">
@@ -383,13 +386,31 @@ export default function CheckoutPage() {
               </div>
             )}
 
+            {/* Local delivery info */}
+            {shippingMethod === "local" && (
+              <div className="bg-[#FFFDF9] p-6 border border-[rgba(0,0,0,0.05)] shadow-sm">
+                <div className="flex items-center gap-2 mb-5">
+                  <Bike className="h-5 w-5 text-[#DC0218]" />
+                  <h2 className="font-bold text-lg text-[#1A1A1A]">Local delivery</h2>
+                </div>
+                <div className="bg-[#FFF8F0] p-5 border border-[rgba(220,2,24,0.08)]">
+                  <p className="text-sm text-[#444444]">
+                    Delivery within Mysuru city. Same-day or next-day depending on order time.
+                  </p>
+                  <p className="text-xs text-[#444444] mt-3">
+                    A delivery charge of ₹{shippingCtx.settings.localMysuruDeliveryFee} applies.
+                  </p>
+                </div>
+              </div>
+            )}
+
             {/* Order notes */}
             <div className="bg-[#FFFDF9] p-6 border border-[rgba(0,0,0,0.05)] shadow-sm">
               <div className="flex items-center gap-2 mb-5">
                 <ShoppingBag className="h-5 w-5 text-[#DC0218]" />
                 <h2 className="font-bold text-lg text-[#1A1A1A]">Order notes</h2>
               </div>
-              <Textarea value={form.deliveryInstructions} onChange={(e) => updateField("deliveryInstructions", e.target.value)} placeholder={shippingMethod === "pickup" ? "Preferred pickup time, anything we should know..." : "Gate code, landmark, delivery instructions..."} className="bg-white border-[rgba(220,2,24,0.12)] min-h-[80px]" />
+              <Textarea value={form.deliveryInstructions} onChange={(e) => updateField("deliveryInstructions", e.target.value)} placeholder={shippingMethod === "pickup" ? "Preferred pickup time, anything we should know..." : shippingMethod === "local" ? "Delivery instructions, landmark..." : "Gate code, landmark, delivery instructions..."} className="bg-white border-[rgba(220,2,24,0.12)] min-h-[80px]" />
             </div>
 
             {/* Payment method */}
