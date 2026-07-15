@@ -13,7 +13,7 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
           <div>
             <div className="mb-4">
-              <img src="/logo.png" alt="Poprika" className="h-12 md:h-16 w-auto brightness-0 invert" />
+              <img src="/logo.png?v=2" alt="Poprika" className="h-12 md:h-16 w-auto brightness-0 invert" />
             </div>
             <p className="text-white/60 text-xs leading-relaxed mb-5 max-w-xs">
               Small-batch popcorn. Bold Indian flavors. Made in Mysuru.
