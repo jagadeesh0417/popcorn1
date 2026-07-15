@@ -20,7 +20,7 @@ export function Footer() {
             </p>
             <div className="flex gap-3">
               <a
-                href="https://instagram.com/poprika"
+                href="https://www.instagram.com/poprika_official?igsh=MzU1cmV4cnBnaXRs&utm_source=qr"
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Instagram"
