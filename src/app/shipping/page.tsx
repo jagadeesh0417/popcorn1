@@ -12,7 +12,7 @@ export default function ShippingPage() {
               How You&apos;ll <span className="text-[#F9D976]">Get It</span>
             </h1>
             <p className="text-white/70 mt-4 text-lg max-w-lg mx-auto">
-              Pickup, local delivery, and shipping options.
+              Pickup, local delivery, and pan-India shipping.
             </p>
           </div>
         </div>
