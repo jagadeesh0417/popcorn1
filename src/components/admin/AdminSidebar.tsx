@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
+
 import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
 import { motion } from "framer-motion";
@@ -25,7 +25,7 @@ export function AdminSidebar() {
     <aside className="fixed left-0 top-0 h-full w-64 bg-[#C70015] z-40 flex flex-col shadow-2xl">
       <div className="p-6 border-b border-white/10">
         <Link href="/admin" className="flex items-center gap-3">
-          <Image src="/logo.png" alt="Poprika" width={2508} height={1214} className="h-10 md:h-12 w-auto brightness-0 invert" />
+          <img src="/logo.png" alt="Poprika" className="h-10 md:h-12 w-auto brightness-0 invert" />
           <span className="text-[#F9D976] text-[10px] uppercase tracking-widest font-medium">Admin</span>
         </Link>
       </div>
