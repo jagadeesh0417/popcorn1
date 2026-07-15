@@ -36,7 +36,7 @@ export function Header() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 md:h-20">
           <Link href="/" className="flex items-center">
-            <img src="/logo.png" alt="Poprika" className="h-11 md:h-14 w-auto" />
+            <img src="/logo-nav.png" alt="Poprika" className="h-11 md:h-14 w-auto" />
           </Link>
 
           <nav className="hidden md:flex items-center gap-10">
