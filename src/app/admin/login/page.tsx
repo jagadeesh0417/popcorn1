@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 
 export default function AdminLoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState("poprika@gmail.com");
+  const [email, setEmail] = useState("Poprika.official@gmail.com");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);

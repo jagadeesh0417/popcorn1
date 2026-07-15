@@ -22,8 +22,8 @@ async function seed() {
   await mongoose.connect(MONGODB_URI);
   console.log("Connected to MongoDB");
 
-  const email = "poprika@gmail.com";
-  const rawPassword = "admin123";
+  const email = "Poprika.official@gmail.com";
+  const rawPassword = "Newbusinesspop@098";
 
   const existing = await User.findOne({ email: new RegExp(`^${email.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`, "i") });
   if (existing) {
@@ -33,9 +33,9 @@ async function seed() {
     console.log("  Hash preview:", existing.password?.substring(0, 20) || "MISSING");
 
     const match = await existing.comparePassword(rawPassword);
-    console.log("  Password admin123 matches:", match);
+    console.log("  Password matches:", match);
     if (!match) {
-      console.log("  WARNING: Password mismatch! The stored hash is not for 'admin123'.");
+      console.log("  WARNING: Password mismatch! The stored hash is not for the expected password.");
       console.log("  This can happen if the password was double-hashed by the pre-save hook.");
     }
   } else {

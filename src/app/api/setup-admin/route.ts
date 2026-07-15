@@ -18,16 +18,16 @@ export async function GET() {
     steps[steps.length - 1].detail = `Registered models: ${modelNames.join(", ")}`;
 
     steps.push({ step: "Find existing", ok: false, detail: "Looking up admin..." });
-    const emailRegex = new RegExp("^poprika@gmail\\.com$", "i");
+    const emailRegex = new RegExp("^Poprika\\.official@gmail\\.com$", "i");
     const existing = await User.findOne({ email: emailRegex });
     if (existing) {
       steps[steps.length - 1].ok = true;
       steps[steps.length - 1].detail = `User found: ${existing.email}, role: ${existing.role}, hash starts with: ${existing.password.substring(0, 15)}...`;
 
       steps.push({ step: "Test password match", ok: false, detail: "Testing bcrypt..." });
-      const testMatch = await existing.comparePassword("admin123");
+      const testMatch = await existing.comparePassword("Newbusinesspop@098");
       steps[steps.length - 1].ok = testMatch;
-      steps[steps.length - 1].detail = testMatch ? "Password admin123 MATCHES" : "Password admin123 DOES NOT MATCH";
+      steps[steps.length - 1].detail = testMatch ? "Password MATCHES" : "Password DOES NOT MATCH";
 
       return NextResponse.json({ success: true, action: "already_exists", steps, user: { email: existing.email, role: existing.role } });
     }
@@ -35,8 +35,8 @@ export async function GET() {
     steps[steps.length - 1].detail = "No admin user found — creating now";
     await User.create({
       name: "Admin",
-      email: "poprika@gmail.com",
-      password: "admin123",
+      email: "Poprika.official@gmail.com",
+      password: "Newbusinesspop@098",
       role: "admin",
     });
 
@@ -50,9 +50,9 @@ export async function GET() {
     steps[steps.length - 1].detail = `Created: ${created.email}, role: ${created.role}, hash: ${created.password.substring(0, 15)}...`;
 
     steps.push({ step: "Test password match", ok: false, detail: "Testing bcrypt..." });
-    const testMatch = await created.comparePassword("admin123");
+    const testMatch = await created.comparePassword("Newbusinesspop@098");
     steps[steps.length - 1].ok = testMatch;
-    steps[steps.length - 1].detail = testMatch ? "Password admin123 MATCHES" : "Password admin123 DOES NOT MATCH";
+    steps[steps.length - 1].detail = testMatch ? "Password MATCHES" : "Password DOES NOT MATCH";
 
     return NextResponse.json({ success: true, action: "created", steps });
   } catch (err) {
