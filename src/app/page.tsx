@@ -3,7 +3,6 @@ import { TrustBar } from "@/components/home/TrustBar";
 import { WhyChooseUs } from "@/components/home/WhyChooseUs";
 import { FeaturedProducts } from "@/components/home/FeaturedProducts";
 import { BundleCard } from "@/components/home/BundleCard";
-import { DeliveryInfo } from "@/components/home/DeliveryInfo";
 import { InstagramGallery } from "@/components/home/InstagramGallery";
 
 function SectionDivider() {
@@ -22,8 +21,6 @@ export default function HomePage() {
       <FeaturedProducts />
       <SectionDivider />
       <BundleCard />
-      <SectionDivider />
-      <DeliveryInfo />
       <SectionDivider />
       <WhyChooseUs />
       <SectionDivider />
