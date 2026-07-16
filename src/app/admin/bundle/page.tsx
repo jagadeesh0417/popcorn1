@@ -1,12 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Plus, Trash2, Save } from "lucide-react";
+import { Plus, Trash2, Save, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 interface BundleImage {
@@ -21,6 +21,7 @@ interface BundleSize {
 }
 
 export default function AdminBundlePage() {
+  const [saving, setSaving] = useState(false);
   const [images, setImages] = useState<BundleImage[]>([
     { id: "1", src: "https://images.unsplash.com/photo-1578474846511-04ba529f0b88?w=600&q=80" },
     { id: "2", src: "https://images.unsplash.com/photo-1600959908209-755b03e7c66f?w=600&q=80" },
@@ -36,6 +37,20 @@ export default function AdminBundlePage() {
     subtitle: "One of each. The best way to find your favourite.",
     flavors: "Ghee & Black Pepper · Ghee & Curry Leaf · Coffee Chikki",
   });
+
+  useEffect(() => {
+    fetch("/api/settings?key=bundle")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data?.success && data.data?.value) {
+          const v = data.data.value;
+          if (v.images) setImages(v.images);
+          if (v.sizes) setSizes(v.sizes);
+          if (v.bundleText) setBundleText(v.bundleText);
+        }
+      })
+      .catch(console.error);
+  }, []);
 
   const addImage = () => {
     const url = prompt("Enter image URL:");
@@ -81,11 +96,24 @@ export default function AdminBundlePage() {
     setSizes(sizes.filter((_, i) => i !== index));
   };
 
-  const handleSave = () => {
-    // TODO: persist to DB
-    // const db = await connectDB();
-    // await db.collection("bundle").updateOne({ id: "trio" }, { $set: { images, sizes, bundleText } }, { upsert: true });
-    toast.success("Bundle settings saved! (TODO: connect DB)");
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      const res = await fetch("/api/settings", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ key: "bundle", value: { images, sizes, bundleText } }),
+      });
+      if (res.ok) {
+        toast.success("Bundle settings saved!");
+      } else {
+        toast.error("Failed to save bundle settings");
+      }
+    } catch {
+      toast.error("Failed to save bundle settings");
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -195,8 +223,8 @@ export default function AdminBundlePage() {
 
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }} className="mt-8 flex justify-end">
             <motion.div whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.97 }}>
-              <Button onClick={handleSave} className="bg-[#DC0218] hover:bg-[#C70015] text-white px-8 h-12 shadow-lg shadow-[#DC0218]/20">
-                <Save className="h-4 w-4 mr-2" /> Save Changes
+              <Button onClick={handleSave} disabled={saving} className="bg-[#DC0218] hover:bg-[#C70015] text-white px-8 h-12 shadow-lg shadow-[#DC0218]/20">
+                {saving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />} {saving ? "Saving..." : "Save Changes"}
               </Button>
             </motion.div>
           </motion.div>

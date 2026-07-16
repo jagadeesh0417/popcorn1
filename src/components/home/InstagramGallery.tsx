@@ -7,10 +7,10 @@ import Image from "next/image";
 const galleryImages = [
   "https://images.unsplash.com/photo-1578474846511-04ba529f0b88?w=400&q=80",
   "https://images.unsplash.com/photo-1600959908209-755b03e7c66f?w=400&q=80",
-  "https://images.unsplash.com/photo-1578474846511-04ba529f0b88?w=400&q=80",
-  "https://images.unsplash.com/photo-1600959908209-755b03e7c66f?w=400&q=80",
-  "https://images.unsplash.com/photo-1578474846511-04ba529f0b88?w=400&q=80",
-  "https://images.unsplash.com/photo-1600959908209-755b03e7c66f?w=400&q=80",
+  "https://images.unsplash.com/photo-1615485290382-441e4d049cb5?w=400&q=80",
+  "https://images.unsplash.com/photo-1615485925700-8f47b4e01ad7?w=400&q=80",
+  "https://images.unsplash.com/photo-1615485290217-2c6e76af64b3?w=400&q=80",
+  "https://images.unsplash.com/photo-1590874103328-eac38a683ce7?w=400&q=80",
 ];
 
 export function InstagramGallery() {

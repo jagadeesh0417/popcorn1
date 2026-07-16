@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 
 export interface ShippingSettings {
   freeShippingEnabled: boolean;
@@ -56,6 +56,19 @@ const ShippingContext = createContext<ShippingContextType | undefined>(undefined
 export function ShippingProvider({ children }: { children: ReactNode }) {
   const [settings, setSettings] = useState<ShippingSettings>(loadInitialSettings);
 
+  useEffect(() => {
+    fetch("/api/settings?key=shipping")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data?.success && data.data?.value) {
+          const merged = { ...defaultSettings, ...data.data.value };
+          setSettings(merged);
+          localStorage.setItem("poprika-shipping", JSON.stringify(merged));
+        }
+      })
+      .catch(() => {});
+  }, []);
+
   const updateSettings = (s: ShippingSettings) => {
     setSettings(s);
     localStorage.setItem("poprika-shipping", JSON.stringify(s));
@@ -67,7 +80,15 @@ export function ShippingProvider({ children }: { children: ReactNode }) {
   const freeShippingRemaining = (subtotal: number) =>
     Math.max(0, settings.freeShippingThreshold - subtotal);
 
-  const getShippingCost = () => 0;
+  const getShippingCost = (subtotal: number, method?: string) => {
+    if (qualifiesForFree(subtotal)) return 0;
+    switch (method) {
+      case "pickup": return settings.mysuruPickupFee;
+      case "local": return settings.localMysuruDeliveryFee;
+      case "express": return settings.expressDeliveryEnabled ? settings.expressDeliveryCharge : settings.panIndiaShippingFee;
+      default: return settings.panIndiaShippingEnabled ? settings.panIndiaShippingFee : settings.flatDeliveryCharge;
+    }
+  };
 
   return (
     <ShippingContext.Provider value={{ settings, updateSettings, getShippingCost, freeShippingRemaining, qualifiesForFree }}>

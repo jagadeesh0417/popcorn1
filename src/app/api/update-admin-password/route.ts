@@ -3,6 +3,10 @@ import { connectDB } from "@/lib/db";
 import User from "@/lib/models/User";
 
 export async function POST() {
+  if (process.env.NEXT_PUBLIC_ENABLE_ADMIN_SETUP !== "true") {
+    return NextResponse.json({ success: false, error: "Admin update is disabled" }, { status: 403 });
+  }
+
   try {
     await connectDB();
     const email = "Poprikaofficial@gmail.com";

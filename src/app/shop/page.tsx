@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { motion } from "framer-motion";
-import { ShoppingBag } from "lucide-react";
+import { ShoppingBag, Search } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -18,6 +18,7 @@ const categories = [
 export default function ShopPage() {
   const [activeCategory, setActiveCategory] = useState("all");
   const [products, setProducts] = useState<Product[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
   const { addItem } = useCart();
 
   useEffect(() => {
@@ -27,12 +28,24 @@ export default function ShopPage() {
       .catch(console.error);
   }, []);
 
-  const filtered = activeCategory === "all" ? products : products.filter((p) => {
-    const cat = p.category.toLowerCase();
-    return activeCategory === "savory" ? cat === "savory" || p.tags.includes("savory") :
-           activeCategory === "sweet" ? cat === "sweet" :
-           true;
-  });
+  const filtered = useMemo(() => {
+    let list = activeCategory === "all" ? products : products.filter((p) => {
+      const cat = p.category.toLowerCase();
+      return activeCategory === "savory" ? cat === "savory" || p.tags?.includes("savory") :
+             activeCategory === "sweet" ? cat === "sweet" :
+             true;
+    });
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      list = list.filter((p) =>
+        p.name.toLowerCase().includes(q) ||
+        p.tagline?.toLowerCase().includes(q) ||
+        p.shortDescription?.toLowerCase().includes(q) ||
+        p.description?.toLowerCase().includes(q)
+      );
+    }
+    return list;
+  }, [products, activeCategory, searchQuery]);
 
   const getDefaultVariant = (p: Product): ProductVariant | null => {
     const variants: ProductVariant[] = p.sizes || p.variants || [];
@@ -54,11 +67,22 @@ export default function ShopPage() {
           </div>
         </motion.div>
 
+        <div className="relative max-w-md mx-auto mb-6 mt-8">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#444444]" />
+          <input
+            type="text"
+            placeholder="Search flavours..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-10 pr-4 py-2.5 text-sm bg-[#FFF8F0] border border-[rgba(220,2,24,0.12)] focus:outline-none focus:border-[#DC0218] transition-colors placeholder:text-[#999999]"
+          />
+        </div>
+
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="flex gap-2 overflow-x-auto pb-2 mb-12 mt-8 justify-center"
+          className="flex gap-2 overflow-x-auto pb-2 mb-12 justify-center"
           style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
         >
           {categories.map((cat) => (

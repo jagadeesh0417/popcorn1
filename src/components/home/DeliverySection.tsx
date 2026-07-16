@@ -36,7 +36,7 @@ export function DeliverySection() {
             <div className="mt-8 space-y-4">
               {[
                 { icon: MapPin, text: "Handcrafted in Mysuru, Karnataka" },
-                { icon: Truck, text: "Free delivery on orders above ₹300" },
+                { icon: Truck, text: "Free delivery on orders above ₹399" },
                 { icon: Truck, text: "Track your order in real-time" },
               ].map((item, i) => (
                 <motion.div

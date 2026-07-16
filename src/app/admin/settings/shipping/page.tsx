@@ -1,16 +1,29 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Save, Truck, Store, Zap, IndianRupee } from "lucide-react";
+import { Save, Truck, Store, Zap, IndianRupee, Loader2 } from "lucide-react";
 import { useShipping } from "@/lib/shipping-settings";
 import { toast } from "sonner";
 
 export default function AdminShippingSettings() {
   const { settings, updateSettings } = useShipping();
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/settings?key=shipping")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data?.success && data.data?.value) {
+          updateSettings({ ...settings, ...data.data.value });
+        }
+      })
+      .catch(console.error);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const toggle = (key: keyof typeof settings) => {
     updateSettings({ ...settings, [key]: !settings[key] as boolean });
@@ -179,14 +192,23 @@ export default function AdminShippingSettings() {
 
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} className="mt-8 flex justify-end">
             <motion.div whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.97 }}>
-              <Button onClick={() => toast.success("Shipping settings saved!")} className="bg-[#DC0218] hover:bg-[#C70015] text-white px-8 h-12 shadow-lg shadow-[#DC0218]/20">
-                <Save className="h-4 w-4 mr-2" /> Save Changes
+              <Button onClick={async () => {
+                setSaving(true);
+                try {
+                  const res = await fetch("/api/settings", {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ key: "shipping", value: settings }),
+                  });
+                  if (res.ok) toast.success("Shipping settings saved!");
+                  else toast.error("Failed to save shipping settings");
+                } catch { toast.error("Failed to save shipping settings"); }
+                finally { setSaving(false); }
+              }} disabled={saving} className="bg-[#DC0218] hover:bg-[#C70015] text-white px-8 h-12 shadow-lg shadow-[#DC0218]/20">
+                {saving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />} {saving ? "Saving..." : "Save Changes"}
               </Button>
             </motion.div>
           </motion.div>
-          <p className="text-[#666666] text-[10px] mt-3 text-right">
-            Settings saved locally. TODO: persist to MongoDB.
-          </p>
         </div>
       </div>
     </div>

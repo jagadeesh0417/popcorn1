@@ -4,6 +4,10 @@ import { connectDB } from "@/lib/db";
 import User from "@/lib/models/User";
 
 export async function GET() {
+  if (process.env.NEXT_PUBLIC_ENABLE_ADMIN_SETUP !== "true") {
+    return NextResponse.json({ success: false, error: "Admin setup is disabled" }, { status: 403 });
+  }
+
   const steps: { step: string; ok: boolean; detail: string }[] = [];
 
   try {

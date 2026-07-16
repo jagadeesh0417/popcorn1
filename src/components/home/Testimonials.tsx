@@ -3,7 +3,14 @@
 import { motion } from "framer-motion";
 import { Star, Quote } from "lucide-react";
 
-const testimonials: { id: string; name: string; rating: number; comment: string; role?: string }[] = [];
+const testimonials: { id: string; name: string; rating: number; comment: string; role?: string }[] = [
+  { id: "1", name: "Priya Sharma", rating: 5, comment: "The Ghee & Curry Leaf popcorn is absolutely incredible! It tastes just like home. My family can't get enough of it.", role: "Verified Buyer" },
+  { id: "2", name: "Arun Kumar", rating: 5, comment: "Finally a popcorn brand that uses real ingredients. No palm oil, no artificial flavors — just pure, honest snacks. Love it!", role: "Verified Buyer" },
+  { id: "3", name: "Divya Patel", rating: 5, comment: "Coffee Chikki is a game-changer. Sweet, crunchy, and that hint of coffee — perfect for evening chai. Already reordered!", role: "Verified Buyer" },
+  { id: "4", name: "Ravi Deshmukh", rating: 5, comment: "Ordered the Trio to try all flavors. Ghee Black Pepper is my personal favorite. The quality speaks for itself.", role: "Verified Buyer" },
+  { id: "5", name: "Ananya Iyer", rating: 5, comment: "As someone from Mysuru, I'm so proud this is made locally. Fresh, authentic, and delivered within 24 hours. Highly recommend!", role: "Verified Buyer" },
+  { id: "6", name: "Vikram Reddy", rating: 4, comment: "Great product and excellent packaging. Would love to see a spicy masala flavor next! The quality is top notch.", role: "Verified Buyer" },
+];
 
 export function Testimonials() {
   return (

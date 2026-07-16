@@ -1,12 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Save, CreditCard, CheckCircle, XCircle, TrendingUp, IndianRupee } from "lucide-react";
+import { Save, CreditCard, CheckCircle, XCircle, TrendingUp, IndianRupee, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 interface PaymentConfig {
@@ -45,6 +45,18 @@ const stats = [
 export default function AdminPaymentSettings() {
   const [config, setConfig] = useState<PaymentConfig>(defaultConfig);
   const [showSecret, setShowSecret] = useState(false);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/settings?key=payment")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data?.success && data.data?.value) {
+          setConfig({ ...defaultConfig, ...data.data.value });
+        }
+      })
+      .catch(console.error);
+  }, []);
 
   const toggle = (key: keyof PaymentConfig) => {
     if (typeof config[key] === "boolean") {
@@ -174,14 +186,23 @@ export default function AdminPaymentSettings() {
 
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} className="mt-8 flex justify-end">
             <motion.div whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.97 }}>
-              <Button onClick={() => toast.success("Payment settings saved!")} className="bg-[#DC0218] hover:bg-[#C70015] text-white px-8 h-12 shadow-lg shadow-[#DC0218]/20">
-                <Save className="h-4 w-4 mr-2" /> Save Changes
+              <Button onClick={async () => {
+                setSaving(true);
+                try {
+                  const res = await fetch("/api/settings", {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ key: "payment", value: config }),
+                  });
+                  if (res.ok) toast.success("Payment settings saved!");
+                  else toast.error("Failed to save payment settings");
+                } catch { toast.error("Failed to save payment settings"); }
+                finally { setSaving(false); }
+              }} disabled={saving} className="bg-[#DC0218] hover:bg-[#C70015] text-white px-8 h-12 shadow-lg shadow-[#DC0218]/20">
+                {saving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />} {saving ? "Saving..." : "Save Changes"}
               </Button>
             </motion.div>
           </motion.div>
-          <p className="text-[#666666] text-[10px] mt-3 text-right">
-            TODO: connect to MongoDB.
-          </p>
         </div>
       </div>
     </div>

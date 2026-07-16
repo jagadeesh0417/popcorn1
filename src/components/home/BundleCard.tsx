@@ -1,10 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ShoppingBag, ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
+import { useCart } from "@/lib/store";
+import { Product, ProductVariant } from "@/lib/types";
 import { toast } from "sonner";
 
 const bundlePrices: Record<string, { price: number; savings: number }> = {
@@ -23,15 +25,49 @@ const bundleImages = [
   "https://images.unsplash.com/photo-1578474846511-04ba529f0b88?w=600&q=80",
 ];
 
+const TRIO_SLUGS = ["ghee-black-pepper", "ghee-curry-leaf", "coffee-chikki"];
+
 export function BundleCard() {
   const [selectedBundle, setSelectedBundle] = useState<string>(bundleSizes[0]);
   const [currentImage, setCurrentImage] = useState(0);
+  const [trioProducts, setTrioProducts] = useState<Product[]>([]);
+  const { addItem } = useCart();
+
+  useEffect(() => {
+    fetch("/api/products")
+      .then((r) => r.json())
+      .then((data) => {
+        if (!data?.success) return;
+        const list = data.data as Product[];
+        setTrioProducts(list.filter((p: Product) => TRIO_SLUGS.includes(p.slug)));
+      })
+      .catch(console.error);
+  }, []);
 
   const bundleData = bundlePrices[selectedBundle];
 
+  const getVariantForSize = (sizeLabel: string): string => {
+    const map: Record<string, string> = {
+      "All 80g": "80g",
+      "All 150g": "150g",
+      "All 250g": "250g",
+    };
+    return map[sizeLabel] || "80g";
+  };
+
   const handleAddBundle = () => {
     if (!bundleData) return;
-    toast.success(`Added Bundle to Cart ✓`);
+    if (trioProducts.length === 0) {
+      toast.error("Bundle products not loaded yet. Please try again.");
+      return;
+    }
+    const variantLabel = getVariantForSize(selectedBundle);
+    trioProducts.forEach((product) => {
+      const variants: ProductVariant[] = product.sizes || product.variants || [];
+      const variant = variants.find((v) => v.label === variantLabel);
+      addItem(product, variant || null);
+    });
+    toast.success(`The Trio (${selectedBundle}) added to Cart ✓`);
   };
 
   const nextImage = () => setCurrentImage((prev) => (prev + 1) % bundleImages.length);

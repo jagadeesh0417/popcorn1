@@ -39,7 +39,7 @@ function ThankYouContent() {
   const isInvalidId = orderId === "N/A";
 
   useEffect(() => {
-    if (isInvalidId) return;
+    if (orderId === "N/A") return;
     let cancelled = false;
     let retries = 0;
     const maxRetries = 5;

@@ -73,8 +73,12 @@ export function CartDrawer() {
                       const price = item.variant?.price ?? item.product.price ?? 0;
                       return (
                       <div key={item.cartId} className="flex gap-4 border-b border-[rgba(220,2,24,0.06)] pb-4">
-                        <div className="w-20 h-20 bg-[#FFF8F0] rounded flex items-center justify-center text-2xl shrink-0">
-                          🍿
+                        <div className="w-20 h-20 bg-[#FFF8F0] rounded overflow-hidden shrink-0">
+                          {item.product.images?.[0] ? (
+                            <img src={item.product.images[0]} alt={item.product.name} className="w-full h-full object-cover" />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-2xl">🍿</div>
+                          )}
                         </div>
                         <div className="flex-1 min-w-0">
                           <h4 className="font-medium text-sm text-[#1A1A1A]">{item.product.name}</h4>

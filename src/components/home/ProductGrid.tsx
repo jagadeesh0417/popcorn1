@@ -89,14 +89,12 @@ export function ProductGrid() {
                 whileHover={{ y: -6 }}
                 className="bg-white border border-[rgba(220,2,24,0.08)] shadow-[0_2px_15px_rgba(220,2,24,0.04)] hover:shadow-[0_12px_35px_rgba(0,0,0,0.08)] transition-all duration-300"
               >
-                <div className="aspect-[4/3] bg-[#FFF8F0] flex items-center justify-center text-5xl border-b border-[rgba(220,2,24,0.08)] relative overflow-hidden group">
-                  <motion.div
-                    className="text-6xl"
-                    whileHover={{ scale: 1.05 }}
-                    transition={{ duration: 0.5, ease: "easeOut" }}
-                  >
-                    🍿
-                  </motion.div>
+                <div className="aspect-[4/3] bg-[#FFF8F0] border-b border-[rgba(220,2,24,0.08)] relative overflow-hidden group">
+                  {product.images?.[0] ? (
+                    <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-105" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-6xl">🍿</div>
+                  )}
                   <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
                 </div>
                 <div className="p-6">
