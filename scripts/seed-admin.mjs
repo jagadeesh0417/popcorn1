@@ -30,13 +30,14 @@ async function seed() {
     console.log("Admin user already exists:");
     console.log("  Email:", existing.email);
     console.log("  Role:", existing.role);
-    console.log("  Hash preview:", existing.password?.substring(0, 20) || "MISSING");
 
     const match = await existing.comparePassword(rawPassword);
-    console.log("  Password matches:", match);
+    console.log("  Current password matches:", match);
     if (!match) {
-      console.log("  WARNING: Password mismatch! The stored hash is not for the expected password.");
-      console.log("  This can happen if the password was double-hashed by the pre-save hook.");
+      console.log("  Password mismatch — updating password...");
+      const hashed = await bcrypt.hash(rawPassword, 12);
+      await User.updateOne({ _id: existing._id }, { $set: { password: hashed } });
+      console.log("  Password updated successfully!");
     }
   } else {
     // Manually hash — this schema has no pre-save hook
