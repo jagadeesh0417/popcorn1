@@ -74,7 +74,7 @@ export function InstagramGallery() {
           className="text-center mt-10"
         >
           <a
-            href="https://instagram.com/poprika"
+            href="https://www.instagram.com/poprika_official?igsh=MzU1cmV4cnBnaXRs&utm_source=qr"
             target="_blank"
             rel="noopener noreferrer"
             className="text-[#DC0218] text-xs uppercase tracking-[0.12em] font-medium hover:text-[#C70015] transition-colors inline-flex items-center gap-1.5"
