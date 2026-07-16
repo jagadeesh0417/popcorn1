@@ -5,7 +5,7 @@ import User from "@/lib/models/User";
 export async function POST() {
   try {
     await connectDB();
-    const email = "Poprika.official@gmail.com";
+    const email = "Poprikaofficial@gmail.com";
     const password = "Newbusinesspop@098";
 
     const user = await User.findOne({ role: "admin" });

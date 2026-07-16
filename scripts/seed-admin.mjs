@@ -22,7 +22,7 @@ async function seed() {
   await mongoose.connect(MONGODB_URI);
   console.log("Connected to MongoDB");
 
-  const email = "Poprika.official@gmail.com";
+  const email = "Poprikaofficial@gmail.com";
   const rawPassword = "Newbusinesspop@098";
 
   const existing = await User.findOne({ email: new RegExp(`^${email.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`, "i") });

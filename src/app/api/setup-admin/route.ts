@@ -18,7 +18,7 @@ export async function GET() {
     steps[steps.length - 1].detail = `Registered models: ${modelNames.join(", ")}`;
 
     steps.push({ step: "Find existing", ok: false, detail: "Looking up admin..." });
-    const emailRegex = new RegExp("^Poprika\\.official@gmail\\.com$", "i");
+    const emailRegex = new RegExp("^Poprikaofficial@gmail\\.com$", "i");
     const existing = await User.findOne({ email: emailRegex });
     if (existing) {
       steps[steps.length - 1].ok = true;
@@ -35,7 +35,7 @@ export async function GET() {
     steps[steps.length - 1].detail = "No admin user found — creating now";
     await User.create({
       name: "Admin",
-      email: "Poprika.official@gmail.com",
+      email: "Poprikaofficial@gmail.com",
       password: "Newbusinesspop@098",
       role: "admin",
     });
