@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { CreditCard, MapPin, User, Lock, ShoppingBag, Store, Building, Home, Briefcase, Bike } from "lucide-react";
+import { CreditCard, MapPin, User, Lock, ShoppingBag, Store, Building, Home, Briefcase } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -225,7 +225,7 @@ export default function CheckoutPage() {
     );
   }
 
-  const shipping = shippingMethod === "pickup" ? 0 : shippingMethod === "local" ? shippingCtx.settings.localMysuruDeliveryFee : shippingCtx.getShippingCost(getSubtotal());
+  const shipping = shippingMethod === "pickup" ? 0 : shippingCtx.getShippingCost(getSubtotal());
 
   return (
     <div className="min-h-screen pt-20 bg-gradient-to-b from-white to-[#FFFDF9]">
@@ -253,7 +253,6 @@ export default function CheckoutPage() {
                 <SelectContent>
                   <SelectItem value="shipping">Shipping — Pan-India (3-7 days)</SelectItem>
                   <SelectItem value="pickup">Mysuru Pickup — Free</SelectItem>
-                  <SelectItem value="local">Mysuru Local Delivery — Same day</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -381,24 +380,6 @@ export default function CheckoutPage() {
                   </p>
                   <p className="text-xs text-[#444444] mt-3">
                     We&apos;ll confirm your pickup time via WhatsApp after the order is placed.
-                  </p>
-                </div>
-              </div>
-            )}
-
-            {/* Local delivery info */}
-            {shippingMethod === "local" && (
-              <div className="bg-[#FFFDF9] p-6 border border-[rgba(0,0,0,0.05)] shadow-sm">
-                <div className="flex items-center gap-2 mb-5">
-                  <Bike className="h-5 w-5 text-[#DC0218]" />
-                  <h2 className="font-bold text-lg text-[#1A1A1A]">Local delivery</h2>
-                </div>
-                <div className="bg-[#FFF8F0] p-5 border border-[rgba(220,2,24,0.08)]">
-                  <p className="text-sm text-[#444444]">
-                    Delivery within Mysuru city. Same-day or next-day depending on order time.
-                  </p>
-                  <p className="text-xs text-[#444444] mt-3">
-                    A delivery charge of ₹{shippingCtx.settings.localMysuruDeliveryFee} applies.
                   </p>
                 </div>
               </div>
