@@ -25,7 +25,7 @@ export const products: Product[] = [
       cholesterol: "12mg", sodium: "160mg", totalCarb: "15g", fiber: "3g", sugar: "0g", protein: "2g",
     },
     reviews: [],
-    isBestSeller: true, isFeatured: true, isPublished: true, inStock: true, stockQuantity: 200, weight: "80g",
+    isBestSeller: true, isFeatured: true, isPublished: true, inStock: true, stockQuantity: 200, weight: "80g", showOnHomepage: true,
   },
   {
     id: "2",
@@ -51,7 +51,7 @@ export const products: Product[] = [
       cholesterol: "12mg", sodium: "160mg", totalCarb: "15g", fiber: "3g", sugar: "0g", protein: "2g",
     },
     reviews: [],
-    isBestSeller: true, isFeatured: true, isPublished: true, inStock: true, stockQuantity: 200, weight: "80g",
+    isBestSeller: true, isFeatured: true, isPublished: true, inStock: true, stockQuantity: 200, weight: "80g", showOnHomepage: true,
   },
   {
     id: "3",
@@ -77,7 +77,7 @@ export const products: Product[] = [
       cholesterol: "8mg", sodium: "90mg", totalCarb: "28g", fiber: "2g", sugar: "15g", protein: "1g",
     },
     reviews: [],
-    isBestSeller: true, isFeatured: true, isPublished: true, inStock: true, stockQuantity: 200, weight: "80g",
+    isBestSeller: true, isFeatured: true, isPublished: true, inStock: true, stockQuantity: 200, weight: "80g", showOnHomepage: true,
   },
 ];
 
@@ -149,7 +149,7 @@ export function getRelatedProducts(product: Product): Product[] {
 }
 
 export function getFeaturedProducts(): Product[] {
-  return products.filter((p) => p.isFeatured);
+  return products.filter((p) => p.showOnHomepage);
 }
 
 export function getBestSellers(): Product[] {

@@ -2,9 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Plus, Eye, EyeOff, Star, Pencil, Trash2, Loader2 } from "lucide-react";
+import { Plus, Eye, EyeOff, Star, Pencil, Trash2, Loader2, Home, X } from "lucide-react";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import { ImageUploader } from "@/components/admin/ImageUploader";
+import { toast } from "sonner";
 
 interface VariantForm {
   label: string; grams: number; price: number; originalPrice: number; discount: number;
@@ -20,6 +21,7 @@ interface AdminProduct {
   inStock: boolean;
   isPublished: boolean;
   isBestSeller: boolean;
+  showOnHomepage: boolean;
   images?: string[];
 }
 
@@ -46,10 +48,12 @@ export default function AdminProductsPage() {
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [bulkActionLoading, setBulkActionLoading] = useState(false);
   const [form, setForm] = useState({
     name: "", slug: "", tagline: "", description: "", shortDescription: "", price: 0, originalPrice: 0,
     category: "Classic", tags: "", ingredients: "", images: [] as string[], weight: "200g",
-    stockQuantity: 100, inStock: true, isPublished: true, isBestSeller: false,
+    stockQuantity: 100, inStock: true, isPublished: true, isBestSeller: false, showOnHomepage: false,
     sizes: [defaultVariant({ label: "80g", grams: 80, price: 149, displayOrder: 0 })],
     nutrition: { servingSize: "28g (1 cup)", calories: 0, totalFat: "0g", saturatedFat: "0g", transFat: "0g", cholesterol: "0mg", sodium: "0mg", totalCarb: "0g", fiber: "0g", sugar: "0g", protein: "0g" },
   });
@@ -61,9 +65,10 @@ export default function AdminProductsPage() {
   }, []);
 
   const resetForm = () => {
-    setForm({ name: "", slug: "", tagline: "", description: "", shortDescription: "", price: 0, originalPrice: 0, category: "Classic", tags: "", ingredients: "", images: [], weight: "200g", stockQuantity: 100, inStock: true, isPublished: true, isBestSeller: false, sizes: [defaultVariant({ label: "80g", grams: 80, price: 149, displayOrder: 0 })], nutrition: { servingSize: "28g (1 cup)", calories: 0, totalFat: "0g", saturatedFat: "0g", transFat: "0g", cholesterol: "0mg", sodium: "0mg", totalCarb: "0g", fiber: "0g", sugar: "0g", protein: "0g" } });
+    setForm({ name: "", slug: "", tagline: "", description: "", shortDescription: "", price: 0, originalPrice: 0, category: "Classic", tags: "", ingredients: "", images: [], weight: "200g", stockQuantity: 100, inStock: true, isPublished: true, isBestSeller: false, showOnHomepage: false, sizes: [defaultVariant({ label: "80g", grams: 80, price: 149, displayOrder: 0 })], nutrition: { servingSize: "28g (1 cup)", calories: 0, totalFat: "0g", saturatedFat: "0g", transFat: "0g", cholesterol: "0mg", sodium: "0mg", totalCarb: "0g", fiber: "0g", sugar: "0g", protein: "0g" } });
     setError("");
     setEditingId(null);
+    setSelectedIds(new Set());
   };
 
   const startEdit = async (id: string) => {
@@ -80,7 +85,7 @@ export default function AdminProductsPage() {
         tags: (p.tags || []).join(", "), ingredients: (p.ingredients || []).join(", "),
         images: p.images || [], weight: p.weight || "200g",
         stockQuantity: p.stockQuantity ?? 100, inStock: p.inStock ?? true,
-        isPublished: p.isPublished ?? true, isBestSeller: p.isBestSeller ?? false,
+        isPublished: p.isPublished ?? true, isBestSeller: p.isBestSeller ?? false, showOnHomepage: p.showOnHomepage ?? false,
         sizes: (p.sizes || []).map((s: Record<string, unknown>) => defaultVariant({
           label: String(s.label || ""), grams: Number(s.grams) || 0, price: Number(s.price) || 0,
           originalPrice: Number(s.originalPrice) || 0, discount: Number(s.discount) || 0,
@@ -134,7 +139,7 @@ export default function AdminProductsPage() {
         description: form.description, shortDescription: form.shortDescription || form.description,
         price: form.price, originalPrice: form.originalPrice || undefined, category: form.category, weight: form.weight,
         sizes: form.sizes.filter((s) => s.label && s.grams && s.price).map((s, idx) => ({ ...s, displayOrder: s.displayOrder ?? idx })),
-        stockQuantity: form.stockQuantity, inStock: form.inStock, isPublished: form.isPublished, isBestSeller: form.isBestSeller,
+        stockQuantity: form.stockQuantity, inStock: form.inStock, isPublished: form.isPublished, isBestSeller: form.isBestSeller, showOnHomepage: form.showOnHomepage,
         tags: form.tags ? form.tags.split(",").map((t) => t.trim()) : [],
         ingredients: form.ingredients ? form.ingredients.split(",").map((t) => t.trim()) : [],
         images: form.images,
@@ -199,6 +204,44 @@ export default function AdminProductsPage() {
   const handleCancel = () => {
     setShowForm(false);
     resetForm();
+  };
+
+  const bulkToggleHomepage = async (value: boolean) => {
+    if (selectedIds.size === 0) { toast.error("No products selected"); return; }
+    setBulkActionLoading(true);
+    let success = 0;
+    for (const id of selectedIds) {
+      try {
+        const res = await fetch(`/api/products/${id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ showOnHomepage: value }),
+        });
+        if (res.ok) {
+          setProducts((prev) => prev.map((p) => (p._id === id ? { ...p, showOnHomepage: value } : p)));
+          success++;
+        }
+      } catch { /* skip */ }
+    }
+    toast.success(`${success} product${success !== 1 ? "s" : ""} updated`);
+    setSelectedIds(new Set());
+    setBulkActionLoading(false);
+  };
+
+  const toggleAll = () => {
+    if (selectedIds.size === products.length) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(products.map((p) => p._id)));
+    }
+  };
+
+  const toggleSelected = (id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
   };
 
   const inputClass = "w-full px-3 py-2 border border-[rgba(220,2,24,0.12)] text-sm";
@@ -274,6 +317,13 @@ export default function AdminProductsPage() {
                 <div>
                   <label className={labelClass}>Best Seller</label>
                   <select value={form.isBestSeller ? "true" : "false"} onChange={(e) => setForm({ ...form, isBestSeller: e.target.value === "true" })} className={inputClass}>
+                    <option value="true">Yes</option>
+                    <option value="false">No</option>
+                  </select>
+                </div>
+                <div>
+                  <label className={labelClass}>Show on Homepage</label>
+                  <select value={form.showOnHomepage ? "true" : "false"} onChange={(e) => setForm({ ...form, showOnHomepage: e.target.value === "true" })} className={inputClass}>
                     <option value="true">Yes</option>
                     <option value="false">No</option>
                   </select>
@@ -416,6 +466,21 @@ export default function AdminProductsPage() {
             </div>
           )}
 
+          {selectedIds.size > 0 && (
+            <div className="flex items-center gap-2 mb-4 p-3 bg-[#FFF8F0] border border-[rgba(220,2,24,0.12)] rounded-xl">
+              <span className="text-sm text-[#1A1A1A] font-medium mr-2">{selectedIds.size} selected</span>
+              <Button size="sm" onClick={() => bulkToggleHomepage(true)} disabled={bulkActionLoading} className="bg-green-600 hover:bg-green-700 text-white text-xs h-8">
+                <Home className="h-3.5 w-3.5 mr-1" /> Show on Homepage
+              </Button>
+              <Button size="sm" onClick={() => bulkToggleHomepage(false)} disabled={bulkActionLoading} className="bg-[#444444] hover:bg-[#333] text-white text-xs h-8">
+                <X className="h-3.5 w-3.5 mr-1" /> Remove from Homepage
+              </Button>
+              <Button size="sm" variant="outline" onClick={() => setSelectedIds(new Set())} className="text-xs h-8 ml-auto border-[rgba(220,2,24,0.2)]">
+                Clear
+              </Button>
+            </div>
+          )}
+
           {loading ? (
             <div className="flex items-center justify-center py-20">
               <Loader2 className="h-8 w-8 animate-spin text-[#DC0218]" />
@@ -429,18 +494,25 @@ export default function AdminProductsPage() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-[rgba(220,2,24,0.08)] text-left text-[#444444]">
+                    <th className="p-4 w-10">
+                      <input type="checkbox" checked={selectedIds.size === products.length} onChange={toggleAll} className="accent-[#DC0218]" />
+                    </th>
                     <th className="p-4 font-medium">Name</th>
                     <th className="p-4 font-medium">Category</th>
                     <th className="p-4 font-medium">Price</th>
                     <th className="p-4 font-medium">Stock</th>
                     <th className="p-4 font-medium">Published</th>
                     <th className="p-4 font-medium">Best Seller</th>
+                    <th className="p-4 font-medium">Homepage</th>
                     <th className="p-4 font-medium">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {products.map((p) => (
                     <tr key={p._id} className="border-b border-[rgba(220,2,24,0.06)] last:border-0 hover:bg-[#FFF8F0]/50 transition-colors">
+                      <td className="p-4">
+                        <input type="checkbox" checked={selectedIds.has(p._id)} onChange={() => toggleSelected(p._id)} className="accent-[#DC0218]" />
+                      </td>
                       <td className="p-4 font-medium text-[#1A1A1A]">
                         <div className="flex items-center gap-2">
                           {p.images?.[0] && (
@@ -464,6 +536,11 @@ export default function AdminProductsPage() {
                       <td className="p-4">
                         <button onClick={() => toggleField(p._id, "isBestSeller", !p.isBestSeller)} className={`p-1.5 rounded-lg transition-colors ${p.isBestSeller ? "text-[#F9D976] hover:bg-yellow-50" : "text-[#444444] hover:bg-gray-50"}`}>
                           <Star className={`h-4 w-4 ${p.isBestSeller ? "fill-[#F9D976]" : ""}`} />
+                        </button>
+                      </td>
+                      <td className="p-4">
+                        <button onClick={() => toggleField(p._id, "showOnHomepage", !p.showOnHomepage)} className={`p-1.5 rounded-lg transition-colors ${p.showOnHomepage ? "text-green-600 hover:bg-green-50" : "text-[#444444] hover:bg-gray-50"}`}>
+                          <Home className={`h-4 w-4 ${p.showOnHomepage ? "fill-green-600" : ""}`} />
                         </button>
                       </td>
                       <td className="p-4">

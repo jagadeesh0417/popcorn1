@@ -11,10 +11,12 @@ export async function GET(req: Request) {
     const slug = searchParams.get("slug");
     const featured = searchParams.get("featured");
     const bestSeller = searchParams.get("bestSeller");
+    const homepage = searchParams.get("homepage");
     const query: Record<string, unknown> = {};
     if (slug) query.slug = slug;
     if (featured === "true") query.isFeatured = true;
     if (bestSeller === "true") query.isBestSeller = true;
+    if (homepage === "true") query.showOnHomepage = true;
     console.log("[GET /api/products] Query:", JSON.stringify(query));
     const products = await Product.find(query).sort({ createdAt: -1 });
     console.log(`[GET /api/products] Found ${products.length} products`);

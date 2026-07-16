@@ -1,7 +1,7 @@
 import { HeroSwitch } from "@/components/home/HeroSwitch";
 import { TrustBar } from "@/components/home/TrustBar";
 import { WhyChooseUs } from "@/components/home/WhyChooseUs";
-import { ProductGrid } from "@/components/home/ProductGrid";
+import { FeaturedProducts } from "@/components/home/FeaturedProducts";
 import { BundleCard } from "@/components/home/BundleCard";
 import { DeliveryInfo } from "@/components/home/DeliveryInfo";
 import { InstagramGallery } from "@/components/home/InstagramGallery";
@@ -19,7 +19,7 @@ export default function HomePage() {
       <SectionDivider />
       <TrustBar />
       <SectionDivider />
-      <ProductGrid />
+      <FeaturedProducts />
       <SectionDivider />
       <BundleCard />
       <SectionDivider />

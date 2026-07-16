@@ -14,7 +14,7 @@ export function FeaturedProducts() {
   const [products, setProducts] = useState<Product[]>([]);
 
   useEffect(() => {
-    fetch("/api/products?featured=true")
+    fetch("/api/products?homepage=true")
       .then((r) => r.json())
       .then((data) => { if (data?.success) setProducts(data.data); })
       .catch(console.error);

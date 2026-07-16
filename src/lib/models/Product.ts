@@ -40,6 +40,7 @@ export interface IProduct extends Document {
     sugar: string;
     protein: string;
   };
+  showOnHomepage: boolean;
   isBestSeller: boolean;
   isFeatured: boolean;
   isPublished: boolean;
@@ -91,6 +92,7 @@ const ProductSchema = new Schema<IProduct>(
       sugar: { type: String, default: "0g" },
       protein: { type: String, default: "0g" },
     },
+    showOnHomepage: { type: Boolean, default: false },
     isBestSeller: { type: Boolean, default: false },
     isFeatured: { type: Boolean, default: false },
     isPublished: { type: Boolean, default: true },

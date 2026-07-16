@@ -30,6 +30,7 @@ export interface Product {
   ingredients: string[];
   nutritionInfo: NutritionInfo;
   reviews: Review[];
+  showOnHomepage: boolean;
   isBestSeller: boolean;
   isFeatured: boolean;
   isPublished: boolean;
