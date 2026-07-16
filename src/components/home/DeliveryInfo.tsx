@@ -4,7 +4,7 @@ import { MapPin, Truck } from "lucide-react";
 
 export function DeliveryInfo() {
   return (
-    <section className="py-24 bg-white">
+    <section className="py-24 bg-[#FFF8F0]">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <div className="flex justify-center mb-4">
@@ -16,62 +16,57 @@ export function DeliveryInfo() {
         </div>
 
         <div className="grid md:grid-cols-2 gap-8">
-          {/* Box 1 - Mysore */}
-          <div className="bg-[#FFFDF9] p-8 border border-[rgba(0,0,0,0.05)] shadow-[0_4px_20px_rgba(0,0,0,0.03)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_12px_35px_rgba(0,0,0,0.06)]">
+          <div className="bg-white p-8 border border-[rgba(220,2,24,0.08)] shadow-[0_4px_20px_rgba(0,0,0,0.03)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_12px_35px_rgba(0,0,0,0.06)]">
             <div className="w-12 h-12 flex items-center justify-center mb-5 bg-[#FFF8F0] border border-[rgba(220,2,24,0.1)]">
-              <MapPin className="h-5 w-5 text-[#DC0218]" />
+              <span className="text-xl">📍</span>
             </div>
-            <h3 className="font-semibold text-sm uppercase tracking-[0.06em] text-[#1A1A1A]">Mysore (Pickup & Local Delivery)</h3>
-            <p className="text-[#444444] text-xs mt-3 leading-relaxed">
-              If you&apos;re in Mysore, you can either:
+            <h3 className="font-bold text-lg text-[#1A1A1A]">Pickup (Mysore Only)</h3>
+            <p className="text-[#444444] text-sm mt-3 leading-relaxed">
+              If you&apos;re in Mysore, you can collect your order directly from our kitchen.
             </p>
-            <ul className="mt-3 space-y-2">
-              <li className="text-[#444444] text-xs leading-relaxed flex items-start gap-2">
+            <ul className="mt-4 space-y-2">
+              <li className="text-[#444444] text-sm leading-relaxed flex items-start gap-2">
                 <span className="text-[#DC0218] mt-0.5">•</span>
-                Pick up your order from our kitchen in Vijayanagar 4th Stage, or
+                Choose &quot;Pickup&quot; during checkout
               </li>
-              <li className="text-[#444444] text-xs leading-relaxed flex items-start gap-2">
+              <li className="text-[#444444] text-sm leading-relaxed flex items-start gap-2">
                 <span className="text-[#DC0218] mt-0.5">•</span>
-                Get it delivered to your doorstep within the city.
+                We&apos;ll notify you when your order is ready
               </li>
             </ul>
-            <p className="text-[#444444] text-xs mt-3 leading-relaxed">
-              Simply choose your preferred option during checkout.
-            </p>
-            <div className="mt-5 pt-4 border-t border-[rgba(0,0,0,0.05)]">
-              <p className="text-[#666666] text-[10px] uppercase tracking-[0.08em]">
+            <div className="mt-6 pt-4 border-t border-[rgba(220,2,24,0.08)]">
+              <p className="text-[#666666] text-xs">
                 <strong>Pickup Address:</strong><br />
                 #30, Sri Nivasa, RCE Layout, Vijayanagar 4th Stage, Mysore – 570032
               </p>
             </div>
-            <p className="text-[#444444] text-xs mt-3 leading-relaxed">
-              Same-day or next-day delivery available depending on order time.
-            </p>
           </div>
 
-          {/* Box 2 - Pan-India */}
-          <div className="bg-[#FFFDF9] p-8 border border-[rgba(0,0,0,0.05)] shadow-[0_4px_20px_rgba(0,0,0,0.03)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_12px_35px_rgba(0,0,0,0.06)]">
+          <div className="bg-white p-8 border border-[rgba(220,2,24,0.08)] shadow-[0_4px_20px_rgba(0,0,0,0.03)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_12px_35px_rgba(0,0,0,0.06)]">
             <div className="w-12 h-12 flex items-center justify-center mb-5 bg-[#FFF8F0] border border-[rgba(220,2,24,0.1)]">
-              <Truck className="h-5 w-5 text-[#DC0218]" />
+              <span className="text-xl">🚚</span>
             </div>
-            <h3 className="font-semibold text-sm uppercase tracking-[0.06em] text-[#1A1A1A]">Outside Mysore (Pan-India Shipping)</h3>
-            <p className="text-[#444444] text-xs mt-3 leading-relaxed">
-              We ship across India via India Post.
+            <h3 className="font-bold text-lg text-[#1A1A1A]">Delivery (Mysore &amp; Pan-India)</h3>
+            <p className="text-[#444444] text-sm mt-3 leading-relaxed">
+              We deliver fresh popcorn across India, including Mysore.
             </p>
-            <ul className="mt-3 space-y-2">
-              <li className="text-[#444444] text-xs leading-relaxed flex items-start gap-2">
+            <ul className="mt-4 space-y-2">
+              <li className="text-[#444444] text-sm leading-relaxed flex items-start gap-2">
                 <span className="text-[#DC0218] mt-0.5">•</span>
                 Orders are dispatched within 2 working days
               </li>
-              <li className="text-[#444444] text-xs leading-relaxed flex items-start gap-2">
+              <li className="text-[#444444] text-sm leading-relaxed flex items-start gap-2">
                 <span className="text-[#DC0218] mt-0.5">•</span>
                 Delivery usually takes 3–7 business days, depending on your location
               </li>
-              <li className="text-[#444444] text-xs leading-relaxed flex items-start gap-2">
+              <li className="text-[#444444] text-sm leading-relaxed flex items-start gap-2">
                 <span className="text-[#DC0218] mt-0.5">•</span>
                 Free shipping on orders above ₹399
               </li>
             </ul>
+            <p className="text-[#444444] text-sm mt-6 leading-relaxed">
+              Simply choose &quot;Delivery&quot; during checkout, and we&apos;ll ship your order to your doorstep.
+            </p>
           </div>
         </div>
       </div>
