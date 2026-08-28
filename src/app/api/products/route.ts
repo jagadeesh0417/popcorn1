@@ -18,7 +18,21 @@ const LIST_PROJECTION = {
   ingredients: 0,
 };
 
-async function fetchProducts(query: ProductQuery, isDetail: boolean) {
+// Admin product table only renders these fields — keep the payload minimal.
+const ADMIN_PROJECTION = {
+  name: 1,
+  slug: 1,
+  category: 1,
+  price: 1,
+  stockQuantity: 1,
+  inStock: 1,
+  isPublished: 1,
+  isBestSeller: 1,
+  showOnHomepage: 1,
+  images: 1,
+};
+
+async function fetchProducts(query: ProductQuery, isDetail: boolean, projection?: Record<string, number>) {
   await connectDB();
   const mongoQuery: Record<string, unknown> = {};
   if (query.slug) mongoQuery.slug = query.slug;
@@ -26,9 +40,10 @@ async function fetchProducts(query: ProductQuery, isDetail: boolean) {
   if (query.isBestSeller) mongoQuery.isBestSeller = true;
   if (query.showOnHomepage) mongoQuery.showOnHomepage = true;
   if (query.slugs && query.slugs.length > 0) mongoQuery.slug = { $in: query.slugs };
+  const select = projection || (isDetail ? {} : LIST_PROJECTION);
   const docs = await Product.find(mongoQuery)
     .sort({ createdAt: -1 })
-    .select(isDetail ? {} : LIST_PROJECTION)
+    .select(select)
     .lean();
   return docs;
 }
@@ -41,6 +56,7 @@ export async function GET(req: Request) {
     const bestSeller = searchParams.get("bestSeller");
     const homepage = searchParams.get("homepage");
     const slugsParam = searchParams.get("slugs");
+    const isAdmin = searchParams.get("admin") === "1";
 
     const query: ProductQuery = {};
     if (slug) query.slug = slug;
@@ -53,10 +69,18 @@ export async function GET(req: Request) {
     }
 
     const isDetail = Boolean(slug);
+    const projection = isAdmin ? ADMIN_PROJECTION : undefined;
+
+    // Admin needs fresh data immediately after every edit — bypass the public cache.
+    if (isAdmin) {
+      const products = await fetchProducts(query, isDetail, projection);
+      return successResponse(products);
+    }
+
     const cacheKey = JSON.stringify(query);
 
     const cachedFetch = unstable_cache(
-      async () => (await fetchProducts(query, isDetail)) as unknown[],
+      async () => (await fetchProducts(query, isDetail, projection)) as unknown[],
       ["products", cacheKey],
       { revalidate: PUBLIC_REVALIDATE_SECONDS, tags: [PRODUCT_CACHE_TAG] }
     );

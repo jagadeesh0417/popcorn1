@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Copy, Printer, Loader2, MapPin, Phone, Mail, User, CreditCard, ShoppingBag, Truck, Package, Hash, Calendar, IndianRupee } from "lucide-react";
 import { toast } from "sonner";
+import { optimizeImageUrl } from "@/lib/image";
 
 interface OrderItem {
   name: string;
@@ -237,7 +238,7 @@ export function OrderDetailModal({ orderId, onClose }: Props) {
                     <div key={i} className="flex items-center gap-4 bg-white p-3 rounded-xl border border-[rgba(220,2,24,0.06)]">
                       <div className="w-14 h-14 bg-[#FFF8F0] rounded-lg flex items-center justify-center text-lg shrink-0">
                         {item.image ? (
-                          <img src={item.image} alt={item.name} className="w-full h-full object-cover rounded-lg" />
+                          <img src={optimizeImageUrl(item.image, 96) || item.image} alt={item.name} className="w-full h-full object-cover rounded-lg" />
                         ) : (
                           <Package className="h-6 w-6 text-[#DC0218]/40" />
                         )}

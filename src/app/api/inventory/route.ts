@@ -7,7 +7,10 @@ import { PRODUCT_CACHE_TAG } from "@/lib/cache";
 export async function GET() {
   try {
     await connectDB();
-    const products = await Product.find({}).sort({ name: 1 }).lean();
+    const products = await Product.find({})
+      .sort({ name: 1 })
+      .select({ name: 1, category: 1, weight: 1, price: 1, stockQuantity: 1, inStock: 1 })
+      .lean();
     return successResponse(products);
   } catch (err) {
     console.error("Failed to fetch inventory", err);

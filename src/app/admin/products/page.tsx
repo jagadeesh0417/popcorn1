@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Plus, Eye, EyeOff, Star, Pencil, Trash2, Loader2, Home, X } from "lucide-react";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import { ImageUploader } from "@/components/admin/ImageUploader";
+import { optimizeImageUrl } from "@/lib/image";
 import { toast } from "sonner";
 
 interface VariantForm {
@@ -60,7 +61,7 @@ export default function AdminProductsPage() {
 
   useEffect(() => {
     let mounted = true;
-    fetch("/api/products").then((r) => r.json()).then((data) => { if (mounted) { if (data?.success) setProducts(data.data); else setError(data?.error || "Failed to load products"); setLoading(false); } }).catch(() => { if (mounted) { setError("Failed to load products"); setLoading(false); } });
+    fetch("/api/products?admin=1").then((r) => r.json()).then((data) => { if (mounted) { if (data?.success) setProducts(data.data); else setError(data?.error || "Failed to load products"); setLoading(false); } }).catch(() => { if (mounted) { setError("Failed to load products"); setLoading(false); } });
     return () => { mounted = false; };
   }, []);
 
@@ -516,7 +517,7 @@ export default function AdminProductsPage() {
                       <td className="p-4 font-medium text-[#1A1A1A]">
                         <div className="flex items-center gap-2">
                           {p.images?.[0] && (
-                            <img src={p.images[0]} alt="" className="w-8 h-8 rounded object-cover" />
+                            <img src={optimizeImageUrl(p.images[0], 64) || p.images[0]} alt="" className="w-8 h-8 rounded object-cover" />
                           )}
                           {p.name}
                         </div>

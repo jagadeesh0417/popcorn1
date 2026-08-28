@@ -5,7 +5,9 @@ import { successResponse, errorResponse } from "@/lib/api-utils";
 export async function GET() {
   try {
     await connectDB();
+    // Sort by the group key first so MongoDB can stream using the index instead of an in-memory hash scan.
     const customers = await Order.aggregate([
+      { $sort: { "customerDetails.email": 1 } },
       { $group: { _id: "$customerDetails.email", firstName: { $first: "$customerDetails.firstName" }, lastName: { $first: "$customerDetails.lastName" }, phone: { $first: "$customerDetails.phone" }, orders: { $sum: 1 }, totalSpent: { $sum: "$total" }, joined: { $min: "$createdAt" } } },
       { $project: { _id: 0, email: "$_id", firstName: 1, lastName: 1, phone: 1, orders: 1, totalSpent: 1, joined: 1 } },
       { $sort: { orders: -1 } },

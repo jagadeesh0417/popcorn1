@@ -6,7 +6,19 @@ import { successResponse, errorResponse } from "@/lib/api-utils";
 export async function GET() {
   try {
     await connectDB();
-    const orders = await Order.find({}).sort({ createdAt: -1 }).lean();
+    // Admin order list only needs these fields — skip heavy item images, timeline, address, etc.
+    const orders = await Order.find({})
+      .sort({ createdAt: -1 })
+      .select({
+        orderId: 1,
+        customerDetails: 1,
+        items: { name: 1, quantity: 1, variant: 1 },
+        total: 1,
+        status: 1,
+        paymentMethod: 1,
+        paymentId: 1,
+      })
+      .lean();
     return successResponse(orders);
   } catch (err) {
     console.error("Failed to fetch orders", err);
