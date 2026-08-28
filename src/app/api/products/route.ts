@@ -67,6 +67,7 @@ const ADMIN_PROJECTION = {
   slug: 1,
   category: 1,
   price: 1,
+  sizes: 1,
   stockQuantity: 1,
   inStock: 1,
   isPublished: 1,
