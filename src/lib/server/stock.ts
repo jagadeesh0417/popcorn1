@@ -1,5 +1,6 @@
 import { connectDB } from "@/lib/db";
 import Product from "@/lib/models/Product";
+import Setting from "@/lib/models/Setting";
 
 export interface ResolvedItem {
   productId: string;
@@ -8,6 +9,9 @@ export interface ResolvedItem {
   quantity: number;
   image: string;
   variant: { label: string; grams: number } | null;
+  type?: "product" | "bundle";
+  bundleId?: string;
+  parts?: { productId: string; name: string; variantLabel?: string; quantity: number }[];
 }
 
 export interface StockResolution {
@@ -15,13 +19,41 @@ export interface StockResolution {
   subtotal: number;
 }
 
+interface RawPart {
+  productId?: string;
+  name?: string;
+  variantLabel?: string;
+  quantity?: number;
+}
+
 interface RawItem {
+  type?: "product" | "bundle";
   productId?: string;
   name?: string;
   price?: number;
   quantity?: number;
   image?: string;
   variant?: { label?: string; grams?: number } | null;
+  bundleId?: string;
+  sizeLabel?: string;
+  parts?: RawPart[];
+}
+
+interface BundlePartDef {
+  slug?: string;
+  quantity?: number;
+}
+
+interface BundleSizeDef {
+  label?: string;
+  price?: number;
+}
+
+interface BundleConfig {
+  bundleId?: string;
+  bundleText?: { title?: string };
+  sizes?: BundleSizeDef[];
+  products?: BundlePartDef[];
 }
 
 class StockError extends Error {
@@ -40,6 +72,135 @@ function normalizeImage(product: Record<string, unknown>): string {
   return typeof single === "string" ? single : "";
 }
 
+function normalizeVariantList(product: Record<string, unknown>): Record<string, unknown>[] {
+  const sizes = Array.isArray(product.sizes) ? (product.sizes as Record<string, unknown>[]) : [];
+  if (sizes.length > 0) return sizes;
+  const variants = Array.isArray(product.variants) ? (product.variants as Record<string, unknown>[]) : [];
+  return variants;
+}
+
+function findVariantByGrams(product: Record<string, unknown>, grams: number): Record<string, unknown> | null {
+  const variants = normalizeVariantList(product);
+  // Prefer an exact label match, then fall back to a numeric grams match.
+  const exact = variants.find(
+    (v) => typeof (v as { label?: unknown }).label === "string" && String((v as { label: string }).label).toLowerCase() === `${grams}g`
+  );
+  if (exact) return exact;
+  return variants.find(
+    (v) =>
+      typeof (v as { grams?: unknown }).grams === "number" && Math.floor((v as { grams: number }).grams) === Math.floor(grams)
+  ) || null;
+}
+
+// Bundle composition is stored in the bundle setting (single source of truth).
+async function loadBundleConfig(): Promise<BundleConfig | null> {
+  const setting = await Setting.findOne({ key: "bundle" }).lean();
+  if (!setting) return null;
+  try {
+    return JSON.parse(setting.value) as BundleConfig;
+  } catch {
+    return null;
+  }
+}
+
+// Grams represented by a bundle size label, e.g. "All 80g" -> 80.
+function sizeGrams(sizeLabel: string): number {
+  const digits = String(sizeLabel || "").replace(/[^0-9]/g, "");
+  const n = parseInt(digits, 10);
+  return Number.isFinite(n) ? n : 0;
+}
+
+// Authoritative server-side stock validation + resolution for a single bundle line.
+// The bundle price is taken from the DB config (size price), never from the client.
+async function resolveBundleItem(item: RawItem): Promise<{ resolved: ResolvedItem; subtotal: number }> {
+  const lineQty = Math.floor(Number(item.quantity));
+  if (!Number.isFinite(lineQty) || lineQty <= 0) {
+    throw new StockError("Invalid item quantity", 400);
+  }
+  const bundleId = item.bundleId || "";
+  const config = await loadBundleConfig();
+  if (!config || !config.bundleId) {
+    throw new StockError("This bundle is no longer available. Please remove it and try again.");
+  }
+
+  const sizeLabel = item.sizeLabel || "";
+  const size: BundleSizeDef | undefined = (Array.isArray(config.sizes) ? config.sizes : []).find(
+    (s) => s && s.label === sizeLabel
+  );
+  const unitPrice = typeof size?.price === "number" && size.price > 0 ? size.price : 0;
+  if (!unitPrice) {
+    throw new StockError("This bundle size is no longer available. Please remove it and try again.");
+  }
+
+  const grams = sizeGrams(sizeLabel);
+  const composition = Array.isArray(config.products) ? config.products : [];
+  if (composition.length === 0) {
+    throw new StockError("This bundle has no products configured. Please check back later.");
+  }
+
+  const parts: ResolvedItem["parts"] = [];
+  for (const part of composition) {
+    const slug = part.slug;
+    const perBundle = Math.floor(Number(part.quantity));
+    if (!slug || !Number.isFinite(perBundle) || perBundle <= 0) {
+      throw new StockError("This bundle is not configured correctly. Please contact support.");
+    }
+    const product = await Product.findOne({ slug }).lean();
+    if (!product) {
+      throw new StockError("One or more items in this bundle are no longer available.");
+    }
+    const p = product as unknown as Record<string, unknown>;
+    if (p.inStock === false || p.isPublished === false) {
+      throw new StockError(`${p.name || "A bundle item"} is currently out of stock.`);
+    }
+    const variant = findVariantByGrams(p, grams);
+    const variants = normalizeVariantList(p);
+    if (variants.length > 0 && !variant) {
+      throw new StockError(`${p.name || "A bundle item"} is currently out of stock.`);
+    }
+    const need = perBundle * lineQty;
+    if (variant) {
+      const v = variant as { stock?: number; inStock?: boolean };
+      const stock = typeof v.stock === "number" ? v.stock : 0;
+      if (v.inStock === false || stock <= 0) {
+        throw new StockError(`${p.name || "A bundle item"} (${grams}g) is currently out of stock.`);
+      }
+      if (stock < need) {
+        throw new StockError(`Only ${stock} unit${stock === 1 ? "" : "s"} left for ${p.name || "a bundle item"} (${grams}g). Please reduce the quantity.`);
+      }
+    } else {
+      const stock = typeof p.stockQuantity === "number" ? p.stockQuantity : 0;
+      if (stock <= 0) {
+        throw new StockError(`${p.name || "A bundle item"} is currently out of stock.`);
+      }
+      if (stock < need) {
+        throw new StockError(`Only ${stock} unit${stock === 1 ? "" : "s"} left for ${p.name || "a bundle item"}. Please reduce the quantity.`);
+      }
+    }
+    parts.push({
+      productId: String(p._id || slug),
+      name: String(p.name || part.slug),
+      variantLabel: variant ? String((variant as { label?: unknown }).label || `${grams}g`) : undefined,
+      quantity: perBundle,
+    });
+  }
+
+  const name = config.bundleText?.title || "Bundle";
+  const resolved: ResolvedItem = {
+    productId: `bundle:${bundleId}`,
+    name,
+    price: unitPrice,
+    quantity: lineQty,
+    image: typeof item.image === "string" ? item.image : "",
+    variant: null,
+    type: "bundle",
+    bundleId,
+    parts,
+  };
+
+  return { resolved, subtotal: unitPrice * lineQty };
+}
+
 // Authoritative server-side stock validation.
 // Returns resolved order items with real DB names/prices and a server-computed subtotal.
 // Throws StockError naming the first unavailable product.
@@ -54,6 +215,13 @@ export async function validateAndResolveItems(rawItems: RawItem[]): Promise<Stoc
   let subtotal = 0;
 
   for (const item of items) {
+    if (item.type === "bundle") {
+      const { resolved: rBundle, subtotal: sBundle } = await resolveBundleItem(item);
+      resolved.push(rBundle);
+      subtotal += sBundle;
+      continue;
+    }
+
     const qty = Math.floor(Number(item.quantity));
     if (!Number.isFinite(qty) || qty <= 0) {
       throw new StockError("Invalid item quantity", 400);
@@ -77,7 +245,7 @@ export async function validateAndResolveItems(rawItems: RawItem[]): Promise<Stoc
     let variant: ResolvedItem["variant"] = null;
 
     const variantRef = item.variant?.label;
-    const sizes = Array.isArray(p.sizes) ? (p.sizes as Record<string, unknown>[]) : [];
+    const sizes = normalizeVariantList(p);
     if (variantRef) {
       const size = sizes.find((s) => (s as { label?: string }).label === variantRef);
       if (!size) {
@@ -115,6 +283,7 @@ export async function validateAndResolveItems(rawItems: RawItem[]): Promise<Stoc
       quantity: qty,
       image: normalizeImage(p) || (typeof item.image === "string" ? item.image : ""),
       variant,
+      type: "product",
     });
     subtotal += price * qty;
   }
@@ -122,25 +291,56 @@ export async function validateAndResolveItems(rawItems: RawItem[]): Promise<Stoc
   return { items: resolved, subtotal: Math.round(subtotal * 100) / 100 };
 }
 
+// Expand bundle lines into atomic per-product reservations, then reserve each.
+interface ProductReservation {
+  productId?: string;
+  variantLabel?: string | null;
+  qty: number;
+}
+
+function flattenReservations(items: (RawItem | ResolvedItem)[]): ProductReservation[] {
+  const flat: ProductReservation[] = [];
+  for (const item of items) {
+    const qty = Math.floor(Number((item as RawItem).quantity));
+    if (!Number.isFinite(qty) || qty <= 0) continue;
+    const type = (item as ResolvedItem).type || (item as RawItem).type;
+    if (type === "bundle") {
+      const parts = (item as ResolvedItem).parts;
+      if (Array.isArray(parts)) {
+        for (const part of parts) {
+          const partQty = Math.floor(Number(part.quantity));
+          if (!Number.isFinite(partQty) || partQty <= 0) continue;
+          flat.push({ productId: part.productId, variantLabel: part.variantLabel || null, qty: partQty * qty });
+        }
+      }
+      continue;
+    }
+    const ref = (item as RawItem).productId;
+    const variantLabel = (item as RawItem).variant?.label || (item as ResolvedItem).variant?.label || null;
+    flat.push({ productId: ref, variantLabel, qty });
+  }
+  return flat;
+}
+
 // Atomically reserve/decrement stock so two simultaneous purchases of the last unit
 // cannot both succeed. Throws StockError if any item can't be satisfied.
-export async function reserveStock(items: RawItem[]): Promise<void> {
+export async function reserveStock(items: (RawItem | ResolvedItem)[]): Promise<void> {
   await connectDB();
-  for (const item of items) {
-    const qty = Math.floor(Number(item.quantity));
-    if (!Number.isFinite(qty) || qty <= 0) continue;
-    const ref = item.productId;
+  const reservations = flattenReservations(items);
+  for (const r of reservations) {
+    const ref = r.productId;
+    if (!ref) continue;
 
-    if (item.variant?.label) {
-      const label = item.variant.label;
+    if (r.variantLabel) {
+      const label = r.variantLabel;
       const res = await Product.updateOne(
         {
           $or: [{ _id: ref }, { slug: ref }],
           "sizes.label": label,
           "sizes.inStock": { $ne: false },
-          "sizes.stock": { $gte: qty },
+          "sizes.stock": { $gte: r.qty },
         },
-        { $inc: { "sizes.$.stock": -qty } }
+        { $inc: { "sizes.$.stock": -r.qty } }
       );
       if (res.modifiedCount !== 1) {
         throw new StockError("Some items in your order are no longer available. Please review your cart.");
@@ -155,9 +355,9 @@ export async function reserveStock(items: RawItem[]): Promise<void> {
         {
           $or: [{ _id: ref }, { slug: ref }],
           inStock: { $ne: false },
-          stockQuantity: { $gte: qty },
+          stockQuantity: { $gte: r.qty },
         },
-        { $inc: { stockQuantity: -qty } }
+        { $inc: { stockQuantity: -r.qty } }
       );
       if (res.modifiedCount !== 1) {
         throw new StockError("Some items in your order are no longer available. Please review your cart.");

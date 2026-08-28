@@ -28,6 +28,11 @@ interface BundleSize {
   savings: number;
 }
 
+interface BundlePartDef {
+  slug: string;
+  quantity: number;
+}
+
 export default function AdminBundlePage() {
   const [saving, setSaving] = useState(false);
   const [images, setImages] = useState<BundleImage[]>([
@@ -45,6 +50,11 @@ export default function AdminBundlePage() {
     subtitle: "One of each. The best way to find your favourite.",
     flavors: "Ghee & Black Pepper · Ghee & Curry Leaf · Coffee Chikki",
   });
+  const [products, setProducts] = useState<BundlePartDef[]>([
+    { slug: "ghee-black-pepper", quantity: 1 },
+    { slug: "ghee-curry-leaf", quantity: 1 },
+    { slug: "coffee-chikki", quantity: 1 },
+  ]);
   const [uploading, setUploading] = useState<UploadItem[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadErrors, setUploadErrors] = useState<string[]>([]);
@@ -142,6 +152,7 @@ export default function AdminBundlePage() {
           if (v.images) setImages(v.images);
           if (v.sizes) setSizes(v.sizes);
           if (v.bundleText) setBundleText(v.bundleText);
+          if (Array.isArray(v.products) && v.products.length > 0) setProducts(v.products);
         }
       })
       .catch(console.error);
@@ -184,6 +195,24 @@ export default function AdminBundlePage() {
     setSizes(sizes.filter((_, i) => i !== index));
   };
 
+  const updatePart = (index: number, field: keyof BundlePartDef, value: string) => {
+    const next = [...products];
+    if (field === "slug") {
+      next[index].slug = value;
+    } else {
+      next[index].quantity = Math.max(1, Number(value) || 1);
+    }
+    setProducts(next);
+  };
+
+  const addPart = () => {
+    setProducts([...products, { slug: "", quantity: 1 }]);
+  };
+
+  const removePart = (index: number) => {
+    setProducts(products.filter((_, i) => i !== index));
+  };
+
   const handleSave = async () => {
     if (isUploading) return;
     setSaving(true);
@@ -191,7 +220,7 @@ export default function AdminBundlePage() {
       const res = await fetch("/api/settings", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ key: "bundle", value: { images, sizes, bundleText } }),
+        body: JSON.stringify({ key: "bundle", value: { bundleId: "trio", images, sizes, bundleText, products } }),
       });
       if (res.ok) {
         toast.success("Bundle settings saved!");
@@ -362,6 +391,48 @@ export default function AdminBundlePage() {
                       </td>
                       <td className="py-3">
                         <button onClick={() => removeSize(i)} className="p-1.5 text-[#666666] hover:text-red-500 transition-colors">
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </motion.div>
+
+          {/* Bundle Products (composition) */}
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}
+            className="bg-[#FFFDF9] p-6 border border-[rgba(0,0,0,0.05)] shadow-sm mt-8">
+            <div className="flex items-center justify-between mb-1">
+              <h3 className="font-bold text-lg text-[#1A1A1A]">Bundle Products</h3>
+              <Button onClick={addPart} className="bg-[#DC0218] hover:bg-[#C70015] text-white text-xs h-8">
+                <Plus className="h-3.5 w-3.5 mr-1" /> Add Product
+              </Button>
+            </div>
+            <p className="text-xs text-[#444444] mb-4">
+              These products make up the bundle. Quantity is the number of each included per bundle (across every size). Use product slugs from the catalog (e.g. <span className="font-mono">ghee-black-pepper</span>).
+            </p>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-[rgba(220,2,24,0.08)] text-left">
+                    <th className="pb-3 font-medium text-[#444444] text-xs uppercase tracking-[0.08em]">Product Slug</th>
+                    <th className="pb-3 font-medium text-[#444444] text-xs uppercase tracking-[0.08em]">Qty per Bundle</th>
+                    <th className="pb-3" />
+                  </tr>
+                </thead>
+                <tbody>
+                  {products.map((part, i) => (
+                    <tr key={i} className="border-b border-[rgba(220,2,24,0.06)] last:border-0">
+                      <td className="py-3 pr-4">
+                        <Input value={part.slug} placeholder="product-slug" onChange={(e) => updatePart(i, "slug", e.target.value)} className="bg-white border-[rgba(220,2,24,0.12)] h-9 text-sm font-mono" />
+                      </td>
+                      <td className="py-3 pr-4">
+                        <Input type="number" min={1} value={part.quantity} onChange={(e) => updatePart(i, "quantity", e.target.value)} className="bg-white border-[rgba(220,2,24,0.12)] h-9 text-sm w-24" />
+                      </td>
+                      <td className="py-3">
+                        <button onClick={() => removePart(i)} className="p-1.5 text-[#666666] hover:text-red-500 transition-colors">
                           <Trash2 className="h-3.5 w-3.5" />
                         </button>
                       </td>

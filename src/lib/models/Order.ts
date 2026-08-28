@@ -2,7 +2,17 @@ import mongoose, { Schema, Document } from "mongoose";
 
 export interface IOrder extends Document {
   orderId: string;
-  items: { productId: string; name: string; price: number; quantity: number; image: string; variant?: { label: string; grams: number } }[];
+  items: {
+    productId: string;
+    name: string;
+    price: number;
+    quantity: number;
+    image: string;
+    type?: string;
+    bundleId?: string;
+    variant?: { label: string; grams: number };
+    parts?: { productId: string; name: string; variantLabel?: string; quantity: number }[];
+  }[];
   total: number;
   subtotal: number;
   shipping: number;
@@ -41,10 +51,20 @@ const OrderSchema = new Schema<IOrder>(
         price: Number,
         quantity: Number,
         image: String,
+        type: { type: String },
+        bundleId: { type: String },
         variant: {
           label: String,
           grams: Number,
         },
+        parts: [
+          {
+            productId: String,
+            name: String,
+            variantLabel: String,
+            quantity: Number,
+          },
+        ],
       },
     ],
     total: { type: Number, required: true },

@@ -8,7 +8,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
-import { useCart } from "@/lib/store";
+import { useCart, itemPrice, itemName } from "@/lib/store";
 import { useShipping } from "@/lib/shipping-settings";
 import { optimizeImageUrl, getProductImage } from "@/lib/image";
 import { getAvailableQty } from "@/lib/stock";
@@ -50,8 +50,6 @@ export default function CartPage() {
       setCouponMsg("Invalid coupon code");
     }
   };
-
-  const getPrice = (item: typeof state.items[0]) => item.variant?.price ?? item.product.price ?? 0;
 
   if (state.items.length === 0) {
     return (
@@ -99,9 +97,20 @@ export default function CartPage() {
         <div className="grid lg:grid-cols-3 gap-10">
           <div className="lg:col-span-2 space-y-4">
             {state.items.map((item, index) => {
-              const price = getPrice(item);
-              const maxQty = getAvailableQty(item.product, item.variant);
+              const price = itemPrice(item);
+              const isBundle = item.type === "bundle";
+              const bundle = item.bundle;
+              const product = item.product;
+              const maxQty = isBundle ? Infinity : getAvailableQty(item.product, item.variant);
               const unavailable = item.unavailable === true;
+              const linkHref = isBundle ? "/shop" : `/products/${product?.slug}`;
+              const image = isBundle
+                ? (bundle?.image || "")
+                : (product ? (optimizeImageUrl(getProductImage(product), 200) || "") : "");
+              const alt = isBundle ? (bundle?.name || "Bundle") : (product?.name || "Product");
+              const itemSummary = isBundle
+                ? (bundle?.sizeLabel || "Bundle")
+                : (item.variant ? `${item.variant.label} · ₹${price}/pack` : (product?.weight || ""));
               return (
                 <motion.div
                   key={item.cartId}
@@ -110,10 +119,10 @@ export default function CartPage() {
                   transition={{ delay: index * 0.05 }}
                   className={`flex gap-4 p-4 bg-white rounded-2xl border shadow-sm ${unavailable ? "border-red-200 bg-red-50/40" : "border-[rgba(220,2,24,0.08)]"}`}
                 >
-                  <Link href={`/products/${item.product.slug}`}>
+                  <Link href={linkHref}>
                     <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-xl overflow-hidden bg-[#FFF8F0] shrink-0">
-                      {getProductImage(item.product) ? (
-                        <Image src={optimizeImageUrl(getProductImage(item.product), 200) || ""} alt={item.product.name} fill className="object-cover" sizes="112px" />
+                      {image ? (
+                        <Image src={image} alt={alt} fill className="object-cover" sizes="112px" />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-3xl">🍿</div>
                       )}
@@ -125,14 +134,17 @@ export default function CartPage() {
                     </div>
                   </Link>
                   <div className="flex-1 min-w-0">
-                    <Link href={`/products/${item.product.slug}`}>
-                      <h3 className="font-semibold text-[#1A1A1A] hover:text-[#DC0218] transition-colors">{item.product.name}</h3>
+                    <Link href={linkHref}>
+                      <h3 className="font-semibold text-[#1A1A1A] hover:text-[#DC0218] transition-colors">{isBundle ? itemName(item) : product?.name}</h3>
                     </Link>
-                    <p className="text-xs text-[#444444] mt-0.5">
-                      {item.variant ? `${item.variant.label} · ₹${price}/pack` : item.product.weight}
-                    </p>
+                    <p className="text-xs text-[#444444] mt-0.5">{itemSummary}</p>
+                    {isBundle && bundle?.parts && (
+                      <p className="text-[11px] text-[#444444] mt-0.5">
+                        Includes: {bundle.parts.map((p) => `${p.quantity}× ${p.name}`).join(", ")}
+                      </p>
+                    )}
                     {unavailable && (
-                      <p className="text-xs font-medium text-[#DC0218] mt-1">{item.product.name} is currently out of stock. Please remove it to continue.</p>
+                      <p className="text-xs font-medium text-[#DC0218] mt-1">{itemName(item)} is currently unavailable. Please remove it to continue.</p>
                     )}
                     <div className="flex items-center justify-between mt-3">
                       <div className={`flex items-center border rounded-lg overflow-hidden ${unavailable ? "border-gray-300 opacity-60" : "border-[rgba(220,2,24,0.15)]"}`}>
@@ -151,7 +163,7 @@ export default function CartPage() {
                         </button>
                       </div>
                     </div>
-                    {!unavailable && maxQty > 0 && item.quantity >= maxQty && (
+                    {!isBundle && !unavailable && maxQty > 0 && item.quantity >= maxQty && (
                       <p className="text-[11px] text-[#444444] mt-1">Only {maxQty} {maxQty === 1 ? "unit" : "units"} in stock</p>
                     )}
                   </div>

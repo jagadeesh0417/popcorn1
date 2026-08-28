@@ -1,23 +1,31 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ShoppingBag, ChevronLeft, ChevronRight } from "lucide-react";
+import { ShoppingBag, ChevronLeft, ChevronRight, RefreshCw, AlertCircle } from "lucide-react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/lib/store";
-import { Product, ProductVariant } from "@/lib/types";
+import { Product, ProductVariant, BundleComposition, BundlePart } from "@/lib/types";
 import { toast } from "sonner";
 import { optimizeImageUrl } from "@/lib/image";
-import { isBuyable } from "@/lib/stock";
+import { isBuyable, getAvailableQty } from "@/lib/stock";
+
+interface BundlePartDef {
+  slug?: string;
+  quantity?: number;
+}
 
 interface BundleSettingsData {
+  bundleId?: string;
   images: { id: string; src: string }[];
   sizes: { label: string; price: number; savings: number }[];
   bundleText: { title: string; subtitle: string; flavors: string };
+  products?: BundlePartDef[];
 }
 
 const defaultBundle: BundleSettingsData = {
+  bundleId: "trio",
   images: [
     { id: "1", src: "https://images.unsplash.com/photo-1578474846511-04ba529f0b88?w=600&q=80" },
     { id: "2", src: "https://images.unsplash.com/photo-1600959908209-755b03e7c66f?w=600&q=80" },
@@ -35,47 +43,89 @@ const defaultBundle: BundleSettingsData = {
     subtitle: "One of each. The best way to find your favourite.",
     flavors: "Ghee & Black Pepper · Ghee & Curry Leaf · Coffee Chikki",
   },
+  products: [
+    { slug: "ghee-black-pepper", quantity: 1 },
+    { slug: "ghee-curry-leaf", quantity: 1 },
+    { slug: "coffee-chikki", quantity: 1 },
+  ],
 };
 
-const TRIO_SLUGS = ["ghee-black-pepper", "ghee-curry-leaf", "coffee-chikki"];
+// Grams represented by a bundle size label, e.g. "All 80g" -> 80.
+function sizeGrams(sizeLabel: string): number {
+  const digits = String(sizeLabel || "").replace(/[^0-9]/g, "");
+  const n = parseInt(digits, 10);
+  return Number.isFinite(n) ? n : 0;
+}
+
+function normalizeVariants(product: Product): ProductVariant[] {
+  if (Array.isArray(product.sizes) && product.sizes.length > 0) return product.sizes;
+  if (Array.isArray(product.variants) && product.variants.length > 0) return product.variants;
+  return [];
+}
+
+function findVariantForGrams(product: Product, grams: number): ProductVariant | null {
+  const variants = normalizeVariants(product);
+  const exact = variants.find((v) => String(v.label).toLowerCase() === `${grams}g`);
+  if (exact) return exact;
+  return variants.find((v) => Math.floor(Number(v.grams)) === Math.floor(grams)) || null;
+}
 
 export function BundleCard() {
   const [bundle, setBundle] = useState<BundleSettingsData>(defaultBundle);
   const [selectedBundle, setSelectedBundle] = useState<string>(defaultBundle.sizes[0]?.label || "");
   const [currentImage, setCurrentImage] = useState(0);
-  const [trioProducts, setTrioProducts] = useState<Product[]>([]);
-  const { addItem } = useCart();
+  const [products, setProducts] = useState<Record<string, Product>>({});
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const { addBundle } = useCart();
+
+  const loadBundle = useCallback(async () => {
+    try {
+      const res = await fetch("/api/settings?key=bundle&fresh=1");
+      const data = await res.json();
+      let cfg = defaultBundle;
+      if (data?.success && data.data?.value) {
+        const v = data.data.value as Partial<BundleSettingsData>;
+        cfg = {
+          bundleId: v.bundleId || defaultBundle.bundleId,
+          images: Array.isArray(v.images) && v.images.length > 0 ? v.images : defaultBundle.images,
+          sizes: Array.isArray(v.sizes) && v.sizes.length > 0 ? v.sizes : defaultBundle.sizes,
+          bundleText: v.bundleText ? { ...defaultBundle.bundleText, ...v.bundleText } : defaultBundle.bundleText,
+          products: Array.isArray(v.products) && v.products.length > 0 ? v.products : defaultBundle.products,
+        };
+      }
+      setBundle(cfg);
+      if (!cfg.sizes.some((s) => s.label === selectedBundle) && cfg.sizes.length > 0) {
+        setSelectedBundle(cfg.sizes[0].label);
+      }
+
+      // Fetch the products that make up the bundle composition.
+      const slugs = (cfg.products ?? []).map((p) => p.slug).filter(Boolean) as string[];
+      if (slugs.length > 0) {
+        const pres = await fetch(`/api/products?slugs=${encodeURIComponent(slugs.join(","))}&fresh=1`);
+        const pdata = await pres.json();
+        if (pdata?.success) {
+          const map: Record<string, Product> = {};
+          (pdata.data as Product[]).forEach((p) => { if (p.slug) map[p.slug] = p; });
+          setProducts(map);
+        }
+      }
+    } catch {
+      setError("Couldn't load the bundle. Please retry.");
+    } finally {
+      setLoading(false);
+    }
+  }, [selectedBundle]);
 
   useEffect(() => {
-    fetch("/api/settings?key=bundle")
-      .then((r) => r.json())
-      .then((data) => {
-        if (data?.success && data.data?.value) {
-          const v = data.data.value as Partial<BundleSettingsData>;
-          setBundle((prev) => ({
-            images: Array.isArray(v.images) && v.images.length > 0 ? v.images : prev.images,
-            sizes: Array.isArray(v.sizes) && v.sizes.length > 0 ? v.sizes : prev.sizes,
-            bundleText: v.bundleText ? { ...prev.bundleText, ...v.bundleText } : prev.bundleText,
-          }));
-        }
-      })
-      .catch(console.error);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    loadBundle();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const bundleImages = bundle.images.map((i) => i.src);
   const currentImgIndex = bundleImages.length > 0 ? currentImage % bundleImages.length : 0;
   const displayImage = bundleImages[currentImgIndex] || defaultBundle.images[0].src;
-
-  useEffect(() => {
-    fetch(`/api/products?slugs=${TRIO_SLUGS.join(",")}`)
-      .then((r) => r.json())
-      .then((data) => {
-        if (!data?.success) return;
-        const list = data.data as Product[];
-        setTrioProducts(list);
-      })
-      .catch(console.error);
-  }, []);
 
   const effectiveSelected = bundle.sizes.some((s) => s.label === selectedBundle)
     ? selectedBundle
@@ -83,38 +133,58 @@ export function BundleCard() {
   const bundleData = bundle.sizes.find((s) => s.label === effectiveSelected) || bundle.sizes[0];
   const bundleSizes = bundle.sizes.map((s) => s.label);
 
-  const getVariantForSize = (sizeLabel: string): string => {
-    const map: Record<string, string> = {
-      "All 80g": "80g",
-      "All 150g": "150g",
-      "All 250g": "250g",
-    };
-    return map[sizeLabel] || "80g";
-  };
+  const grams = sizeGrams(effectiveSelected);
+
+  // Build the per-bundle parts (products + the grams variant they need) + availability.
+  const parts: BundlePart[] = [];
+  const partStates: { name: string; buyable: boolean; maxBundles: number }[] = [];
+  (bundle.products ?? []).forEach((def) => {
+    const product = products[def.slug || ""];
+    const name = product?.name || def.slug || "Product";
+    const qty = Math.max(1, Math.floor(Number(def.quantity)) || 1);
+    if (!product) return;
+    const variant = findVariantForGrams(product, grams);
+    const buyable = isBuyable(product, variant);
+    const perUnit = getAvailableQty(product, variant);
+    const maxBundles = perUnit > 0 ? Math.floor(perUnit / qty) : 0;
+    parts.push({
+      productId: product.slug || product._id || "",
+      name,
+      variantLabel: variant ? variant.label : undefined,
+      quantity: qty,
+    });
+    partStates.push({ name, buyable, maxBundles });
+  });
+
+  const anyUnavailable = parts.length > 0 && partStates.some((s) => !s.buyable);
+  const maxBundleQty = parts.length > 0 ? Math.min(...partStates.map((s) => s.maxBundles)) : 0;
+  const compositionLoaded = parts.length > 0;
 
   const handleAddBundle = () => {
     if (!bundleData) return;
-    if (trioProducts.length === 0) {
-      toast.error("Bundle products not loaded yet. Please try again.");
+    if (!compositionLoaded) {
+      setError("Bundle products not loaded yet. Please retry.");
       return;
     }
-    const variantLabel = getVariantForSize(effectiveSelected);
-    // The bundle can only be added when every included product/size is in stock.
-    const blocked = trioProducts.find((product) => {
-      const variants: ProductVariant[] = product.sizes || product.variants || [];
-      const variant = variants.find((v) => v.label === variantLabel) || null;
-      return !isBuyable(product, variant);
-    });
-    if (blocked) {
-      toast.error(`${blocked.name} is currently out of stock. You can add it once it's back in stock.`);
+    if (anyUnavailable) {
+      const first = partStates.find((s) => !s.buyable);
+      toast.error(`${first?.name || "A product"} in this bundle is currently out of stock.`);
       return;
     }
-    trioProducts.forEach((product) => {
-      const variants: ProductVariant[] = product.sizes || product.variants || [];
-      const variant = variants.find((v) => v.label === variantLabel);
-      addItem(product, variant || null);
-    });
-    toast.success(`${bundle.bundleText.title || "The Trio"} (${effectiveSelected}) added to Cart ✓`);
+    if (maxBundleQty <= 0) {
+      toast.error("This bundle is currently out of stock.");
+      return;
+    }
+    const composition: BundleComposition = {
+      bundleId: bundle.bundleId || "trio",
+      name: bundle.bundleText.title || "Bundle",
+      sizeLabel: effectiveSelected,
+      unitPrice: bundleData.price,
+      originalPrice: bundleData.price + bundleData.savings,
+      image: bundle.images[0]?.src || "",
+      parts,
+    };
+    addBundle(composition);
   };
 
   const nextImage = () => setCurrentImage((prev) => (prev + 1) % bundleImages.length);
@@ -225,19 +295,53 @@ export function BundleCard() {
                 className="mt-5 flex items-baseline gap-3"
               >
                 <span className="text-2xl font-semibold text-[#1A1A1A]" style={{ fontFamily: "var(--font-playfair)" }}>
-                  ₹{bundleData.price}
+                  ₹{bundleData?.price ?? 0}
                 </span>
                 <span className="bg-green-100 text-green-700 text-[10px] font-semibold px-2 py-0.5 uppercase tracking-wider">
-                  Save ₹{bundleData.savings}
+                  Save ₹{bundleData?.savings ?? 0}
                 </span>
               </motion.div>
+
+              {loading && (
+                <p className="mt-4 text-sm text-[#444444] flex items-center gap-2">
+                  <span className="animate-spin h-4 w-4 border-2 border-[#DC0218] border-t-transparent rounded-full" />
+                  Loading bundle...
+                </p>
+              )}
+
+              {error && (
+                <div className="mt-4 flex items-center justify-between bg-red-50 border border-red-200 p-3">
+                  <p className="text-xs text-red-600 flex items-center gap-1.5">
+                    <AlertCircle className="h-3.5 w-3.5 shrink-0" /> {error}
+                  </p>
+                  <button onClick={() => { setLoading(true); setError(""); loadBundle(); }} className="text-xs font-medium text-[#DC0218] hover:underline flex items-center gap-1">
+                    <RefreshCw className="h-3 w-3" /> Retry
+                  </button>
+                </div>
+              )}
+
+              {!loading && anyUnavailable && (
+                <p className="mt-4 text-sm font-medium text-[#DC0218]">
+                  One or more products in this bundle are currently out of stock.
+                </p>
+              )}
 
               <motion.div whileTap={{ scale: 0.97 }} className="mt-6">
                 <Button
                   onClick={handleAddBundle}
-                  className={`w-full md:w-auto btn-small-caps px-10 h-12 rounded-xl transition-all duration-200 bg-[#DC0218] hover:bg-[#C70015] text-white shadow-lg shadow-[#DC0218]/20 hover:shadow-[#DC0218]/30`}
+                  disabled={loading || !!error || (!loading && anyUnavailable)}
+                  className={`w-full md:w-auto btn-small-caps px-10 h-12 rounded-xl transition-all duration-200 ${
+                    loading || error || anyUnavailable
+                      ? "bg-gray-200 text-[#444444] cursor-not-allowed"
+                      : "bg-[#DC0218] hover:bg-[#C70015] text-white shadow-lg shadow-[#DC0218]/20 hover:shadow-[#DC0218]/30"
+                  }`}
                 >
-                  <ShoppingBag className="h-3.5 w-3.5 mr-2" /> Add Bundle to Cart
+                  {loading ? (
+                    <RefreshCw className="h-3.5 w-3.5 mr-2 animate-spin" />
+                  ) : (
+                    <ShoppingBag className="h-3.5 w-3.5 mr-2" />
+                  )}
+                  {anyUnavailable ? "Out of Stock" : "Add Bundle to Cart"}
                 </Button>
               </motion.div>
             </div>

@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useCart } from "@/lib/store";
+import { useCart, itemPrice, itemName } from "@/lib/store";
 import { useShipping } from "@/lib/shipping-settings";
 import { getProductImage } from "@/lib/image";
 import { toast } from "sonner";
@@ -101,18 +101,33 @@ export default function CheckoutPage() {
     setCouponMessage(null);
   };
 
-  const getPrice = (item: typeof state.items[0]) => item.variant?.price ?? item.product.price ?? 0;
-
   const buildOrderData = (method: string, pid: string | undefined, oid: string) => ({
     orderId: oid,
-    items: state.items.map((i) => ({
-      productId: i.product.id || i.product._id || "",
-      name: i.product.name,
-      price: getPrice(i),
-      quantity: i.quantity,
-      image: getProductImage(i.product) || "",
-      variant: i.variant ? { label: i.variant.label, grams: i.variant.grams } : null,
-    })),
+    items: state.items.map((i) => {
+      if (i.type === "bundle") {
+        const bundle = i.bundle!;
+        return {
+          type: "bundle",
+          bundleId: bundle.bundleId,
+          productId: `bundle:${bundle.bundleId}`,
+          name: bundle.name,
+          price: bundle.unitPrice,
+          quantity: i.quantity,
+          sizeLabel: bundle.sizeLabel,
+          image: bundle.image || "",
+          parts: bundle.parts.map((p) => ({ productId: p.productId, name: p.name, variantLabel: p.variantLabel, quantity: p.quantity })),
+        };
+      }
+      return {
+        type: "product",
+        productId: i.product?.id || i.product?._id || "",
+        name: i.product?.name || "Product",
+        price: itemPrice(i),
+        quantity: i.quantity,
+        image: (i.product ? getProductImage(i.product) : "") || "",
+        variant: i.variant ? { label: i.variant.label, grams: i.variant.grams } : null,
+      };
+    }),
     subtotal: getSubtotal(),
     shipping,
     discount: getDiscount(),
@@ -183,6 +198,25 @@ export default function CheckoutPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          items: state.items.map((i) =>
+            i.type === "bundle"
+              ? {
+                  type: "bundle",
+                  bundleId: i.bundle?.bundleId,
+                  productId: `bundle:${i.bundle?.bundleId}`,
+                  name: i.bundle?.name,
+                  quantity: i.quantity,
+                  unitPrice: i.bundle?.unitPrice,
+                  sizeLabel: i.bundle?.sizeLabel,
+                  parts: i.bundle?.parts,
+                }
+              : {
+                  type: "product",
+                  productId: i.product?.slug || i.product?._id,
+                  quantity: i.quantity,
+                  variant: i.variant ? { label: i.variant.label } : undefined,
+                }
+          ),
           subtotal: getSubtotal(),
           shipping,
           coupon: state.couponCode || undefined,
@@ -526,14 +560,19 @@ export default function CheckoutPage() {
               <h3 className="font-bold text-lg text-[#1A1A1A] mb-4">Order summary</h3>
               <div className="space-y-3 max-h-60 overflow-y-auto mb-4">
                 {state.items.map((item) => {
-                  const price = getPrice(item);
+                  const price = itemPrice(item);
+                  const isBundle = item.type === "bundle";
                   return (
                     <div key={item.cartId} className="flex items-center gap-3 bg-white p-3 border border-[rgba(220,2,24,0.06)]">
                       <div className="w-12 h-12 bg-[#FFF8F0] shrink-0 flex items-center justify-center text-xs font-bold text-[#444444]">x{item.quantity}</div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-[#1A1A1A] truncate">{item.product.name}</p>
+                        <p className="text-sm font-medium text-[#1A1A1A] truncate">{isBundle ? itemName(item) : item.product?.name}</p>
                         <p className="text-xs text-[#444444]">
-                          {item.variant ? `${item.variant.label} · ₹${price} each` : `₹${price} each`}
+                          {isBundle
+                            ? `${item.bundle?.sizeLabel || "Bundle"} · ₹${price} each`
+                            : item.variant
+                              ? `${item.variant.label} · ₹${price} each`
+                              : `₹${price} each`}
                         </p>
                       </div>
                       <span className="font-semibold text-sm text-[#1A1A1A]">₹{price * item.quantity}</span>

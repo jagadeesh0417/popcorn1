@@ -66,12 +66,54 @@ export interface Review {
   isVerified?: boolean;
 }
 
+// A single product line inside a bundle, used for authoritative inventory validation.
+export interface BundlePart {
+  productId: string; // _id or slug of the product
+  name: string;
+  variantLabel?: string;
+  quantity: number; // how many of this product per bundle
+}
+
+// A bundle as it appears in the cart (ONE line item with its own selling price).
+export interface BundleComposition {
+  bundleId: string; // stable slug/id of the bundle
+  name: string;
+  sizeLabel: string;
+  unitPrice: number; // selling price of one bundle
+  originalPrice?: number;
+  image?: string;
+  parts: BundlePart[]; // retained for stock validation + order recreation
+}
+
 export interface CartItem {
-  product: Product;
-  variant: ProductVariant | null;
-  quantity: number;
   cartId: string;
+  type: "product" | "bundle";
+  // Product lines:
+  product?: Product;
+  variant?: ProductVariant | null;
+  // Bundle lines:
+  bundle?: BundleComposition;
+  quantity: number;
   unavailable?: boolean;
+}
+
+export interface OrderBundlePart {
+  productId: string;
+  name: string;
+  variantLabel?: string;
+  quantity: number;
+}
+
+export interface OrderItem {
+  productId: string;
+  name: string;
+  price: number;
+  quantity: number;
+  image: string;
+  type?: "product" | "bundle";
+  bundleId?: string;
+  variant?: { label: string; grams: number } | null;
+  parts?: OrderBundlePart[];
 }
 
 export interface Order {
@@ -93,15 +135,6 @@ export interface Order {
   orderDate: string;
   statusTimeline: StatusEvent[];
   userId?: string;
-}
-
-export interface OrderItem {
-  productId: string;
-  name: string;
-  price: number;
-  quantity: number;
-  image: string;
-  variant?: { label: string; grams: number } | null;
 }
 
 export interface StatusEvent {
