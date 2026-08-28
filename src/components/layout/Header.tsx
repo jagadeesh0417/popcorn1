@@ -23,10 +23,6 @@ export function Header() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const openCart = () => {
-    window.dispatchEvent(new CustomEvent("toggle-cart"));
-  };
-
   return (
     <header
       className={`sticky top-0 left-0 right-0 z-40 transition-all duration-300 ${
@@ -52,10 +48,10 @@ export function Header() {
           </nav>
 
           <div className="flex items-center gap-3">
-            <button
-              onClick={openCart}
+            <Link
+              href="/cart"
               className="relative p-2 text-[#1A1A1A] transition-colors hover:text-[#DC0218]"
-              aria-label="Open cart"
+              aria-label="View cart"
             >
               <ShoppingBag className="h-5 w-5" />
               {getItemCount() > 0 && (
@@ -63,7 +59,7 @@ export function Header() {
                   {getItemCount()}
                 </span>
               )}
-            </button>
+            </Link>
             <button
               className="p-2 text-[#1A1A1A] transition-colors md:hidden"
               onClick={() => setIsOpen(!isOpen)}

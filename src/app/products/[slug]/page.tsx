@@ -74,7 +74,7 @@ export default function ProductDetailPage() {
           setSelectedSize(defaultVar?.label ?? "");
           if (allRes?.success) {
             const list = safeArray<Product>(allRes.data);
-            setRelated(list.filter((p) => (p.category || "") === (found.category || "") && p.slug !== slug).slice(0, 4));
+            setRelated(list.filter((p) => (p.category || "") === (found.category || "") && p.slug?.toLowerCase() !== slug?.toLowerCase()).slice(0, 4));
           }
         }
       })

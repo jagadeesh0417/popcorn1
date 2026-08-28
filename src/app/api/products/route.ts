@@ -3,6 +3,7 @@ import Product from "@/lib/models/Product";
 import { successResponse, errorResponse } from "@/lib/api-utils";
 import { unstable_cache, revalidateTag } from "next/cache";
 import { PRODUCT_CACHE_TAG, PUBLIC_REVALIDATE_SECONDS, publicCacheHeaders } from "@/lib/cache";
+import { Types } from "mongoose";
 
 interface ProductQuery {
   slug?: string;
@@ -10,6 +11,40 @@ interface ProductQuery {
   isFeatured?: boolean;
   isBestSeller?: boolean;
   showOnHomepage?: boolean;
+  $or?: unknown[];
+}
+
+function escapeRegex(text: string) {
+  return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+async function fetchProducts(query: ProductQuery, isDetail: boolean, projection?: Record<string, number>) {
+  await connectDB();
+  const mongoQuery: Record<string, unknown> = {};
+  if (query.slug) {
+    // Canonicalize the lookup slug: trim whitespace and let the regex match
+    // case-insensitively. Admin-created products may carry non-canonical slugs
+    // (manual typing, case, stray spaces), and the URL is derived from that
+    // stored slug — so the match must be tolerant to keep valid products reachable.
+    const cleanSlug = query.slug.trim();
+    let slugCondition: unknown;
+    if (Types.ObjectId.isValid(cleanSlug)) {
+      slugCondition = { $or: [{ _id: cleanSlug }, { slug: { $regex: `^${escapeRegex(cleanSlug)}$`, $options: "i" } }] };
+    } else {
+      slugCondition = { slug: { $regex: `^${escapeRegex(cleanSlug)}$`, $options: "i" } };
+    }
+    Object.assign(mongoQuery, slugCondition);
+  }
+  if (query.isFeatured) mongoQuery.isFeatured = true;
+  if (query.isBestSeller) mongoQuery.isBestSeller = true;
+  if (query.showOnHomepage) mongoQuery.showOnHomepage = true;
+  if (query.slugs && query.slugs.length > 0) mongoQuery.slug = { $in: query.slugs };
+  const select = projection || (isDetail ? {} : LIST_PROJECTION);
+  const docs = await Product.find(mongoQuery)
+    .sort({ createdAt: -1 })
+    .select(select)
+    .lean();
+  return docs;
 }
 
 // List queries (homepage, featured, trio, shop) don't need the heavy nutrition/ingredients blocks.
@@ -31,22 +66,6 @@ const ADMIN_PROJECTION = {
   showOnHomepage: 1,
   images: 1,
 };
-
-async function fetchProducts(query: ProductQuery, isDetail: boolean, projection?: Record<string, number>) {
-  await connectDB();
-  const mongoQuery: Record<string, unknown> = {};
-  if (query.slug) mongoQuery.slug = query.slug;
-  if (query.isFeatured) mongoQuery.isFeatured = true;
-  if (query.isBestSeller) mongoQuery.isBestSeller = true;
-  if (query.showOnHomepage) mongoQuery.showOnHomepage = true;
-  if (query.slugs && query.slugs.length > 0) mongoQuery.slug = { $in: query.slugs };
-  const select = projection || (isDetail ? {} : LIST_PROJECTION);
-  const docs = await Product.find(mongoQuery)
-    .sort({ createdAt: -1 })
-    .select(select)
-    .lean();
-  return docs;
-}
 
 export async function GET(req: Request) {
   try {

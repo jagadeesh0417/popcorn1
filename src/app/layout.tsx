@@ -7,7 +7,6 @@ import { AnnouncementBar } from "@/components/layout/AnnouncementBar";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { WhatsAppButton } from "@/components/layout/WhatsAppButton";
-import { CartDrawer } from "@/components/layout/CartDrawer";
 import "./globals.css";
 
 const playfair = Playfair_Display({
@@ -81,7 +80,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <main className="flex-1">{children}</main>
             <Footer />
             <WhatsAppButton />
-            <CartDrawer />
           </CartProvider>
         </ShippingProvider>
         <Toaster position="top-right" richColors />

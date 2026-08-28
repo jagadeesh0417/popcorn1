@@ -292,7 +292,7 @@ export default function AdminProductsPage() {
                 </div>
                 <div>
                   <label className={labelClass}>Slug *</label>
-                  <input value={form.slug} onChange={(e) => setForm({ ...form, slug: e.target.value })} className={inputClass} />
+                  <input value={form.slug} onChange={(e) => setForm({ ...form, slug: slugify(e.target.value) })} className={inputClass} />
                 </div>
                 <div>
                   <label className={labelClass}>Tagline</label>
