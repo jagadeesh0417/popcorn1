@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { CreditCard, MapPin, User, Lock, ShoppingBag, Store, Building, Home, Briefcase } from "lucide-react";
@@ -42,9 +42,16 @@ export default function CheckoutPage() {
   const shippingCtx = useShipping();
   const [orderId] = useState(() => "POP" + Date.now());
   const [loading, setLoading] = useState(false);
+  const loadingRef = useRef(false);
   const [shippingMethod, setShippingMethod] = useState<ShippingMethod>("shipping");
   const [addressType, setAddressType] = useState<AddressType>("home");
   const [paymentMethod, setPaymentMethod] = useState<"razorpay" | "cod">("razorpay");
+
+  // Clear the re-entrancy guard whenever the submit finishes (any path that sets
+  // loading false), so a subsequent legitimate Pay click is never blocked.
+  useEffect(() => {
+    if (!loading) loadingRef.current = false;
+  }, [loading]);
 
   // Revalidate cart against fresh product data so unavailable items block checkout.
   useEffect(() => {
@@ -159,6 +166,7 @@ export default function CheckoutPage() {
   });
 
   const handlePayment = async () => {
+    if (loadingRef.current) return;
     if (!form.firstName || !form.phone || !form.email) {
       toast.error("Please fill in your name, phone, and email");
       return;
@@ -176,9 +184,8 @@ export default function CheckoutPage() {
       return;
     }
     setLoading(true);
+    loadingRef.current = true;
     try {
-      const total = getSubtotal() - getDiscount() + shipping;
-
       if (paymentMethod === "cod") {
         const orderData = buildOrderData("COD", undefined, orderId);
         const res = await fetch("/api/orders", {
@@ -223,10 +230,22 @@ export default function CheckoutPage() {
           currency: "INR",
         }),
       });
-      if (!orderRes.ok) throw new Error("Failed to create Razorpay order");
+      if (!orderRes.ok) {
+        let errMsg = "Failed to create payment. Please try again.";
+        try { const e = await orderRes.json(); if (e?.error) errMsg = e.error; } catch {}
+        toast.error(errMsg);
+        setLoading(false);
+        return;
+      }
       const orderData_ = await orderRes.json();
-      const razorpayOrderId = orderData_.success ? orderData_.data.razorpayOrderId : orderData_.razorpayOrderId;
-      const serverAmount = orderData_.success ? orderData_.data.amount : Math.round(total * 100);
+      if (!orderData_?.success) {
+        toast.error(orderData_?.error || "Failed to create payment. Please try again.");
+        setLoading(false);
+        return;
+      }
+      const razorpayOrderId = orderData_.data.razorpayOrderId;
+      const serverAmount = orderData_.data.amount;
+      const keyId = orderData_.data.keyId || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
 
       const script = document.createElement("script");
       script.src = "https://checkout.razorpay.com/v1/checkout.js";
@@ -236,8 +255,13 @@ export default function CheckoutPage() {
         document.head.appendChild(script);
       });
 
+      if (!keyId) {
+        toast.error("Payment is not configured. Please contact support.");
+        setLoading(false);
+        return;
+      }
       const options = {
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+        key: keyId,
         amount: serverAmount,
         currency: "INR",
         name: "Poprika",
@@ -301,6 +325,7 @@ export default function CheckoutPage() {
       console.error("Payment error:", err);
       toast.error("Something went wrong. Please try again.");
       setLoading(false);
+      loadingRef.current = false;
     }
   };
 

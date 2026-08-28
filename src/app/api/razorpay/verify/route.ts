@@ -6,6 +6,7 @@ import OrphanPayment from "@/lib/models/OrphanPayment";
 import { errorResponse } from "@/lib/api-utils";
 import { validateCoupon, incrementCouponUsage } from "@/lib/server/coupon";
 import { validateAndResolveItems, reserveStock } from "@/lib/server/stock";
+import { getRazorpayCredentials } from "@/lib/server/razorpay";
 
 export async function POST(req: Request) {
   let body;
@@ -39,11 +40,12 @@ export async function POST(req: Request) {
     return errorResponse("Missing order data", 400);
   }
 
-  const keySecret = process.env.RAZORPAY_KEY_SECRET;
-  if (!keySecret) {
+  const credentials = await getRazorpayCredentials();
+  if (!credentials) {
     console.error("[PAYMENT] RAZORPAY_KEY_SECRET not configured");
     return errorResponse("Payment gateway not configured", 500);
   }
+  const keySecret = credentials.keySecret;
 
   console.log("[PAYMENT] key secret loaded, length:", keySecret.length);
 

@@ -3,6 +3,7 @@ import Razorpay from "razorpay";
 import { errorResponse } from "@/lib/api-utils";
 import { validateCoupon } from "@/lib/server/coupon";
 import { validateAndResolveItems, StockError } from "@/lib/server/stock";
+import { getRazorpayCredentials } from "@/lib/server/razorpay";
 
 export async function POST(req: Request) {
   let amount: number;
@@ -46,17 +47,12 @@ export async function POST(req: Request) {
     return errorResponse("Only INR is supported", 400);
   }
 
-  const keyId = process.env.RAZORPAY_KEY_ID;
-  const keySecret = process.env.RAZORPAY_KEY_SECRET;
-
-  if (!keyId || !keySecret) {
-    console.error("[RAZORPAY] credentials not found in env", {
-      hasKeyId: !!keyId,
-      hasKeySecret: !!keySecret,
-      keyIdPrefix: keyId ? keyId.substring(0, 8) : "none",
-    });
+  const credentials = await getRazorpayCredentials();
+  if (!credentials) {
+    console.error("[RAZORPAY] credentials not configured (env or stored payment setting)");
     return errorResponse("Razorpay not configured", 500);
   }
+  const { keyId, keySecret } = credentials;
 
   console.log("[RAZORPAY] credentials loaded", {
     keyIdPrefix: keyId.substring(0, 8) + "...",
@@ -78,7 +74,7 @@ export async function POST(req: Request) {
       currency: order.currency,
     });
 
-    return NextResponse.json({ success: true, data: { razorpayOrderId: order.id, amount } });
+    return NextResponse.json({ success: true, data: { razorpayOrderId: order.id, amount, keyId } });
   } catch (err: unknown) {
     const errorBody = err && typeof err === "object"
       ? JSON.stringify(err, Object.getOwnPropertyNames(err))
