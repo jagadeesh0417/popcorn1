@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, useMemo, useCallback, ReactNode } from "react";
 
 export interface ShippingSettings {
   freeShippingEnabled: boolean;
@@ -69,29 +69,41 @@ export function ShippingProvider({ children }: { children: ReactNode }) {
       .catch(() => {});
   }, []);
 
-  const updateSettings = (s: ShippingSettings) => {
+  const updateSettings = useCallback((s: ShippingSettings) => {
     setSettings(s);
     localStorage.setItem("poprika-shipping", JSON.stringify(s));
-  };
+  }, []);
 
-  const qualifiesForFree = (subtotal: number) =>
-    settings.freeShippingEnabled && subtotal > settings.freeShippingThreshold;
+  const qualifiesForFree = useCallback(
+    (subtotal: number) => settings.freeShippingEnabled && subtotal > settings.freeShippingThreshold,
+    [settings]
+  );
 
-  const freeShippingRemaining = (subtotal: number) =>
-    Math.max(0, settings.freeShippingThreshold - subtotal);
+  const freeShippingRemaining = useCallback(
+    (subtotal: number) => Math.max(0, settings.freeShippingThreshold - subtotal),
+    [settings]
+  );
 
-  const getShippingCost = (subtotal: number, method?: string) => {
-    if (qualifiesForFree(subtotal)) return 0;
-    switch (method) {
-      case "pickup": return settings.mysuruPickupFee;
-      case "local": return settings.localMysuruDeliveryFee;
-      case "express": return settings.expressDeliveryEnabled ? settings.expressDeliveryCharge : settings.panIndiaShippingFee;
-      default: return settings.panIndiaShippingEnabled ? settings.panIndiaShippingFee : settings.flatDeliveryCharge;
-    }
-  };
+  const getShippingCost = useCallback(
+    (subtotal: number, method?: string) => {
+      if (qualifiesForFree(subtotal)) return 0;
+      switch (method) {
+        case "pickup": return settings.mysuruPickupFee;
+        case "local": return settings.localMysuruDeliveryFee;
+        case "express": return settings.expressDeliveryEnabled ? settings.expressDeliveryCharge : settings.panIndiaShippingFee;
+        default: return settings.panIndiaShippingEnabled ? settings.panIndiaShippingFee : settings.flatDeliveryCharge;
+      }
+    },
+    [settings, qualifiesForFree]
+  );
+
+  const value = useMemo(
+    () => ({ settings, updateSettings, getShippingCost, freeShippingRemaining, qualifiesForFree }),
+    [settings, updateSettings, getShippingCost, freeShippingRemaining, qualifiesForFree]
+  );
 
   return (
-    <ShippingContext.Provider value={{ settings, updateSettings, getShippingCost, freeShippingRemaining, qualifiesForFree }}>
+    <ShippingContext.Provider value={value}>
       {children}
     </ShippingContext.Provider>
   );

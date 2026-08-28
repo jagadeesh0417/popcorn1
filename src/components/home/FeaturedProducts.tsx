@@ -32,14 +32,24 @@ export function FeaturedProducts() {
   const { addItem } = useCart();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const [tick, setTick] = useState(0);
 
   useEffect(() => {
+    let cancelled = false;
     fetch("/api/products?homepage=true")
       .then((r) => r.json())
-      .then((data) => { if (data?.success) setProducts(data.data); })
-      .catch(console.error)
-      .finally(() => setLoading(false));
-  }, []);
+      .then((data) => { if (!cancelled && data?.success) setProducts(data.data); })
+      .catch(() => { if (!cancelled) setError(true); })
+      .finally(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; };
+  }, [tick]);
+
+  const retry = () => {
+    setLoading(true);
+    setError(false);
+    setTick((t) => t + 1);
+  };
 
   const getDefaultVariant = (p: Product): ProductVariant | null => {
     const variants: ProductVariant[] = p.sizes || p.variants || [];
@@ -68,6 +78,23 @@ export function FeaturedProducts() {
 
         {loading ? (
           <FeaturedSkeleton />
+        ) : error || displayProducts.length === 0 ? (
+          <div className="text-center py-12">
+            <div className="text-5xl mb-4">🍿</div>
+            <p className="text-[#444444] mb-4 text-sm">
+              {error ? "We couldn't load the collection right now." : "Our new flavours are being popped — check back soon."}
+            </p>
+            {error && (
+              <Button
+                variant="outline"
+                size="lg"
+                onClick={retry}
+                className="rounded-2xl border-[#DC0218] text-[#DC0218] hover:bg-[#DC0218] hover:text-white px-8"
+              >
+                Try Again
+              </Button>
+            )}
+          </div>
         ) : (
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {displayProducts.map((product, index) => {
