@@ -1,27 +1,69 @@
 import { connectDB } from "@/lib/db";
 import Product from "@/lib/models/Product";
 import { successResponse, errorResponse } from "@/lib/api-utils";
+import { unstable_cache, revalidateTag } from "next/cache";
+import { PRODUCT_CACHE_TAG, PUBLIC_REVALIDATE_SECONDS, publicCacheHeaders } from "@/lib/cache";
+
+interface ProductQuery {
+  slug?: string;
+  slugs?: string[];
+  isFeatured?: boolean;
+  isBestSeller?: boolean;
+  showOnHomepage?: boolean;
+}
+
+// List queries (homepage, featured, trio, shop) don't need the heavy nutrition/ingredients blocks.
+const LIST_PROJECTION = {
+  nutritionInfo: 0,
+  ingredients: 0,
+};
+
+async function fetchProducts(query: ProductQuery, isDetail: boolean) {
+  await connectDB();
+  const mongoQuery: Record<string, unknown> = {};
+  if (query.slug) mongoQuery.slug = query.slug;
+  if (query.isFeatured) mongoQuery.isFeatured = true;
+  if (query.isBestSeller) mongoQuery.isBestSeller = true;
+  if (query.showOnHomepage) mongoQuery.showOnHomepage = true;
+  if (query.slugs && query.slugs.length > 0) mongoQuery.slug = { $in: query.slugs };
+  const docs = await Product.find(mongoQuery)
+    .sort({ createdAt: -1 })
+    .select(isDetail ? {} : LIST_PROJECTION)
+    .lean();
+  return docs;
+}
 
 export async function GET(req: Request) {
   try {
-    await connectDB();
     const { searchParams } = new URL(req.url);
     const slug = searchParams.get("slug");
     const featured = searchParams.get("featured");
     const bestSeller = searchParams.get("bestSeller");
     const homepage = searchParams.get("homepage");
     const slugsParam = searchParams.get("slugs");
-    const query: Record<string, unknown> = {};
+
+    const query: ProductQuery = {};
     if (slug) query.slug = slug;
     if (featured === "true") query.isFeatured = true;
     if (bestSeller === "true") query.isBestSeller = true;
     if (homepage === "true") query.showOnHomepage = true;
     if (slugsParam) {
       const list = slugsParam.split(",").map((s) => s.trim()).filter(Boolean);
-      if (list.length > 0) query.slug = { $in: list };
+      if (list.length > 0) query.slugs = list;
     }
-    const products = await Product.find(query).sort({ createdAt: -1 }).lean();
-    return successResponse(products);
+
+    const isDetail = Boolean(slug);
+    const cacheKey = JSON.stringify(query);
+
+    const cachedFetch = unstable_cache(
+      async () => (await fetchProducts(query, isDetail)) as unknown[],
+      ["products", cacheKey],
+      { revalidate: PUBLIC_REVALIDATE_SECONDS, tags: [PRODUCT_CACHE_TAG] }
+    );
+
+    const products = await cachedFetch();
+    const init = { headers: publicCacheHeaders() };
+    return successResponse(products, 200, init);
   } catch (err) {
     console.error("Failed to fetch products", err);
     return errorResponse("Failed to fetch products", 500);
@@ -40,6 +82,7 @@ export async function POST(req: Request) {
       return errorResponse("Product with this slug already exists", 409);
     }
     const product = await Product.create(body);
+    revalidateTag(PRODUCT_CACHE_TAG);
     return successResponse(product, 201);
   } catch (err) {
     console.error("Failed to create product", err);

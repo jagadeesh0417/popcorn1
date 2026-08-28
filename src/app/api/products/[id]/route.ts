@@ -1,6 +1,8 @@
 import { connectDB } from "@/lib/db";
 import Product from "@/lib/models/Product";
 import { successResponse, errorResponse } from "@/lib/api-utils";
+import { revalidateTag } from "next/cache";
+import { PRODUCT_CACHE_TAG } from "@/lib/cache";
 
 export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -26,6 +28,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     if (!product) {
       return errorResponse("Not found", 404);
     }
+    revalidateTag(PRODUCT_CACHE_TAG);
     return successResponse(product);
   } catch (err) {
     console.error("Failed to update product", err);
@@ -41,6 +44,7 @@ export async function DELETE(_req: Request, { params }: { params: Promise<{ id: 
     if (!product) {
       return errorResponse("Not found", 404);
     }
+    revalidateTag(PRODUCT_CACHE_TAG);
     return successResponse({ message: "Deleted" });
   } catch (err) {
     console.error("Failed to delete product", err);

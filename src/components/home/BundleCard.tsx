@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { useCart } from "@/lib/store";
 import { Product, ProductVariant } from "@/lib/types";
 import { toast } from "sonner";
+import { optimizeImageUrl } from "@/lib/image";
 
 interface BundleSettingsData {
   images: { id: string; src: string }[];
@@ -134,7 +135,7 @@ export function BundleCard() {
                   className="absolute inset-0"
                 >
                   <Image
-                    src={displayImage}
+                    src={optimizeImageUrl(displayImage, 700) || ""}
                     alt={bundle.bundleText.title || "Bundle"}
                     fill
                     className="object-cover transition-transform duration-500 ease-out group-hover:scale-105"

@@ -1,6 +1,8 @@
 import { connectDB } from "@/lib/db";
 import Coupon from "@/lib/models/Coupon";
 import { successResponse, errorResponse } from "@/lib/api-utils";
+import { revalidateTag } from "next/cache";
+import { COUPON_CACHE_TAG } from "@/lib/cache";
 
 export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -22,6 +24,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     const body = await req.json();
     const coupon = await Coupon.findByIdAndUpdate(id, { $set: body }, { new: true, runValidators: true });
     if (!coupon) return errorResponse("Not found", 404);
+    revalidateTag(COUPON_CACHE_TAG);
     return successResponse(coupon);
   } catch (err) {
     console.error("Failed to update coupon", err);
@@ -35,6 +38,7 @@ export async function DELETE(_req: Request, { params }: { params: Promise<{ id: 
     const { id } = await params;
     const coupon = await Coupon.findByIdAndDelete(id);
     if (!coupon) return errorResponse("Not found", 404);
+    revalidateTag(COUPON_CACHE_TAG);
     return successResponse({ message: "Deleted" });
   } catch (err) {
     console.error("Failed to delete coupon", err);

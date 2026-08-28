@@ -8,6 +8,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/lib/store";
 import { Product, ProductVariant } from "@/lib/types";
+import { optimizeImageUrl } from "@/lib/image";
 
 const categories = [
   { id: "all", name: "All Flavours", icon: "🍿" },
@@ -116,7 +117,7 @@ export default function ShopPage() {
                 <Link href={`/products/${product.slug}`}>
                   <div className="relative h-48 bg-[#FFF8F0]">
                     {product.images?.[0] ? (
-                      <Image src={product.images[0]} alt={product.name} fill className="object-cover group-hover:scale-105 transition-transform duration-700" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" />
+                      <Image src={optimizeImageUrl(product.images[0], 600) || ""} alt={product.name} fill className="object-cover group-hover:scale-105 transition-transform duration-700" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-6xl">🍿</div>
                     )}

@@ -13,6 +13,7 @@ import { useCart } from "@/lib/store";
 import { notFound } from "next/navigation";
 import { toast } from "sonner";
 import { Product, ProductVariant, Review } from "@/lib/types";
+import { optimizeImageUrl } from "@/lib/image";
 
 function safeStr(v: unknown, fallback = ""): string {
   if (typeof v === "string") return v;
@@ -126,7 +127,7 @@ export default function ProductDetailPage() {
                     {current ? (
                       <Image
                         key={current}
-                        src={current}
+                        src={optimizeImageUrl(current, 900) || ""}
                         alt={safeStr(product.name)}
                         fill
                         className="object-cover"
@@ -149,7 +150,7 @@ export default function ProductDetailPage() {
                           }`}
                         >
                           <Image
-                            src={img}
+                            src={optimizeImageUrl(img, 200) || ""}
                             alt={`${safeStr(product.name)} thumbnail ${i + 1}`}
                             fill
                             sizes="96px"
@@ -402,7 +403,7 @@ export default function ProductDetailPage() {
                     <Link href={`/products/${p.slug}`}>
                       <div className="relative h-40 overflow-hidden bg-[#FFF8F0]">
                         {imgSrc ? (
-                          <Image src={imgSrc} alt={safeStr(p.name)} fill className="object-cover group-hover:scale-105 transition-transform duration-500" sizes="(max-width: 640px) 100vw, 25vw" />
+                          <Image src={optimizeImageUrl(imgSrc, 400) || ""} alt={safeStr(p.name)} fill className="object-cover group-hover:scale-105 transition-transform duration-500" sizes="(max-width: 640px) 100vw, 25vw" />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center text-[#444444] text-xs">No image</div>
                         )}

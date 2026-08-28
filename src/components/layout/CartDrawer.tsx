@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, ShoppingBag, Minus, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/lib/store";
+import { optimizeImageUrl } from "@/lib/image";
 
 export function CartDrawer() {
   const [open, setOpen] = useState(false);
@@ -75,7 +76,7 @@ export function CartDrawer() {
                       <div key={item.cartId} className="flex gap-4 border-b border-[rgba(220,2,24,0.06)] pb-4">
                         <div className="w-20 h-20 bg-[#FFF8F0] rounded overflow-hidden shrink-0">
                           {item.product.images?.[0] ? (
-                            <img src={item.product.images[0]} alt={item.product.name} className="w-full h-full object-cover" />
+                            <img src={optimizeImageUrl(item.product.images?.[0], 160) || ""} alt={item.product.name} className="w-full h-full object-cover" />
                           ) : (
                             <div className="w-full h-full flex items-center justify-center text-2xl">🍿</div>
                           )}

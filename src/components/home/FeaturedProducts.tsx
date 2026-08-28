@@ -8,22 +8,45 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/lib/store";
 import { Product, ProductVariant } from "@/lib/types";
+import { optimizeImageUrl } from "@/lib/image";
+
+function FeaturedSkeleton() {
+  return (
+    <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6" aria-hidden="true">
+      {Array.from({ length: 4 }).map((_, i) => (
+        <div key={i} className="bg-white rounded-[28px] overflow-hidden border border-[rgba(220,2,24,0.08)]">
+          <div className="h-56 bg-[#FFF8F0] animate-pulse" />
+          <div className="p-5 space-y-3">
+            <div className="h-4 w-2/3 bg-[#F0E9DE] animate-pulse rounded" />
+            <div className="h-3 w-full bg-[#F5EFE6] animate-pulse rounded" />
+            <div className="h-3 w-4/5 bg-[#F5EFE6] animate-pulse rounded" />
+            <div className="h-9 w-full bg-[#F0E9DE] animate-pulse rounded" />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
 
 export function FeaturedProducts() {
   const { addItem } = useCart();
   const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetch("/api/products?homepage=true")
       .then((r) => r.json())
       .then((data) => { if (data?.success) setProducts(data.data); })
-      .catch(console.error);
+      .catch(console.error)
+      .finally(() => setLoading(false));
   }, []);
 
   const getDefaultVariant = (p: Product): ProductVariant | null => {
     const variants: ProductVariant[] = p.sizes || p.variants || [];
     return variants.find((v) => v.isDefault) || variants[0] || null;
   };
+
+  const displayProducts = products.slice(0, 8);
 
   return (
     <section className="py-24 bg-white">
@@ -43,8 +66,11 @@ export function FeaturedProducts() {
           </p>
         </motion.div>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {products.slice(0, 8).map((product, index) => {
+        {loading ? (
+          <FeaturedSkeleton />
+        ) : (
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {displayProducts.map((product, index) => {
             const defaultVar = getDefaultVariant(product);
             const displayPrice = defaultVar?.price ?? product.price;
             const displayOriginal = defaultVar?.originalPrice ?? product.originalPrice;
@@ -62,7 +88,7 @@ export function FeaturedProducts() {
                   <div className="relative h-56 overflow-hidden bg-[#FFF8F0]">
                     {product.images?.[0] ? (
                       <Image
-                        src={product.images[0]}
+                        src={optimizeImageUrl(product.images[0], 500) || ""}
                         alt={product.name}
                         fill
                         className="object-cover group-hover:scale-105 transition-transform duration-700"
@@ -110,7 +136,8 @@ export function FeaturedProducts() {
               </motion.div>
             );
           })}
-        </div>
+          </div>
+        )}
 
         <motion.div
           initial={{ opacity: 0 }}

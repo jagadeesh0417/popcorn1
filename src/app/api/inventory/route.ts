@@ -1,6 +1,8 @@
 import { connectDB } from "@/lib/db";
 import Product from "@/lib/models/Product";
 import { successResponse, errorResponse } from "@/lib/api-utils";
+import { revalidateTag } from "next/cache";
+import { PRODUCT_CACHE_TAG } from "@/lib/cache";
 
 export async function GET() {
   try {
@@ -24,6 +26,7 @@ export async function PUT(req: Request) {
     if (inStock !== undefined) update.inStock = inStock;
     const product = await Product.findByIdAndUpdate(id, { $set: update }, { new: true });
     if (!product) return errorResponse("Not found", 404);
+    revalidateTag(PRODUCT_CACHE_TAG);
     return successResponse(product);
   } catch (err) {
     console.error("Failed to update inventory", err);
