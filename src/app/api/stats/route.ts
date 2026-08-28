@@ -2,8 +2,11 @@ import { connectDB } from "@/lib/db";
 import Order from "@/lib/models/Order";
 import Product from "@/lib/models/Product";
 import { successResponse, errorResponse } from "@/lib/api-utils";
+import { requireAdmin } from "@/lib/server/auth";
 
 export async function GET() {
+  const denied = await requireAdmin();
+  if (denied) return denied;
   try {
     await connectDB();
 

@@ -4,8 +4,11 @@ import OrphanPayment from "@/lib/models/OrphanPayment";
 import { successResponse, errorResponse } from "@/lib/api-utils";
 import { validateCoupon, incrementCouponUsage } from "@/lib/server/coupon";
 import { validateAndResolveItems, reserveStock, StockError } from "@/lib/server/stock";
+import { requireAdmin } from "@/lib/server/auth";
 
 export async function GET() {
+  const denied = await requireAdmin();
+  if (denied) return denied;
   try {
     await connectDB();
     // Admin order list only needs these fields — skip heavy item images, timeline, address, etc.

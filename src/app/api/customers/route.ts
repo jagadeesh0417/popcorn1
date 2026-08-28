@@ -1,8 +1,11 @@
 import { connectDB } from "@/lib/db";
 import Order from "@/lib/models/Order";
 import { successResponse, errorResponse } from "@/lib/api-utils";
+import { requireAdmin } from "@/lib/server/auth";
 
 export async function GET() {
+  const denied = await requireAdmin();
+  if (denied) return denied;
   try {
     await connectDB();
     // Sort by the group key first so MongoDB can stream using the index instead of an in-memory hash scan.

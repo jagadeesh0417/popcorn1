@@ -4,6 +4,7 @@ import { successResponse, errorResponse } from "@/lib/api-utils";
 import { unstable_cache, revalidateTag } from "next/cache";
 import { PRODUCT_CACHE_TAG, PUBLIC_REVALIDATE_SECONDS, publicCacheHeaders } from "@/lib/cache";
 import { Types } from "mongoose";
+import { requireAdmin } from "@/lib/server/auth";
 
 interface ProductQuery {
   slug?: string;
@@ -38,7 +39,14 @@ async function fetchProducts(query: ProductQuery, isDetail: boolean, projection?
   if (query.isFeatured) mongoQuery.isFeatured = true;
   if (query.isBestSeller) mongoQuery.isBestSeller = true;
   if (query.showOnHomepage) mongoQuery.showOnHomepage = true;
-  if (query.slugs && query.slugs.length > 0) mongoQuery.slug = { $in: query.slugs };
+  if (query.slugs && query.slugs.length > 0) {
+    // Resolve the bundle/related list tolerantly: trims whitespace and matches
+    // case-insensitively so admin-entered slugs (case, stray spaces) still hit
+    // the right product. Mirrors the single-slug canonicalization above.
+    mongoQuery.$or = query.slugs
+      .filter((s) => s && s.trim().length > 0)
+      .map((s) => ({ slug: { $regex: `^${escapeRegex(s.trim())}$`, $options: "i" } }));
+  }
   const select = projection || (isDetail ? {} : LIST_PROJECTION);
   const docs = await Product.find(mongoQuery)
     .sort({ createdAt: -1 })
@@ -117,6 +125,8 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
+  const denied = await requireAdmin();
+  if (denied) return denied;
   try {
     await connectDB();
     const body = await req.json();

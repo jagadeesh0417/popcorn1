@@ -4,18 +4,30 @@ import Setting from "@/lib/models/Setting";
 import { successResponse, errorResponse } from "@/lib/api-utils";
 import { unstable_cache, revalidateTag } from "next/cache";
 import { SETTINGS_CACHE_TAG, PUBLIC_REVALIDATE_SECONDS, publicCacheHeaders } from "@/lib/cache";
+import { requireAdmin } from "@/lib/server/auth";
 
 async function fetchSettings(key?: string) {
   await connectDB();
   if (key) {
     const setting = await Setting.findOne({ key }).lean();
     if (!setting) return null;
-    return { key: setting.key, value: JSON.parse(setting.value) };
+    return { key: setting.key, value: parseSettingValue(setting.value) };
   }
   const settings = await Setting.find({}).lean();
   const result: Record<string, unknown> = {};
-  settings.forEach((s) => { result[s.key] = JSON.parse(s.value); });
+  settings.forEach((s) => { result[s.key] = parseSettingValue(s.value); });
   return result;
+}
+
+// A malformed/empty stored value must never crash the public settings route
+// (e.g. bundle settings load). Fall back to null so callers handle it gracefully.
+function parseSettingValue(raw: string): unknown {
+  if (typeof raw !== "string") return raw;
+  try {
+    return JSON.parse(raw);
+  } catch {
+    return null;
+  }
 }
 
 export async function GET(request: NextRequest) {
@@ -43,6 +55,8 @@ export async function GET(request: NextRequest) {
 }
 
 export async function PUT(request: NextRequest) {
+  const denied = await requireAdmin();
+  if (denied) return denied;
   try {
     await connectDB();
     const { key, value } = await request.json();

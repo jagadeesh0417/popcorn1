@@ -76,6 +76,7 @@ export function BundleCard() {
   const [currentImage, setCurrentImage] = useState(0);
   const [products, setProducts] = useState<Record<string, Product>>({});
   const [loading, setLoading] = useState(true);
+  const [bundleProductsError, setBundleProductsError] = useState("");
   const [error, setError] = useState("");
   const { addBundle } = useCart();
 
@@ -104,11 +105,28 @@ export function BundleCard() {
       if (slugs.length > 0) {
         const pres = await fetch(`/api/products?slugs=${encodeURIComponent(slugs.join(","))}&fresh=1`);
         const pdata = await pres.json();
-        if (pdata?.success) {
-          const map: Record<string, Product> = {};
-          (pdata.data as Product[]).forEach((p) => { if (p.slug) map[p.slug] = p; });
-          setProducts(map);
+        if (!pdata?.success) {
+          setBundleProductsError("Unable to load bundle products.");
+          return;
         }
+        const map: Record<string, Product> = {};
+        (pdata.data as Product[]).forEach((p) => { if (p.slug) map[p.slug.toLowerCase()] = p; });
+        setProducts(map);
+        // Ensure every configured product slug actually resolved. If any is
+        // missing/deleted, surface it so the error is actionable instead of
+        // silently leaving "Add Bundle to Cart" disabled.
+        const missing = slugs.filter((s) => !map[s.trim().toLowerCase()]);
+        if (missing.length > 0) {
+          setBundleProductsError(
+            `Unable to load bundle products: ${missing.map((s) => `"${s}"`).join(", ")} not found.`
+          );
+          return;
+        }
+        setBundleProductsError("");
+      } else {
+        // Bundle has no resolvable products configured — it cannot be added to cart.
+        setBundleProductsError("This bundle has no products configured.");
+        setProducts({});
       }
     } catch {
       setError("Couldn't load the bundle. Please retry.");
@@ -139,7 +157,7 @@ export function BundleCard() {
   const parts: BundlePart[] = [];
   const partStates: { name: string; buyable: boolean; maxBundles: number }[] = [];
   (bundle.products ?? []).forEach((def) => {
-    const product = products[def.slug || ""];
+    const product = products[(def.slug || "").trim().toLowerCase()];
     const name = product?.name || def.slug || "Product";
     const qty = Math.max(1, Math.floor(Number(def.quantity)) || 1);
     if (!product) return;
@@ -162,8 +180,12 @@ export function BundleCard() {
 
   const handleAddBundle = () => {
     if (!bundleData) return;
+    if (bundleProductsError) {
+      toast.error(bundleProductsError);
+      return;
+    }
     if (!compositionLoaded) {
-      setError("Bundle products not loaded yet. Please retry.");
+      toast.error("Bundle products not loaded yet. Please retry.");
       return;
     }
     if (anyUnavailable) {
@@ -309,18 +331,18 @@ export function BundleCard() {
                 </p>
               )}
 
-              {error && (
+              {(error || bundleProductsError) && (
                 <div className="mt-4 flex items-center justify-between bg-red-50 border border-red-200 p-3">
                   <p className="text-xs text-red-600 flex items-center gap-1.5">
-                    <AlertCircle className="h-3.5 w-3.5 shrink-0" /> {error}
+                    <AlertCircle className="h-3.5 w-3.5 shrink-0" /> {bundleProductsError || error}
                   </p>
-                  <button onClick={() => { setLoading(true); setError(""); loadBundle(); }} className="text-xs font-medium text-[#DC0218] hover:underline flex items-center gap-1">
+                  <button onClick={() => { setLoading(true); setError(""); setBundleProductsError(""); loadBundle(); }} className="text-xs font-medium text-[#DC0218] hover:underline flex items-center gap-1">
                     <RefreshCw className="h-3 w-3" /> Retry
                   </button>
                 </div>
               )}
 
-              {!loading && anyUnavailable && (
+              {!loading && (error || bundleProductsError) && anyUnavailable && (
                 <p className="mt-4 text-sm font-medium text-[#DC0218]">
                   One or more products in this bundle are currently out of stock.
                 </p>
@@ -329,9 +351,9 @@ export function BundleCard() {
               <motion.div whileTap={{ scale: 0.97 }} className="mt-6">
                 <Button
                   onClick={handleAddBundle}
-                  disabled={loading || !!error || (!loading && anyUnavailable)}
+                  disabled={loading || !!error || !!bundleProductsError || (!loading && anyUnavailable)}
                   className={`w-full md:w-auto btn-small-caps px-10 h-12 rounded-xl transition-all duration-200 ${
-                    loading || error || anyUnavailable
+                    loading || error || bundleProductsError || anyUnavailable
                       ? "bg-gray-200 text-[#444444] cursor-not-allowed"
                       : "bg-[#DC0218] hover:bg-[#C70015] text-white shadow-lg shadow-[#DC0218]/20 hover:shadow-[#DC0218]/30"
                   }`}

@@ -3,6 +3,7 @@ import Product from "@/lib/models/Product";
 import { successResponse, errorResponse } from "@/lib/api-utils";
 import { revalidateTag } from "next/cache";
 import { PRODUCT_CACHE_TAG } from "@/lib/cache";
+import { requireAdmin } from "@/lib/server/auth";
 
 export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -20,6 +21,8 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
 }
 
 export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
+  const denied = await requireAdmin();
+  if (denied) return denied;
   const { id } = await params;
   try {
     await connectDB();
@@ -37,6 +40,8 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
 }
 
 export async function DELETE(_req: Request, { params }: { params: Promise<{ id: string }> }) {
+  const denied = await requireAdmin();
+  if (denied) return denied;
   const { id } = await params;
   try {
     await connectDB();

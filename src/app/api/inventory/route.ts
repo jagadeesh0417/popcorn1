@@ -3,8 +3,11 @@ import Product from "@/lib/models/Product";
 import { successResponse, errorResponse } from "@/lib/api-utils";
 import { revalidateTag } from "next/cache";
 import { PRODUCT_CACHE_TAG } from "@/lib/cache";
+import { requireAdmin } from "@/lib/server/auth";
 
 export async function GET() {
+  const denied = await requireAdmin();
+  if (denied) return denied;
   try {
     await connectDB();
     const products = await Product.find({})
@@ -19,6 +22,8 @@ export async function GET() {
 }
 
 export async function PUT(req: Request) {
+  const denied = await requireAdmin();
+  if (denied) return denied;
   try {
     await connectDB();
     const body = await req.json();

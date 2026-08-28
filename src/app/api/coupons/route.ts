@@ -4,6 +4,7 @@ import { successResponse, errorResponse } from "@/lib/api-utils";
 import { unstable_cache } from "next/cache";
 import { revalidateTag } from "next/cache";
 import { COUPON_CACHE_TAG, PUBLIC_REVALIDATE_SECONDS, publicCacheHeaders } from "@/lib/cache";
+import { requireAdmin } from "@/lib/server/auth";
 
 async function fetchCoupons() {
   await connectDB();
@@ -26,6 +27,8 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
+  const denied = await requireAdmin();
+  if (denied) return denied;
   try {
     await connectDB();
     const body = await req.json();

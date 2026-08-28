@@ -1,6 +1,7 @@
 import { connectDB } from "@/lib/db";
 import Order from "@/lib/models/Order";
 import { successResponse, errorResponse } from "@/lib/api-utils";
+import { requireAdmin } from "@/lib/server/auth";
 
 export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -20,11 +21,13 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
 }
 
 export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
+  const denied = await requireAdmin();
+  if (denied) return denied;
   const { id } = await params;
   try {
     await connectDB();
     const body = await req.json();
-    const order = await Order.findOneAndUpdate({ orderId: id }, body, { new: true });
+    const order = await Order.findOneAndUpdate({ orderId: id }, body, { new: true, runValidators: true });
     if (!order) return errorResponse("Not found", 404);
     return successResponse(order);
   } catch (err) {
