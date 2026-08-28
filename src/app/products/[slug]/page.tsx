@@ -13,7 +13,7 @@ import { useCart } from "@/lib/store";
 import { notFound } from "next/navigation";
 import { toast } from "sonner";
 import { Product, ProductVariant, Review } from "@/lib/types";
-import { optimizeImageUrl } from "@/lib/image";
+import { optimizeImageUrl, getProductImages, getProductImage } from "@/lib/image";
 
 function safeStr(v: unknown, fallback = ""): string {
   if (typeof v === "string") return v;
@@ -32,8 +32,7 @@ function safeImgSrc(images: unknown): string | null {
 }
 
 function allImages(product: Product | null): string[] {
-  const arr = safeArray<string>(product?.images);
-  return arr.filter((img) => typeof img === "string" && img.trim().length > 0);
+  return getProductImages(product);
 }
 
 export default function ProductDetailPage() {
@@ -393,7 +392,7 @@ export default function ProductDetailPage() {
                   : safeArray(p.variants);
                 const prices = pVariants.map((s) => s.price ?? 0).filter((pr) => typeof pr === "number" && !isNaN(pr));
                 const minPrice = prices.length > 0 ? Math.min(...prices) : (p.price ?? 0);
-                const imgSrc = safeImgSrc(p.images);
+                const imgSrc = getProductImage(p) || safeImgSrc(p.images);
                 return (
                   <motion.div
                     key={p.id || p._id || i}

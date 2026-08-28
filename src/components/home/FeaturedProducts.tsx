@@ -8,7 +8,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/lib/store";
 import { Product, ProductVariant } from "@/lib/types";
-import { optimizeImageUrl } from "@/lib/image";
+import { optimizeImageUrl, getProductImage } from "@/lib/image";
 
 function FeaturedSkeleton() {
   return (
@@ -113,9 +113,9 @@ export function FeaturedProducts() {
               >
                 <Link href={`/products/${product.slug}`}>
                   <div className="relative h-56 overflow-hidden bg-[#FFF8F0]">
-                    {product.images?.[0] ? (
+                    {getProductImage(product) ? (
                       <Image
-                        src={optimizeImageUrl(product.images[0], 500) || ""}
+                        src={optimizeImageUrl(getProductImage(product), 500) || ""}
                         alt={product.name}
                         fill
                         className="object-cover group-hover:scale-105 transition-transform duration-700"

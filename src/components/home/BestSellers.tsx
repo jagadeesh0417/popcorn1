@@ -8,6 +8,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/lib/store";
 import { Product, ProductVariant } from "@/lib/types";
+import { getProductImage } from "@/lib/image";
 
 export function BestSellers() {
   const { addItem } = useCart();
@@ -121,9 +122,9 @@ export function BestSellers() {
                 <div className="bg-white rounded-[24px] overflow-hidden shadow-[0_2px_20px_rgba(220,2,24,0.06)] hover:shadow-[0_8px_40px_rgba(220,2,24,0.12)] transition-all duration-500 border border-[rgba(220,2,24,0.08)] group h-full">
                   <Link href={`/products/${product.slug}`}>
                     <div className="relative h-56 overflow-hidden bg-[#FFF8F0]">
-                      {product.images?.[0] ? (
+                      {getProductImage(product) ? (
                         <Image
-                          src={product.images[0]}
+                          src={getProductImage(product) as string}
                           alt={product.name}
                           fill
                           className="object-cover group-hover:scale-105 transition-transform duration-700"

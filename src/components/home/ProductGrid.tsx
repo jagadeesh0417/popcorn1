@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { useCart } from "@/lib/store";
 import { Product, ProductVariant } from "@/lib/types";
 import { toast } from "sonner";
-import { optimizeImageUrl } from "@/lib/image";
+import { optimizeImageUrl, getProductImage } from "@/lib/image";
 
 const TRIO_SLUGS = ["ghee-black-pepper", "ghee-curry-leaf", "coffee-chikki"];
 
@@ -90,8 +90,8 @@ export function ProductGrid() {
                 className="bg-white border border-[rgba(220,2,24,0.08)] shadow-[0_2px_15px_rgba(220,2,24,0.04)] hover:shadow-[0_12px_35px_rgba(0,0,0,0.08)] transition-all duration-300"
               >
                 <div className="aspect-[4/3] bg-[#FFF8F0] border-b border-[rgba(220,2,24,0.08)] relative overflow-hidden group">
-                  {product.images?.[0] ? (
-                    <img src={optimizeImageUrl(product.images[0], 480) || ""} alt={product.name} className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-105" />
+                  {getProductImage(product) ? (
+                    <img src={optimizeImageUrl(getProductImage(product), 480) || ""} alt={product.name} className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-105" />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-6xl">🍿</div>
                   )}

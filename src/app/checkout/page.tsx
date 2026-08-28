@@ -13,6 +13,7 @@ import { Separator } from "@/components/ui/separator";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useCart } from "@/lib/store";
 import { useShipping } from "@/lib/shipping-settings";
+import { getProductImage } from "@/lib/image";
 import { toast } from "sonner";
 import Link from "next/link";
 
@@ -62,7 +63,7 @@ export default function CheckoutPage() {
       name: i.product.name,
       price: getPrice(i),
       quantity: i.quantity,
-      image: i.product.images?.[0] || "",
+      image: getProductImage(i.product) || "",
       variant: i.variant ? { label: i.variant.label, grams: i.variant.grams } : null,
     })),
     subtotal: getSubtotal(),

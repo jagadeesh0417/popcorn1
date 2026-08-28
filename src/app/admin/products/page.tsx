@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Plus, Eye, EyeOff, Star, Pencil, Trash2, Loader2, Home, X } from "lucide-react";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import { ImageUploader } from "@/components/admin/ImageUploader";
-import { optimizeImageUrl } from "@/lib/image";
+import { optimizeImageUrl, getProductImages, getProductImage } from "@/lib/image";
 import { toast } from "sonner";
 
 interface VariantForm {
@@ -84,7 +84,7 @@ export default function AdminProductsPage() {
         description: p.description || "", shortDescription: p.shortDescription || "",
         price: p.price || 0, originalPrice: p.originalPrice || 0, category: p.category || "Classic",
         tags: (p.tags || []).join(", "), ingredients: (p.ingredients || []).join(", "),
-        images: p.images || [], weight: p.weight || "200g",
+        images: getProductImages(p), weight: p.weight || "200g",
         stockQuantity: p.stockQuantity ?? 100, inStock: p.inStock ?? true,
         isPublished: p.isPublished ?? true, isBestSeller: p.isBestSeller ?? false, showOnHomepage: p.showOnHomepage ?? false,
         sizes: (p.sizes || []).map((s: Record<string, unknown>) => defaultVariant({
@@ -533,8 +533,8 @@ export default function AdminProductsPage() {
                       </td>
                       <td className="p-4 font-medium text-[#1A1A1A]">
                         <div className="flex items-center gap-2">
-                          {p.images?.[0] && (
-                            <img src={optimizeImageUrl(p.images[0], 64) || p.images[0]} alt="" className="w-8 h-8 rounded object-cover" />
+                          {getProductImage(p) && (
+                            <img src={optimizeImageUrl(getProductImage(p), 64) || (getProductImage(p) as string)} alt="" className="w-8 h-8 rounded object-cover" />
                           )}
                           {p.name}
                         </div>
