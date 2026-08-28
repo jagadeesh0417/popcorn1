@@ -61,7 +61,10 @@ export default function ProductDetailPage() {
     ])
       .then(([productRes, allRes]) => {
         if (cancelled) return;
-        const found = productRes?.success ? (productRes.data as Product) : undefined;
+        const raw = productRes?.data;
+        const found = productRes?.success
+          ? (Array.isArray(raw) ? (raw[0] as Product) : (raw as Product))
+          : undefined;
         if (found) {
           setProduct(found);
           setActiveImage(0);

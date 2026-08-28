@@ -18,64 +18,19 @@ export default function AdminAnalyticsPage() {
 
   useEffect(() => {
     let mounted = true;
-    Promise.all([
-      fetch("/api/orders").then((r) => r.json()),
-      fetch("/api/customers").then((r) => r.json()),
-    ])
-      .then(([orders, customers]) => {
-        if (!mounted) return;
-        const ordersArr = orders?.success ? orders.data : [];
-        const customersArr = customers?.success ? customers.data : [];
-        const now = new Date();
-        const currentMonth = now.getMonth();
-        const currentYear = now.getFullYear();
-
-        const monthlyOrders = ordersArr.filter((o: { createdAt: string }) => {
-          const d = new Date(o.createdAt);
-          return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
-        });
-
-        const monthlyRevenue = monthlyOrders.reduce((s: number, o: { total: number }) => s + (o.total || 0), 0);
-        const avgOrderValue = monthlyOrders.length > 0 ? Math.round(monthlyRevenue / monthlyOrders.length) : 0;
-
+    fetch("/api/stats")
+      .then((r) => r.json())
+      .then((res) => {
+        if (!mounted || !res?.success) return;
+        const d = res.data;
         setMetrics([
-          { icon: IndianRupee, label: "Monthly Revenue", value: `₹${monthlyRevenue.toLocaleString()}`, change: "", up: true },
-          { icon: ShoppingBag, label: "Monthly Orders", value: `${monthlyOrders.length}`, change: "", up: true },
-          { icon: Users, label: "New Customers", value: `${customersArr.length}`, change: "", up: true },
-          { icon: Package, label: "Avg. Order Value", value: `₹${avgOrderValue}`, change: "", up: true },
+          { icon: IndianRupee, label: "Monthly Revenue", value: `₹${(d.monthlyRevenue || 0).toLocaleString()}`, change: "", up: true },
+          { icon: ShoppingBag, label: "Monthly Orders", value: `${d.monthlyOrders || 0}`, change: "", up: true },
+          { icon: Users, label: "New Customers", value: `${d.totalCustomers || 0}`, change: "", up: true },
+          { icon: Package, label: "Avg. Order Value", value: `₹${d.avgOrderValue || 0}`, change: "", up: true },
         ]);
-
-        const months: { month: string; revenue: number; orders: number }[] = [];
-        const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-        for (let i = 5; i >= 0; i--) {
-          const m = new Date(currentYear, currentMonth - i, 1);
-          const monthOrders = ordersArr.filter((o: { createdAt: string }) => {
-            const d = new Date(o.createdAt);
-            return d.getMonth() === m.getMonth() && d.getFullYear() === m.getFullYear();
-          });
-          months.push({
-            month: monthNames[m.getMonth()],
-            revenue: monthOrders.reduce((s: number, o: { total: number }) => s + (o.total || 0), 0),
-            orders: monthOrders.length,
-          });
-        }
-        setMonthlyData(months);
-
-        const productSales: Record<string, { sold: number; revenue: number; name: string }> = {};
-        ordersArr.forEach((o: { items: { productId: string; name: string; price: number; quantity: number }[] }) => {
-          o.items.forEach((item) => {
-            if (!productSales[item.productId]) {
-              productSales[item.productId] = { sold: 0, revenue: 0, name: item.name };
-            }
-            productSales[item.productId].sold += item.quantity;
-            productSales[item.productId].revenue += item.price * item.quantity;
-          });
-        });
-        setTopProducts(
-          Object.values(productSales)
-            .sort((a, b) => b.sold - a.sold)
-            .slice(0, 5)
-        );
+        setMonthlyData(d.monthlyData || []);
+        setTopProducts(d.topProducts || []);
       })
       .catch(() => { if (mounted) console.error("Failed to fetch analytics"); })
       .finally(() => { if (mounted) setLoading(false); });
