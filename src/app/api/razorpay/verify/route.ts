@@ -5,6 +5,7 @@ import Order from "@/lib/models/Order";
 import OrphanPayment from "@/lib/models/OrphanPayment";
 import Product from "@/lib/models/Product";
 import { errorResponse } from "@/lib/api-utils";
+import { validateCoupon, incrementCouponUsage } from "@/lib/server/coupon";
 
 export async function POST(req: Request) {
   let body;
@@ -100,14 +101,26 @@ export async function POST(req: Request) {
   }
 
   let order;
+  // Recompute discount + total server-side so a browser-sent value is never trusted.
+  const subtotalForCoupon = Number(orderData.subtotal) || 0;
+  const shippingCost = Number(orderData.shipping) || 0;
+  let discount = 0;
+  if (orderData.coupon) {
+    const couponResult = await validateCoupon(orderData.coupon, subtotalForCoupon);
+    if (couponResult.valid) {
+      discount = couponResult.discount ?? 0;
+      await incrementCouponUsage(orderData.coupon);
+    }
+  }
+  const computedTotal = Math.max(0, subtotalForCoupon - discount + shippingCost);
   try {
     order = await Order.create({
       orderId: orderData.orderId,
       items: orderData.items || [],
-      total: Number(orderData.total) || 0,
-      subtotal: Number(orderData.subtotal) || 0,
-      shipping: Number(orderData.shipping) || 0,
-      discount: Number(orderData.discount) || 0,
+      total: computedTotal,
+      subtotal: subtotalForCoupon,
+      shipping: shippingCost,
+      discount,
       coupon: orderData.coupon,
       status: "confirmed",
       paymentMethod: "Razorpay",

@@ -38,7 +38,7 @@ const indianStates = [
 
 export default function CheckoutPage() {
   const router = useRouter();
-  const { state, getSubtotal, getDiscount, clearCart } = useCart();
+  const { state, getSubtotal, getDiscount, clearCart, applyCoupon } = useCart();
   const shippingCtx = useShipping();
   const [orderId] = useState(() => "POP" + Date.now());
   const [loading, setLoading] = useState(false);
@@ -51,8 +51,49 @@ export default function CheckoutPage() {
     city: "", state: "", pincode: "",
     deliveryInstructions: "",
   });
+  const [couponInput, setCouponInput] = useState("");
+  const [couponLoading, setCouponLoading] = useState(false);
+  const [couponMessage, setCouponMessage] = useState<{ type: "error" | "success"; text: string } | null>(null);
 
   const updateField = (field: string, value: string) => setForm((prev) => ({ ...prev, [field]: value }));
+
+  const handleApplyCoupon = async () => {
+    const code = couponInput.trim().toUpperCase();
+    if (!code) {
+      setCouponMessage({ type: "error", text: "Please enter a coupon code" });
+      return;
+    }
+    if (state.couponCode) {
+      setCouponMessage({ type: "error", text: "A coupon is already applied to this order" });
+      return;
+    }
+    setCouponLoading(true);
+    setCouponMessage(null);
+    try {
+      const res = await fetch("/api/coupons/validate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code, subtotal: getSubtotal() }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        setCouponMessage({ type: "error", text: data.error || "Invalid coupon code" });
+        return;
+      }
+      applyCoupon(data.data.coupon, data.data.code);
+      setCouponInput("");
+      setCouponMessage({ type: "success", text: "Coupon applied to your order" });
+    } catch {
+      setCouponMessage({ type: "error", text: "Could not validate coupon. Please try again." });
+    } finally {
+      setCouponLoading(false);
+    }
+  };
+
+  const handleRemoveCoupon = () => {
+    applyCoupon(null, "");
+    setCouponMessage(null);
+  };
 
   const getPrice = (item: typeof state.items[0]) => item.variant?.price ?? item.product.price ?? 0;
 
@@ -131,11 +172,17 @@ export default function CheckoutPage() {
       const orderRes = await fetch("/api/razorpay/create-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amount: Math.round(total * 100), currency: "INR" }),
+        body: JSON.stringify({
+          subtotal: getSubtotal(),
+          shipping,
+          coupon: state.couponCode || undefined,
+          currency: "INR",
+        }),
       });
       if (!orderRes.ok) throw new Error("Failed to create Razorpay order");
       const orderData_ = await orderRes.json();
       const razorpayOrderId = orderData_.success ? orderData_.data.razorpayOrderId : orderData_.razorpayOrderId;
+      const serverAmount = orderData_.success ? orderData_.data.amount : Math.round(total * 100);
 
       const script = document.createElement("script");
       script.src = "https://checkout.razorpay.com/v1/checkout.js";
@@ -147,7 +194,7 @@ export default function CheckoutPage() {
 
       const options = {
         key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
-        amount: Math.round(total * 100),
+        amount: serverAmount,
         currency: "INR",
         name: "Poprika",
         description: "Gourmet Popcorn",
@@ -486,6 +533,53 @@ export default function CheckoutPage() {
               </div>
 
               <Separator className="mb-4 bg-[rgba(220,2,24,0.08)]" />
+
+              {/* Coupon */}
+              <div className="mb-4">
+                {state.couponCode ? (
+                  <div className="flex items-center justify-between bg-green-50 border border-green-200 p-3">
+                    <div className="flex items-center gap-2">
+                      <svg className="h-4 w-4 text-green-600" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" /></svg>
+                      <div>
+                        <p className="text-sm font-semibold text-green-700">Coupon applied: {state.couponCode}</p>
+                        <p className="text-xs text-green-600">You&apos;re saving ₹{getDiscount()}</p>
+                      </div>
+                    </div>
+                    <button onClick={handleRemoveCoupon} className="text-xs font-medium text-[#DC0218] hover:underline shrink-0 ml-2">Remove</button>
+                  </div>
+                ) : (
+                  <>
+                    <div className="flex gap-2">
+                      <Input
+                        value={couponInput}
+                        onChange={(e) => setCouponInput(e.target.value)}
+                        onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleApplyCoupon(); } }}
+                        placeholder="Enter coupon code"
+                        className="bg-white border-[rgba(220,2,24,0.15)] uppercase"
+                        disabled={couponLoading}
+                      />
+                      <Button
+                        type="button"
+                        onClick={handleApplyCoupon}
+                        disabled={couponLoading || !couponInput.trim()}
+                        className="shrink-0 bg-[#1A1A1A] hover:bg-black text-white px-4"
+                      >
+                        {couponLoading ? (
+                          <span className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" />
+                        ) : (
+                          "Apply"
+                        )}
+                      </Button>
+                    </div>
+                    {couponMessage && (
+                      <p className={`text-xs mt-2 ${couponMessage.type === "error" ? "text-[#DC0218]" : "text-green-600"}`}>
+                        {couponMessage.text}
+                      </p>
+                    )}
+                  </>
+                )}
+              </div>
+
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between text-[#444444]"><span>Cart Total</span><span>₹{getSubtotal()}</span></div>
                 {getDiscount() > 0 && <div className="flex justify-between text-green-600"><span>Discount</span><span>-₹{getDiscount()}</span></div>}

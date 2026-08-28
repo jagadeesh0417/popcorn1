@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import Razorpay from "razorpay";
 import { errorResponse } from "@/lib/api-utils";
+import { validateCoupon } from "@/lib/server/coupon";
 
 export async function POST(req: Request) {
   let amount: number;
@@ -8,8 +9,24 @@ export async function POST(req: Request) {
 
   try {
     const body = await req.json();
-    amount = body.amount;
     currency = body.currency || "INR";
+
+    // Compute the payable amount server-side from the cart subtotal + coupon,
+    // never trust a browser-sent amount or discount.
+    const subtotal = Number(body.subtotal);
+    const shippingCost = Number(body.shipping) || 0;
+    if (!Number.isFinite(subtotal) || subtotal < 0) {
+      return errorResponse("Invalid cart subtotal", 400);
+    }
+    let discount = 0;
+    if (body.coupon) {
+      const couponResult = await validateCoupon(body.coupon, subtotal);
+      if (couponResult.valid) {
+        discount = couponResult.discount ?? 0;
+      }
+    }
+    const total = Math.max(0, subtotal - discount + shippingCost);
+    amount = Math.round(total * 100);
   } catch (e) {
     console.error("[RAZORPAY] failed to parse request body:", e);
     return errorResponse("Invalid request body", 400);
@@ -59,7 +76,7 @@ export async function POST(req: Request) {
       currency: order.currency,
     });
 
-    return NextResponse.json({ success: true, data: { razorpayOrderId: order.id } });
+    return NextResponse.json({ success: true, data: { razorpayOrderId: order.id, amount } });
   } catch (err: unknown) {
     const errorBody = err && typeof err === "object"
       ? JSON.stringify(err, Object.getOwnPropertyNames(err))

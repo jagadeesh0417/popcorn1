@@ -2,6 +2,7 @@ import { connectDB } from "@/lib/db";
 import Order from "@/lib/models/Order";
 import OrphanPayment from "@/lib/models/OrphanPayment";
 import { successResponse, errorResponse } from "@/lib/api-utils";
+import { validateCoupon, incrementCouponUsage } from "@/lib/server/coupon";
 
 export async function GET() {
   try {
@@ -44,6 +45,23 @@ export async function POST(req: Request) {
     if (!orderData.statusTimeline || !Array.isArray(orderData.statusTimeline) || orderData.statusTimeline.length === 0) {
       orderData.statusTimeline = [{ status: body.status || "pending", date: new Date(), note: "Order placed" }];
     }
+
+    // Recompute discount + total server-side so a browser-sent value is never trusted.
+    const subtotal = Number(body.subtotal) || 0;
+    const shippingCost = Number(body.shipping) || 0;
+    let discount = 0;
+    if (body.coupon) {
+      const couponResult = await validateCoupon(body.coupon, subtotal);
+      if (couponResult.valid) {
+        discount = couponResult.discount ?? 0;
+        await incrementCouponUsage(body.coupon);
+      }
+    }
+    const total = Math.max(0, subtotal - discount + shippingCost);
+    orderData.subtotal = subtotal;
+    orderData.shipping = shippingCost;
+    orderData.discount = discount;
+    orderData.total = total;
 
     const order = await Order.create(orderData);
 

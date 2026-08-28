@@ -2,7 +2,7 @@
 
 import { useState, useRef, useCallback } from "react";
 import { Upload, X, Loader2, AlertCircle } from "lucide-react";
-import { compressImage } from "@/lib/compress-image";
+import { uploadImageToCloudinary } from "@/lib/upload-image";
 
 const ALLOWED_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
 const MAX_SIZE = 10 * 1024 * 1024;
@@ -34,59 +34,14 @@ export function ImageUploader({ images, onChange }: ImageUploaderProps) {
     return null;
   };
 
-  const uploadToCloudinary = async (file: File, index: number) => {
-    try {
-      const sigRes = await fetch("/api/cloudinary");
-      const sigData = await sigRes.json();
-      if (!sigData.success) throw new Error(sigData.error || "Failed to get upload signature");
-
-      const { signature, timestamp, apiKey, cloudName, folder } = sigData.data;
-
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("api_key", apiKey);
-      formData.append("timestamp", String(timestamp));
-      formData.append("signature", signature);
-      formData.append("folder", folder);
-
-      const xhr = new XMLHttpRequest();
-
-      return new Promise<string>((resolve, reject) => {
-        xhr.upload.addEventListener("progress", (e) => {
-          if (e.lengthComputable) {
-            const pct = Math.round((e.loaded / e.total) * 100);
-            setUploading((prev) => {
-              const next = [...prev];
-              if (next[index]) next[index] = { ...next[index], progress: pct };
-              return next;
-            });
-          }
-        });
-
-        xhr.addEventListener("load", () => {
-          if (xhr.status === 200) {
-            const result = JSON.parse(xhr.responseText);
-            resolve(result.secure_url);
-          } else {
-            try {
-              const err = JSON.parse(xhr.responseText);
-              reject(new Error(err.error?.message || "Upload failed"));
-            } catch {
-              reject(new Error("Upload failed"));
-            }
-          }
-        });
-
-        xhr.addEventListener("error", () => reject(new Error("Network error")));
-        xhr.addEventListener("abort", () => reject(new Error("Upload cancelled")));
-
-        xhr.open("POST", `https://api.cloudinary.com/v1_1/${cloudName}/auto/upload`);
-        xhr.send(formData);
+  const uploadToCloudinary = (file: File, index: number) =>
+    uploadImageToCloudinary(file, index, (i, pct) => {
+      setUploading((prev) => {
+        const next = [...prev];
+        if (next[i]) next[i] = { ...next[i], progress: pct };
+        return next;
       });
-    } catch (err) {
-      throw err;
-    }
-  };
+    });
 
   const handleFiles = useCallback(async (files: FileList) => {
     const valid: UploadingFile[] = [];
@@ -109,8 +64,7 @@ export function ImageUploader({ images, onChange }: ImageUploaderProps) {
       const idx = base + i;
       if (entry.error) return;
       try {
-        const compressed = await compressImage(entry.file);
-        const url = await uploadToCloudinary(compressed, idx);
+        const url = await uploadToCloudinary(entry.file, idx);
         return { idx, url };
       } catch (err) {
         return { idx, error: err instanceof Error ? err.message : "Upload failed" };
