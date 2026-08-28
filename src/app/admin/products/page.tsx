@@ -176,17 +176,19 @@ export default function AdminProductsPage() {
   };
 
   const toggleField = async (id: string, field: string, value: boolean) => {
+    // Optimistic UI: apply immediately, roll back on failure.
+    setProducts((prev) => prev.map((p) => (p._id === id ? { ...p, [field]: value } : p)));
     try {
       const res = await fetch(`/api/products/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ [field]: value }),
       });
-      if (res.ok) {
-        setProducts((prev) => prev.map((p) => (p._id === id ? { ...p, [field]: value } : p)));
+      if (!res.ok) {
+        setProducts((prev) => prev.map((p) => (p._id === id ? { ...p, [field]: !value } : p)));
       }
     } catch {
-      console.error("Failed to update");
+      setProducts((prev) => prev.map((p) => (p._id === id ? { ...p, [field]: !value } : p)));
     }
   };
 
@@ -195,7 +197,13 @@ export default function AdminProductsPage() {
     try {
       const res = await fetch(`/api/products/${id}`, { method: "DELETE" });
       if (res.ok) {
+        // Remove only the deleted product from existing state — no full reload.
         setProducts((prev) => prev.filter((p) => p._id !== id));
+        setSelectedIds((prev) => {
+          const next = new Set(prev);
+          next.delete(id);
+          return next;
+        });
       }
     } catch {
       console.error("Failed to delete");
@@ -210,19 +218,28 @@ export default function AdminProductsPage() {
   const bulkToggleHomepage = async (value: boolean) => {
     if (selectedIds.size === 0) { toast.error("No products selected"); return; }
     setBulkActionLoading(true);
-    let success = 0;
-    for (const id of selectedIds) {
-      try {
-        const res = await fetch(`/api/products/${id}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ showOnHomepage: value }),
-        });
-        if (res.ok) {
-          setProducts((prev) => prev.map((p) => (p._id === id ? { ...p, showOnHomepage: value } : p)));
-          success++;
+    // Optimistic UI: update all selected rows immediately, then confirm via parallel requests.
+    setProducts((prev) => prev.map((p) => (selectedIds.has(p._id) ? { ...p, showOnHomepage: value } : p)));
+    const ids = Array.from(selectedIds);
+    const results = await Promise.all(
+      ids.map(async (id) => {
+        try {
+          const res = await fetch(`/api/products/${id}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ showOnHomepage: value }),
+          });
+          return res.ok;
+        } catch {
+          return false;
         }
-      } catch { /* skip */ }
+      })
+    );
+    const success = results.filter(Boolean).length;
+    // Roll back any that failed.
+    const failed = ids.filter((_, i) => !results[i]);
+    if (failed.length > 0) {
+      setProducts((prev) => prev.map((p) => (failed.includes(p._id) ? { ...p, showOnHomepage: !value } : p)));
     }
     toast.success(`${success} product${success !== 1 ? "s" : ""} updated`);
     setSelectedIds(new Set());

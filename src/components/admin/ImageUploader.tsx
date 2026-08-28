@@ -2,6 +2,7 @@
 
 import { useState, useRef, useCallback } from "react";
 import { Upload, X, Loader2, AlertCircle } from "lucide-react";
+import { compressImage } from "@/lib/compress-image";
 
 const ALLOWED_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
 const MAX_SIZE = 10 * 1024 * 1024;
@@ -89,8 +90,9 @@ export function ImageUploader({ images, onChange }: ImageUploaderProps) {
 
   const handleFiles = useCallback(async (files: FileList) => {
     const valid: UploadingFile[] = [];
+    const fileList = Array.from(files);
 
-    for (const file of Array.from(files)) {
+    for (const file of fileList) {
       const error = validateFile(file);
       valid.push({
         file,
@@ -102,26 +104,40 @@ export function ImageUploader({ images, onChange }: ImageUploaderProps) {
 
     setUploading((prev) => [...prev, ...valid]);
 
-    for (let i = 0; i < valid.length; i++) {
-      const idx = uploading.length + i;
-      if (valid[i].error) continue;
-
+    const base = uploading.length;
+    const tasks = valid.map(async (entry, i) => {
+      const idx = base + i;
+      if (entry.error) return;
       try {
-        const url = await uploadToCloudinary(valid[i].file, idx);
-        onChange([...images, url]);
-        setUploading((prev) => {
-          const next = [...prev];
-          if (next[idx]) next[idx] = { ...next[idx], progress: 100 };
-          return next;
-        });
+        const compressed = await compressImage(entry.file);
+        const url = await uploadToCloudinary(compressed, idx);
+        return { idx, url };
       } catch (err) {
-        setUploading((prev) => {
-          const next = [...prev];
-          if (next[idx]) next[idx] = { ...next[idx], error: err instanceof Error ? err.message : "Upload failed" };
-          return next;
-        });
+        return { idx, error: err instanceof Error ? err.message : "Upload failed" };
       }
+    });
+
+    const results = await Promise.all(tasks);
+    const uploadedUrls = results
+      .filter((r): r is { idx: number; url: string } => !!r && "url" in r)
+      .map((r) => r.url);
+
+    if (uploadedUrls.length > 0) {
+      onChange([...images, ...uploadedUrls]);
     }
+
+    setUploading((prev) => {
+      const next = [...prev];
+      for (const r of results) {
+        if (!r) continue;
+        if ("url" in r) {
+          if (next[r.idx]) next[r.idx] = { ...next[r.idx], progress: 100 };
+        } else if ("error" in r) {
+          if (next[r.idx]) next[r.idx] = { ...next[r.idx], error: r.error };
+        }
+      }
+      return next;
+    });
   }, [images, onChange, uploading.length]);
 
   const handleDrop = useCallback((e: React.DragEvent) => {
