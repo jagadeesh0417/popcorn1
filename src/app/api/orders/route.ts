@@ -3,6 +3,7 @@ import Order from "@/lib/models/Order";
 import OrphanPayment from "@/lib/models/OrphanPayment";
 import { successResponse, errorResponse } from "@/lib/api-utils";
 import { validateCoupon, incrementCouponUsage } from "@/lib/server/coupon";
+import { validateAndResolveItems, reserveStock, StockError } from "@/lib/server/stock";
 
 export async function GET() {
   try {
@@ -46,8 +47,20 @@ export async function POST(req: Request) {
       orderData.statusTimeline = [{ status: body.status || "pending", date: new Date(), note: "Order placed" }];
     }
 
-    // Recompute discount + total server-side so a browser-sent value is never trusted.
-    const subtotal = Number(body.subtotal) || 0;
+    // Server-side source of truth: resolve items from the DB and confirm stock is available.
+    let resolved;
+    try {
+      resolved = await validateAndResolveItems(body.items);
+    } catch (err) {
+      if (err instanceof StockError) {
+        return errorResponse(err.message, err.code);
+      }
+      throw err;
+    }
+    orderData.items = resolved.items;
+
+    // Recompute subtotal, discount + total server-side from authoritative item prices.
+    const subtotal = resolved.subtotal;
     const shippingCost = Number(body.shipping) || 0;
     let discount = 0;
     if (body.coupon) {
@@ -62,6 +75,16 @@ export async function POST(req: Request) {
     orderData.shipping = shippingCost;
     orderData.discount = discount;
     orderData.total = total;
+
+    // Atomically reserve stock (rejects if the last unit was just taken by someone else).
+    try {
+      await reserveStock(resolved.items);
+    } catch (err) {
+      if (err instanceof StockError) {
+        return errorResponse(err.message, err.code);
+      }
+      throw err;
+    }
 
     const order = await Order.create(orderData);
 

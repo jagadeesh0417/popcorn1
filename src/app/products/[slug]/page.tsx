@@ -11,9 +11,9 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { useCart } from "@/lib/store";
 import { notFound } from "next/navigation";
-import { toast } from "sonner";
 import { Product, ProductVariant, Review } from "@/lib/types";
 import { optimizeImageUrl, getProductImages, getProductImage } from "@/lib/image";
+import { isBuyable, isOutOfStock, getAvailableQty } from "@/lib/stock";
 
 function safeStr(v: unknown, fallback = ""): string {
   if (typeof v === "string") return v;
@@ -96,14 +96,17 @@ export default function ProductDetailPage() {
     : 0;
   const savings = displayOriginal && displayOriginal > displayPrice ? displayOriginal - displayPrice : 0;
 
+  const productOut = isOutOfStock(product);
+  const maxQty = currentVariant ? getAvailableQty(product, currentVariant) : 0;
+  const addDisabled = !currentVariant || !isBuyable(product, currentVariant);
+
   const handleAdd = () => {
     if (!currentVariant) return;
-    const inStock = currentVariant.inStock !== false;
-    if (!inStock) return;
-    addItem(product, currentVariant, quantity);
+    const q = Math.min(quantity, maxQty || quantity);
+    const ok = addItem(product, currentVariant, q);
+    if (!ok) return;
     setAdded(true);
     setQuantity(1);
-    toast.success("Added to Cart ✓");
     setTimeout(() => setAdded(false), 1500);
   };
 
@@ -175,7 +178,10 @@ export default function ProductDetailPage() {
                   <Star className="h-3 w-3 fill-current" /> Best Seller
                 </Badge>
               )}
-              {currentVariant && (currentVariant.inStock === false) && (
+              {productOut && (
+                <Badge className="bg-red-100 text-red-700 border-0">Out of Stock</Badge>
+              )}
+              {!productOut && currentVariant && (currentVariant.inStock === false) && (
                 <Badge className="bg-red-100 text-red-700 border-0">Out of Stock</Badge>
               )}
             </div>
@@ -235,32 +241,39 @@ export default function ProductDetailPage() {
             <p className="text-sm text-[#444444] mb-6">{currentVariant?.grams ?? 0}g per pack</p>
 
             <div className="flex items-center gap-4 mt-auto">
-              <div className="flex items-center border border-[rgba(220,2,24,0.15)] overflow-hidden">
-                <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="p-3 hover:bg-[#FFF8F0] transition-colors text-[#1A1A1A]">
+              <div className={`flex items-center border border-[rgba(220,2,24,0.15)] overflow-hidden ${addDisabled ? "opacity-50" : ""}`}>
+                <button onClick={() => setQuantity(Math.max(1, quantity - 1))} disabled={addDisabled} className="p-3 hover:bg-[#FFF8F0] transition-colors text-[#1A1A1A] disabled:cursor-not-allowed">
                   <Minus className="h-4 w-4" />
                 </button>
                 <span className="px-6 font-medium min-w-[3rem] text-center text-[#1A1A1A]">{quantity}</span>
-                <button onClick={() => setQuantity(quantity + 1)} className="p-3 hover:bg-[#FFF8F0] transition-colors text-[#1A1A1A]">
+                <button onClick={() => setQuantity(Math.min(maxQty || quantity, quantity + 1))} disabled={addDisabled || (maxQty > 0 && quantity >= maxQty)} className="p-3 hover:bg-[#FFF8F0] transition-colors text-[#1A1A1A] disabled:cursor-not-allowed disabled:opacity-40">
                   <Plus className="h-4 w-4" />
                 </button>
               </div>
               <Button
                 size="lg"
-                disabled={!currentVariant || currentVariant.inStock === false}
+                disabled={addDisabled}
                 onClick={handleAdd}
                 className={`flex-1 h-12 text-base rounded-xl transition-all ${
                   added
                     ? "bg-green-600 text-white"
+                    : addDisabled
+                    ? "bg-gray-200 text-[#444444] cursor-not-allowed"
                     : "bg-[#DC0218] hover:bg-[#C70015] text-white"
                 }`}
               >
                 {added ? (
                   <span className="flex items-center gap-2"><Check className="h-5 w-5" /> Added!</span>
+                ) : addDisabled ? (
+                  <span className="flex items-center gap-2">OUT OF STOCK</span>
                 ) : (
                   <span className="flex items-center gap-2"><ShoppingBag className="h-5 w-5" /> Add to Cart</span>
                 )}
               </Button>
             </div>
+            {maxQty > 0 && quantity >= maxQty && (
+              <p className="text-xs text-[#444444] mt-2">Only {maxQty} {maxQty === 1 ? "unit" : "units"} left in stock</p>
+            )}
 
             <div className="grid grid-cols-3 gap-3 mt-8">
               {[
@@ -393,6 +406,9 @@ export default function ProductDetailPage() {
                 const prices = pVariants.map((s) => s.price ?? 0).filter((pr) => typeof pr === "number" && !isNaN(pr));
                 const minPrice = prices.length > 0 ? Math.min(...prices) : (p.price ?? 0);
                 const imgSrc = getProductImage(p) || safeImgSrc(p.images);
+                const pDefault = pVariants.find((v) => v.isDefault) || pVariants[0] || null;
+                const pBuyable = isBuyable(p, pDefault);
+                const pOut = isOutOfStock(p) || !pBuyable;
                 return (
                   <motion.div
                     key={p.id || p._id || i}
@@ -418,10 +434,11 @@ export default function ProductDetailPage() {
                       <p className="text-[#DC0218] text-xs italic mt-0.5">{safeStr(p.tagline)}</p>
                       <div className="flex items-center justify-between mt-3 pt-3 border-t border-[rgba(220,2,24,0.08)]">
                         <span className="font-semibold text-sm text-[#1A1A1A]">From ₹{minPrice}</span>
-                        <Button size="sm" className="bg-[#DC0218] hover:bg-[#C70015] text-white h-8 px-3 text-xs" onClick={() => {
-                          const defaultVar = pVariants.find((v) => v.isDefault) || pVariants[0] || null;
-                          addItem(p, defaultVar);
-                        }}>Add</Button>
+                        {pOut ? (
+                          <span className="text-[10px] font-semibold uppercase tracking-wide text-[#DC0218] bg-red-50 px-2 py-1">Out of Stock</span>
+                        ) : (
+                          <Button size="sm" className="bg-[#DC0218] hover:bg-[#C70015] text-white h-8 px-3 text-xs" onClick={() => addItem(p, pDefault)}>Add</Button>
+                        )}
                       </div>
                     </div>
                   </motion.div>

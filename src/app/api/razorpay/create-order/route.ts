@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import Razorpay from "razorpay";
 import { errorResponse } from "@/lib/api-utils";
 import { validateCoupon } from "@/lib/server/coupon";
+import { validateAndResolveItems, StockError } from "@/lib/server/stock";
 
 export async function POST(req: Request) {
   let amount: number;
@@ -11,13 +12,11 @@ export async function POST(req: Request) {
     const body = await req.json();
     currency = body.currency || "INR";
 
-    // Compute the payable amount server-side from the cart subtotal + coupon,
-    // never trust a browser-sent amount or discount.
-    const subtotal = Number(body.subtotal);
+    // Server-side source of truth: resolve items from the DB and confirm stock
+    // before creating the Razorpay order. Never trust a browser amount.
+    const resolved = await validateAndResolveItems(body.items);
+    const subtotal = resolved.subtotal;
     const shippingCost = Number(body.shipping) || 0;
-    if (!Number.isFinite(subtotal) || subtotal < 0) {
-      return errorResponse("Invalid cart subtotal", 400);
-    }
     let discount = 0;
     if (body.coupon) {
       const couponResult = await validateCoupon(body.coupon, subtotal);
@@ -29,6 +28,9 @@ export async function POST(req: Request) {
     amount = Math.round(total * 100);
   } catch (e) {
     console.error("[RAZORPAY] failed to parse request body:", e);
+    if (e instanceof StockError) {
+      return errorResponse(e.message, e.code);
+    }
     return errorResponse("Invalid request body", 400);
   }
 

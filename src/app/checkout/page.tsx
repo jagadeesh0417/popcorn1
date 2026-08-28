@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { CreditCard, MapPin, User, Lock, ShoppingBag, Store, Building, Home, Briefcase } from "lucide-react";
@@ -38,13 +38,19 @@ const indianStates = [
 
 export default function CheckoutPage() {
   const router = useRouter();
-  const { state, getSubtotal, getDiscount, clearCart, applyCoupon } = useCart();
+  const { state, getSubtotal, getDiscount, clearCart, applyCoupon, refreshStock, hasUnavailableItems } = useCart();
   const shippingCtx = useShipping();
   const [orderId] = useState(() => "POP" + Date.now());
   const [loading, setLoading] = useState(false);
   const [shippingMethod, setShippingMethod] = useState<ShippingMethod>("shipping");
   const [addressType, setAddressType] = useState<AddressType>("home");
   const [paymentMethod, setPaymentMethod] = useState<"razorpay" | "cod">("razorpay");
+
+  // Revalidate cart against fresh product data so unavailable items block checkout.
+  useEffect(() => {
+    refreshStock();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const [form, setForm] = useState({
     firstName: "", lastName: "", phone: "", email: "",
     addressLine1: "", addressLine2: "", area: "", landmark: "",
@@ -148,6 +154,10 @@ export default function CheckoutPage() {
     }
     if (state.items.length === 0) {
       toast.error("Your cart is empty");
+      return;
+    }
+    if (hasUnavailableItems()) {
+      toast.error("One or more items in your cart are no longer available.");
       return;
     }
     setLoading(true);

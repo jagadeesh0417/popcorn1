@@ -7,10 +7,12 @@ import { X, ShoppingBag, Minus, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/lib/store";
 import { optimizeImageUrl, getProductImage } from "@/lib/image";
+import { getAvailableQty } from "@/lib/stock";
 
 export function CartDrawer() {
   const [open, setOpen] = useState(false);
-  const { state, removeItem, updateQuantity, getSubtotal, getItemCount } = useCart();
+  const { state, removeItem, updateQuantity, getSubtotal, getItemCount, hasUnavailableItems } = useCart();
+  const anyUnavailable = hasUnavailableItems();
 
   useEffect(() => {
     const handleToggle = () => setOpen((p) => !p);
@@ -72,29 +74,39 @@ export function CartDrawer() {
                   <div className="flex-1 overflow-y-auto p-6 space-y-4">
                     {state.items.map((item) => {
                       const price = item.variant?.price ?? item.product.price ?? 0;
+                      const maxQty = getAvailableQty(item.product, item.variant);
+                      const unavailable = item.unavailable === true;
                       return (
-                      <div key={item.cartId} className="flex gap-4 border-b border-[rgba(220,2,24,0.06)] pb-4">
-                        <div className="w-20 h-20 bg-[#FFF8F0] rounded overflow-hidden shrink-0">
+                      <div key={item.cartId} className={`flex gap-4 border-b border-[rgba(220,2,24,0.06)] pb-4 ${unavailable ? "opacity-70" : ""}`}>
+                        <div className="w-20 h-20 bg-[#FFF8F0] rounded overflow-hidden shrink-0 relative">
                           {getProductImage(item.product) ? (
                             <img src={optimizeImageUrl(getProductImage(item.product), 160) || ""} alt={item.product.name} className="w-full h-full object-cover" />
                           ) : (
                             <div className="w-full h-full flex items-center justify-center text-2xl">🍿</div>
                           )}
+                          {unavailable && (
+                            <div className="absolute inset-0 bg-white/60 flex items-center justify-center">
+                              <span className="bg-[#DC0218] text-white text-[9px] font-bold uppercase tracking-widest px-1.5 py-0.5">Out of Stock</span>
+                            </div>
+                          )}
                         </div>
                         <div className="flex-1 min-w-0">
                           <h4 className="font-medium text-sm text-[#1A1A1A]">{item.product.name}</h4>
+                          {unavailable && <p className="text-[11px] text-[#DC0218] font-medium mt-0.5">Currently out of stock</p>}
                           <p className="text-[#DC0218] font-semibold text-sm mt-1">₹{price}</p>
                           <div className="flex items-center gap-3 mt-2">
                             <button
                               onClick={() => updateQuantity(item.cartId, item.quantity - 1)}
-                              className="p-1 rounded hover:bg-[#FFF8F0] transition-colors"
+                              disabled={unavailable}
+                              className="p-1 rounded hover:bg-[#FFF8F0] transition-colors disabled:cursor-not-allowed"
                             >
                               {item.quantity === 1 ? <Trash2 className="h-4 w-4 text-red-500" /> : <Minus className="h-4 w-4" />}
                             </button>
                             <span className="text-sm font-medium w-6 text-center">{item.quantity}</span>
                             <button
                               onClick={() => updateQuantity(item.cartId, item.quantity + 1)}
-                              className="p-1 rounded hover:bg-[#FFF8F0] transition-colors"
+                              disabled={unavailable || (maxQty > 0 && item.quantity >= maxQty)}
+                              className="p-1 rounded hover:bg-[#FFF8F0] transition-colors disabled:cursor-not-allowed disabled:opacity-40"
                             >
                               <Plus className="h-4 w-4" />
                             </button>
@@ -112,11 +124,17 @@ export function CartDrawer() {
                       <span className="text-[#444444]">Cart Total</span>
                       <span className="font-semibold">₹{getSubtotal()}</span>
                     </div>
-                    <Link href="/checkout" onClick={() => setOpen(false)}>
-                      <Button className="w-full bg-[#DC0218] hover:bg-[#C70015] text-white btn-small-caps h-12">
-                        Checkout
+                    {anyUnavailable ? (
+                      <Button className="w-full bg-gray-200 text-[#444444] cursor-not-allowed btn-small-caps h-12">
+                        Some items are out of stock
                       </Button>
-                    </Link>
+                    ) : (
+                      <Link href="/checkout" onClick={() => setOpen(false)}>
+                        <Button className="w-full bg-[#DC0218] hover:bg-[#C70015] text-white btn-small-caps h-12">
+                          Checkout
+                        </Button>
+                      </Link>
+                    )}
                   </div>
                 </>
               )}

@@ -3,9 +3,9 @@ import crypto from "crypto";
 import { connectDB } from "@/lib/db";
 import Order from "@/lib/models/Order";
 import OrphanPayment from "@/lib/models/OrphanPayment";
-import Product from "@/lib/models/Product";
 import { errorResponse } from "@/lib/api-utils";
 import { validateCoupon, incrementCouponUsage } from "@/lib/server/coupon";
+import { validateAndResolveItems, reserveStock } from "@/lib/server/stock";
 
 export async function POST(req: Request) {
   let body;
@@ -101,8 +101,39 @@ export async function POST(req: Request) {
   }
 
   let order;
-  // Recompute discount + total server-side so a browser-sent value is never trusted.
-  const subtotalForCoupon = Number(orderData.subtotal) || 0;
+  // Server-side source of truth: resolve items from the DB and confirm stock is
+  // available. If the product went out of stock after the customer paid, we must
+  // NOT create the order — record an orphan so the money can be refunded.
+  let resolved;
+  try {
+    resolved = await validateAndResolveItems(orderData.items);
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error("[PAYMENT] stock validation failed after payment", { orderId: orderData.orderId, msg });
+    try {
+      await OrphanPayment.create({
+        razorpay_payment_id,
+        razorpay_order_id,
+        amount: orderData.total,
+        email: orderData.customerDetails?.email,
+        status: "needs_review",
+        orderData,
+        error: msg,
+      });
+    } catch { /* non-fatal */ }
+    return NextResponse.json(
+      {
+        success: false,
+        error: msg || "One or more items in your order are no longer available.",
+        payment_id: razorpay_payment_id,
+        needs_refund: true,
+      },
+      { status: 409 }
+    );
+  }
+
+  // Recompute subtotal, discount + total server-side from authoritative item prices.
+  const subtotalForCoupon = resolved.subtotal;
   const shippingCost = Number(orderData.shipping) || 0;
   let discount = 0;
   if (orderData.coupon) {
@@ -113,10 +144,40 @@ export async function POST(req: Request) {
     }
   }
   const computedTotal = Math.max(0, subtotalForCoupon - discount + shippingCost);
+
+  // Atomically reserve stock BEFORE creating the order (rejects if the last unit
+  // was just taken by a concurrent request).
+  try {
+    await reserveStock(resolved.items);
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error("[PAYMENT] stock reserve failed", { orderId: orderData.orderId, msg });
+    try {
+      await OrphanPayment.create({
+        razorpay_payment_id,
+        razorpay_order_id,
+        amount: orderData.total,
+        email: orderData.customerDetails?.email,
+        status: "needs_review",
+        orderData,
+        error: msg,
+      });
+    } catch { /* non-fatal */ }
+    return NextResponse.json(
+      {
+        success: false,
+        error: msg || "Some items in your order are no longer available.",
+        payment_id: razorpay_payment_id,
+        needs_refund: true,
+      },
+      { status: 409 }
+    );
+  }
+
   try {
     order = await Order.create({
       orderId: orderData.orderId,
-      items: orderData.items || [],
+      items: resolved.items,
       total: computedTotal,
       subtotal: subtotalForCoupon,
       shipping: shippingCost,
@@ -163,34 +224,6 @@ export async function POST(req: Request) {
       },
       { status: 500 }
     );
-  }
-
-  // Deduct inventory for each item
-  for (const item of orderData.items || []) {
-    try {
-      const product = await Product.findOne({
-        $or: [{ slug: item.productId }, { _id: item.productId }],
-      });
-      if (product) {
-        if (item.variant?.label && product.sizes?.length) {
-          const variant = product.sizes.find(
-            (v: { label: string }) => v.label === item.variant.label
-          );
-          if (variant) {
-            variant.stock = Math.max(0, (variant.stock || 0) - item.quantity);
-          }
-        } else {
-          product.stockQuantity = Math.max(0, (product.stockQuantity || 0) - item.quantity);
-        }
-        product.inStock = (product.stockQuantity || 0) > 0;
-        await product.save();
-        console.log("[INVENTORY] deducted", { productId: item.productId, qty: item.quantity });
-      } else {
-        console.warn("[INVENTORY] product not found for deduction", { productId: item.productId });
-      }
-    } catch (e) {
-      console.error("[INVENTORY] deduction failed for item", { productId: item.productId, error: e });
-    }
   }
 
   return NextResponse.json({ success: true, data: { order } });

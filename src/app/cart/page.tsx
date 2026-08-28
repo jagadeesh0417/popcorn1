@@ -11,10 +11,11 @@ import { Separator } from "@/components/ui/separator";
 import { useCart } from "@/lib/store";
 import { useShipping } from "@/lib/shipping-settings";
 import { optimizeImageUrl, getProductImage } from "@/lib/image";
+import { getAvailableQty } from "@/lib/stock";
 import { Coupon } from "@/lib/types";
 
 export default function CartPage() {
-  const { state, updateQuantity, removeItem, getSubtotal, getDiscount, getItemCount, applyCoupon } = useCart();
+  const { state, updateQuantity, removeItem, getSubtotal, getDiscount, getItemCount, applyCoupon, refreshStock, hasUnavailableItems } = useCart();
   const shippingCtx = useShipping();
   const sub = getSubtotal();
   const remains = shippingCtx.freeShippingRemaining(sub);
@@ -22,6 +23,12 @@ export default function CartPage() {
   const [couponInput, setCouponInput] = useState("");
   const [couponMsg, setCouponMsg] = useState("");
   const [coupons, setCoupons] = useState<Coupon[]>([]);
+
+  // Revalidate cart against fresh product data (handles items that went out of stock).
+  useEffect(() => {
+    refreshStock();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     fetch("/api/coupons")
@@ -93,13 +100,15 @@ export default function CartPage() {
           <div className="lg:col-span-2 space-y-4">
             {state.items.map((item, index) => {
               const price = getPrice(item);
+              const maxQty = getAvailableQty(item.product, item.variant);
+              const unavailable = item.unavailable === true;
               return (
                 <motion.div
                   key={item.cartId}
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.05 }}
-                  className="flex gap-4 p-4 bg-white rounded-2xl border border-[rgba(220,2,24,0.08)] shadow-sm"
+                  className={`flex gap-4 p-4 bg-white rounded-2xl border shadow-sm ${unavailable ? "border-red-200 bg-red-50/40" : "border-[rgba(220,2,24,0.08)]"}`}
                 >
                   <Link href={`/products/${item.product.slug}`}>
                     <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-xl overflow-hidden bg-[#FFF8F0] shrink-0">
@@ -107,6 +116,11 @@ export default function CartPage() {
                         <Image src={optimizeImageUrl(getProductImage(item.product), 200) || ""} alt={item.product.name} fill className="object-cover" sizes="112px" />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-3xl">🍿</div>
+                      )}
+                      {unavailable && (
+                        <div className="absolute inset-0 bg-white/60 flex items-center justify-center">
+                          <span className="bg-[#DC0218] text-white text-[10px] font-bold uppercase tracking-widest px-2 py-1">Out of Stock</span>
+                        </div>
                       )}
                     </div>
                   </Link>
@@ -117,13 +131,16 @@ export default function CartPage() {
                     <p className="text-xs text-[#444444] mt-0.5">
                       {item.variant ? `${item.variant.label} · ₹${price}/pack` : item.product.weight}
                     </p>
+                    {unavailable && (
+                      <p className="text-xs font-medium text-[#DC0218] mt-1">{item.product.name} is currently out of stock. Please remove it to continue.</p>
+                    )}
                     <div className="flex items-center justify-between mt-3">
-                      <div className="flex items-center border border-[rgba(220,2,24,0.15)] rounded-lg overflow-hidden">
-                        <button onClick={() => updateQuantity(item.cartId, item.quantity - 1)} className="p-1.5 hover:bg-[#FFF8F0] transition-colors">
+                      <div className={`flex items-center border rounded-lg overflow-hidden ${unavailable ? "border-gray-300 opacity-60" : "border-[rgba(220,2,24,0.15)]"}`}>
+                        <button onClick={() => updateQuantity(item.cartId, item.quantity - 1)} disabled={unavailable} className="p-1.5 hover:bg-[#FFF8F0] transition-colors disabled:cursor-not-allowed">
                           <Minus className="h-3.5 w-3.5 text-[#1A1A1A]" />
                         </button>
                         <span className="px-4 text-sm font-medium min-w-[2rem] text-center text-[#1A1A1A]">{item.quantity}</span>
-                        <button onClick={() => updateQuantity(item.cartId, item.quantity + 1)} className="p-1.5 hover:bg-[#FFF8F0] transition-colors">
+                        <button onClick={() => updateQuantity(item.cartId, item.quantity + 1)} disabled={unavailable || (maxQty > 0 && item.quantity >= maxQty)} className="p-1.5 hover:bg-[#FFF8F0] transition-colors disabled:cursor-not-allowed disabled:opacity-40">
                           <Plus className="h-3.5 w-3.5 text-[#1A1A1A]" />
                         </button>
                       </div>
@@ -134,6 +151,9 @@ export default function CartPage() {
                         </button>
                       </div>
                     </div>
+                    {!unavailable && maxQty > 0 && item.quantity >= maxQty && (
+                      <p className="text-[11px] text-[#444444] mt-1">Only {maxQty} {maxQty === 1 ? "unit" : "units"} in stock</p>
+                    )}
                   </div>
                 </motion.div>
               );
@@ -185,11 +205,20 @@ export default function CartPage() {
                 <Button variant="outline" onClick={handleApplyCoupon} className="rounded-xl border-[rgba(220,2,24,0.2)] text-[#DC0218]">Apply</Button>
               </div>
 
-              <Link href="/checkout">
-                <Button className="w-full mt-4 bg-[#DC0218] hover:bg-[#C70015] text-white rounded-xl h-12 text-base shadow-lg shadow-[#DC0218]/20">
-                  Proceed to Checkout — ₹{getSubtotal() - getDiscount() + (isFree ? 0 : shippingCtx.settings.panIndiaShippingFee)}
-                </Button>
-              </Link>
+              {hasUnavailableItems() ? (
+                <div className="mt-4">
+                  <Button className="w-full bg-gray-200 text-[#444444] cursor-not-allowed rounded-xl h-12 text-base">
+                    Some items are out of stock
+                  </Button>
+                  <p className="text-xs text-[#DC0218] text-center mt-2">Remove out-of-stock items to continue.</p>
+                </div>
+              ) : (
+                <Link href="/checkout">
+                  <Button className="w-full mt-4 bg-[#DC0218] hover:bg-[#C70015] text-white rounded-xl h-12 text-base shadow-lg shadow-[#DC0218]/20">
+                    Proceed to Checkout — ₹{getSubtotal() - getDiscount() + (isFree ? 0 : shippingCtx.settings.panIndiaShippingFee)}
+                  </Button>
+                </Link>
+              )}
             </div>
           </div>
         </div>

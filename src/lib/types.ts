@@ -71,6 +71,7 @@ export interface CartItem {
   variant: ProductVariant | null;
   quantity: number;
   cartId: string;
+  unavailable?: boolean;
 }
 
 export interface Order {

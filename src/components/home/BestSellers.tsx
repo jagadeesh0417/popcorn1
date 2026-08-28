@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { useCart } from "@/lib/store";
 import { Product, ProductVariant } from "@/lib/types";
 import { getProductImage } from "@/lib/image";
+import { isBuyable } from "@/lib/stock";
 
 export function BestSellers() {
   const { addItem } = useCart();
@@ -145,10 +146,14 @@ export function BestSellers() {
                     <p className="text-[#444444] text-xs mt-1.5 line-clamp-2">{product.shortDescription}</p>
                     <div className="flex items-center justify-between mt-4 pt-4 border-t border-[rgba(220,2,24,0.08)]">
                       <span className="text-xl font-bold text-[#DC0218]">₹{displayPrice}</span>
-                      <Button size="sm" className="bg-[#DC0218] hover:bg-[#C70015] text-white rounded-xl text-xs px-4 h-9" onClick={() => addItem(product, defaultVar)}>
-                        <ShoppingBag className="h-3.5 w-3.5 mr-1.5" />
-                        Add
-                      </Button>
+                      {isBuyable(product, defaultVar) ? (
+                        <Button size="sm" className="bg-[#DC0218] hover:bg-[#C70015] text-white rounded-xl text-xs px-4 h-9" onClick={() => addItem(product, defaultVar)}>
+                          <ShoppingBag className="h-3.5 w-3.5 mr-1.5" />
+                          Add
+                        </Button>
+                      ) : (
+                        <span className="text-[10px] font-semibold uppercase tracking-wide text-[#DC0218] bg-red-50 px-2.5 py-1.5 rounded-full">Out of Stock</span>
+                      )}
                     </div>
                   </div>
                 </div>

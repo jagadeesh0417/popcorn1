@@ -9,6 +9,7 @@ import { useCart } from "@/lib/store";
 import { Product, ProductVariant } from "@/lib/types";
 import { toast } from "sonner";
 import { optimizeImageUrl } from "@/lib/image";
+import { isBuyable } from "@/lib/stock";
 
 interface BundleSettingsData {
   images: { id: string; src: string }[];
@@ -98,6 +99,16 @@ export function BundleCard() {
       return;
     }
     const variantLabel = getVariantForSize(effectiveSelected);
+    // The bundle can only be added when every included product/size is in stock.
+    const blocked = trioProducts.find((product) => {
+      const variants: ProductVariant[] = product.sizes || product.variants || [];
+      const variant = variants.find((v) => v.label === variantLabel) || null;
+      return !isBuyable(product, variant);
+    });
+    if (blocked) {
+      toast.error(`${blocked.name} is currently out of stock. You can add it once it's back in stock.`);
+      return;
+    }
     trioProducts.forEach((product) => {
       const variants: ProductVariant[] = product.sizes || product.variants || [];
       const variant = variants.find((v) => v.label === variantLabel);

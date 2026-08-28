@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { useCart } from "@/lib/store";
 import { Product, ProductVariant } from "@/lib/types";
 import { optimizeImageUrl, getProductImage } from "@/lib/image";
+import { isBuyable } from "@/lib/stock";
 
 function FeaturedSkeleton() {
   return (
@@ -101,6 +102,7 @@ export function FeaturedProducts() {
             const defaultVar = getDefaultVariant(product);
             const displayPrice = defaultVar?.price ?? product.price;
             const displayOriginal = defaultVar?.originalPrice ?? product.originalPrice;
+            const buyable = isBuyable(product, defaultVar);
             return (
               <motion.div
                 key={product.id}
@@ -150,14 +152,18 @@ export function FeaturedProducts() {
                         <span className="text-[#444444] line-through text-sm">₹{displayOriginal}</span>
                       )}
                     </div>
-                    <Button
-                      size="sm"
-                      className="bg-[#DC0218] hover:bg-[#C70015] text-white rounded-xl text-xs px-4 h-9 transition-all duration-300"
-                      onClick={() => addItem(product, defaultVar)}
-                    >
-                      <ShoppingBag className="h-3.5 w-3.5 mr-1.5" />
-                      Add to Cart
-                    </Button>
+                    {buyable ? (
+                      <Button
+                        size="sm"
+                        className="bg-[#DC0218] hover:bg-[#C70015] text-white rounded-xl text-xs px-4 h-9 transition-all duration-300"
+                        onClick={() => addItem(product, defaultVar)}
+                      >
+                        <ShoppingBag className="h-3.5 w-3.5 mr-1.5" />
+                        Add to Cart
+                      </Button>
+                    ) : (
+                      <span className="text-[10px] font-semibold uppercase tracking-wide text-[#DC0218] bg-red-50 px-2.5 py-1.5 rounded-full">Out of Stock</span>
+                    )}
                   </div>
                 </div>
               </motion.div>

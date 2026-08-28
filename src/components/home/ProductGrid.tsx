@@ -6,8 +6,8 @@ import { ShoppingBag, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/lib/store";
 import { Product, ProductVariant } from "@/lib/types";
-import { toast } from "sonner";
 import { optimizeImageUrl, getProductImage } from "@/lib/image";
+import { isBuyable } from "@/lib/stock";
 
 const TRIO_SLUGS = ["ghee-black-pepper", "ghee-curry-leaf", "coffee-chikki"];
 
@@ -44,9 +44,9 @@ export function ProductGrid() {
     const variants: ProductVariant[] = product.sizes || product.variants || [];
     const variant = variants.find((s) => s.label === sizeLabel);
     if (!variant) return;
-    addItem(product, variant);
+    const ok = addItem(product, variant);
+    if (!ok) return;
     setAddedFeedback((prev) => ({ ...prev, [product.id]: true }));
-    toast.success("Added to Cart ✓");
     setTimeout(() => {
       setAddedFeedback((prev) => ({ ...prev, [product.id]: false }));
     }, 1500);
@@ -107,12 +107,16 @@ export function ProductGrid() {
                   <div className="flex gap-2 mt-5">
                     {variants.map((size) => {
                       const isSelected = selectedSizes[product.id] === size.label;
+                      const sizeOut = size.inStock === false || (size.stock ?? 0) <= 0;
                       return (
                         <button
                           key={size.label}
                           onClick={() => handleSizeSelect(product.id, size.label)}
+                          disabled={sizeOut}
                           className={`px-4 py-2 text-xs uppercase tracking-[0.06em] font-medium border transition-all duration-200 ${
-                            isSelected
+                            sizeOut
+                              ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed line-through"
+                              : isSelected
                               ? "bg-[#DC0218] text-white border-[#DC0218]"
                               : "bg-white text-[#1A1A1A] border-[rgba(220,2,24,0.2)] hover:border-[#DC0218]"
                           }`}
@@ -130,16 +134,21 @@ export function ProductGrid() {
                   <motion.div whileTap={{ scale: 0.97 }}>
                     <Button
                       onClick={() => handleAddToCart(product)}
+                      disabled={!isBuyable(product, sizeData)}
                       className={`w-full mt-4 btn-small-caps h-11 rounded-xl transition-all duration-200 ${
                         addedFeedback[product.id]
                           ? "bg-green-600 text-white shadow-lg shadow-green-600/20"
-                          : "bg-[#DC0218] hover:bg-[#C70015] text-white shadow-lg shadow-[#DC0218]/20 hover:shadow-[#DC0218]/30"
+                          : isBuyable(product, sizeData)
+                          ? "bg-[#DC0218] hover:bg-[#C70015] text-white shadow-lg shadow-[#DC0218]/20 hover:shadow-[#DC0218]/30"
+                          : "bg-gray-100 text-gray-500 cursor-not-allowed"
                       }`}
                     >
                       {addedFeedback[product.id] ? (
                         <><Check className="h-3.5 w-3.5 mr-2" /> Added!</>
-                      ) : (
+                      ) : isBuyable(product, sizeData) ? (
                         <><ShoppingBag className="h-3.5 w-3.5 mr-2" /> Add to Cart</>
+                      ) : (
+                        "OUT OF STOCK"
                       )}
                     </Button>
                   </motion.div>

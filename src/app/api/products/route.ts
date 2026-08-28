@@ -57,6 +57,7 @@ export async function GET(req: Request) {
     const homepage = searchParams.get("homepage");
     const slugsParam = searchParams.get("slugs");
     const isAdmin = searchParams.get("admin") === "1";
+    const fresh = searchParams.get("fresh") === "1";
 
     const query: ProductQuery = {};
     if (slug) query.slug = slug;
@@ -72,7 +73,9 @@ export async function GET(req: Request) {
     const projection = isAdmin ? ADMIN_PROJECTION : undefined;
 
     // Admin needs fresh data immediately after every edit — bypass the public cache.
-    if (isAdmin) {
+    // The "fresh" flag is used by cart/checkout stock revalidation so the client
+    // never sees stale availability.
+    if (isAdmin || fresh) {
       const products = await fetchProducts(query, isDetail, projection);
       return successResponse(products);
     }
