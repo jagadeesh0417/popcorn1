@@ -20,7 +20,7 @@ export interface ShippingSettings {
 
 const defaultSettings: ShippingSettings = {
   freeShippingEnabled: true,
-  freeShippingThreshold: 399,
+  freeShippingThreshold: 329,
   flatDeliveryCharge: 49,
   mysuruPickupEnabled: true,
   mysuruPickupFee: 0,
@@ -75,7 +75,7 @@ export function ShippingProvider({ children }: { children: ReactNode }) {
   };
 
   const qualifiesForFree = (subtotal: number) =>
-    settings.freeShippingEnabled && subtotal >= settings.freeShippingThreshold;
+    settings.freeShippingEnabled && subtotal > settings.freeShippingThreshold;
 
   const freeShippingRemaining = (subtotal: number) =>
     Math.max(0, settings.freeShippingThreshold - subtotal);

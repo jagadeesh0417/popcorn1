@@ -108,7 +108,7 @@ export function CartDrawer() {
                   </div>
                   <div className="p-6 border-t border-[rgba(220,2,24,0.08)] space-y-3">
                     <div className="flex justify-between text-sm">
-                      <span className="text-[#444444]">Subtotal</span>
+                      <span className="text-[#444444]">Cart Total</span>
                       <span className="font-semibold">₹{getSubtotal()}</span>
                     </div>
                     <Link href="/checkout" onClick={() => setOpen(false)}>

@@ -4,26 +4,26 @@ import { successResponse, errorResponse } from "@/lib/api-utils";
 
 export async function GET(req: Request) {
   try {
-    console.log("[GET /api/products] Connecting to MongoDB...");
     await connectDB();
-    console.log("[GET /api/products] Connected, building query...");
     const { searchParams } = new URL(req.url);
     const slug = searchParams.get("slug");
     const featured = searchParams.get("featured");
     const bestSeller = searchParams.get("bestSeller");
     const homepage = searchParams.get("homepage");
+    const slugsParam = searchParams.get("slugs");
     const query: Record<string, unknown> = {};
     if (slug) query.slug = slug;
     if (featured === "true") query.isFeatured = true;
     if (bestSeller === "true") query.isBestSeller = true;
     if (homepage === "true") query.showOnHomepage = true;
-    console.log("[GET /api/products] Query:", JSON.stringify(query));
-    const products = await Product.find(query).sort({ createdAt: -1 });
-    console.log(`[GET /api/products] Found ${products.length} products`);
+    if (slugsParam) {
+      const list = slugsParam.split(",").map((s) => s.trim()).filter(Boolean);
+      if (list.length > 0) query.slug = { $in: list };
+    }
+    const products = await Product.find(query).sort({ createdAt: -1 }).lean();
     return successResponse(products);
   } catch (err) {
-    console.error("[GET /api/products] Error:", err instanceof Error ? err.message : err);
-    if (err instanceof Error && err.stack) console.error("[GET /api/products] Stack:", err.stack);
+    console.error("Failed to fetch products", err);
     return errorResponse("Failed to fetch products", 500);
   }
 }

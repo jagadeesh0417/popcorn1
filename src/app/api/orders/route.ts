@@ -6,11 +6,10 @@ import { successResponse, errorResponse } from "@/lib/api-utils";
 export async function GET() {
   try {
     await connectDB();
-    const orders = await Order.find({}).sort({ createdAt: -1 });
-    console.log("[ORDERS] GET all — found", orders.length);
+    const orders = await Order.find({}).sort({ createdAt: -1 }).lean();
     return successResponse(orders);
   } catch (err) {
-    console.error("[ORDERS] Failed to fetch orders", err);
+    console.error("Failed to fetch orders", err);
     return errorResponse("Failed to fetch orders", 500);
   }
 }
@@ -20,15 +19,12 @@ export async function POST(req: Request) {
     await connectDB();
     const body = await req.json();
 
-    console.log("[ORDERS] POST request", { orderId: body.orderId, paymentMethod: body.paymentMethod, itemCount: body.items?.length });
-
     if (!body.orderId) {
       return errorResponse("Missing orderId", 400);
     }
 
     const existing = await Order.findOne({ orderId: body.orderId });
     if (existing) {
-      console.log("[ORDERS] order already exists (duplicate)", { orderId: body.orderId });
       return successResponse(existing);
     }
 
@@ -38,7 +34,6 @@ export async function POST(req: Request) {
     }
 
     const order = await Order.create(orderData);
-    console.log("[ORDERS] order created", { orderId: order.orderId, status: order.status });
 
     return successResponse(order, 201);
   } catch (err) {

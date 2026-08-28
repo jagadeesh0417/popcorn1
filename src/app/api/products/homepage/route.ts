@@ -5,7 +5,7 @@ import { successResponse, errorResponse } from "@/lib/api-utils";
 export async function GET() {
   try {
     await connectDB();
-    const products = await Product.find({ showOnHomepage: true }).sort({ createdAt: -1 });
+    const products = await Product.find({ showOnHomepage: true }).sort({ createdAt: -1 }).lean();
     return successResponse(products);
   } catch (err) {
     console.error("Failed to fetch homepage products", err);

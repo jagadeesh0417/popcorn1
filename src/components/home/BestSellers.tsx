@@ -121,13 +121,17 @@ export function BestSellers() {
                 <div className="bg-white rounded-[24px] overflow-hidden shadow-[0_2px_20px_rgba(220,2,24,0.06)] hover:shadow-[0_8px_40px_rgba(220,2,24,0.12)] transition-all duration-500 border border-[rgba(220,2,24,0.08)] group h-full">
                   <Link href={`/products/${product.slug}`}>
                     <div className="relative h-56 overflow-hidden bg-[#FFF8F0]">
-                      <Image
-                        src={product.images[0]}
-                        alt={product.name}
-                        fill
-                        className="object-cover group-hover:scale-105 transition-transform duration-700"
-                        sizes="310px"
-                      />
+                      {product.images?.[0] ? (
+                        <Image
+                          src={product.images[0]}
+                          alt={product.name}
+                          fill
+                          className="object-cover group-hover:scale-105 transition-transform duration-700"
+                          sizes="310px"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-6xl">🍿</div>
+                      )}
                       <div className="absolute top-3 left-3 bg-[#F9D976] text-[#C70015] text-xs font-bold px-3 py-1.5 rounded-full flex items-center gap-1 shadow-lg">
                         <Star className="h-3 w-3 fill-current" /> Bestseller
                       </div>

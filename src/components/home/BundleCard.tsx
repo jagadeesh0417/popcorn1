@@ -9,42 +9,77 @@ import { useCart } from "@/lib/store";
 import { Product, ProductVariant } from "@/lib/types";
 import { toast } from "sonner";
 
-const bundlePrices: Record<string, { price: number; savings: number }> = {
-  "All 80g": { price: Number(process.env.NEXT_PUBLIC_BUNDLE_TRIO_PRICE_80G) || 449, savings: Number(process.env.NEXT_PUBLIC_BUNDLE_TRIO_SAVINGS_80G) || 18 },
-  "All 150g": { price: Number(process.env.NEXT_PUBLIC_BUNDLE_TRIO_PRICE_150G) || 749, savings: Number(process.env.NEXT_PUBLIC_BUNDLE_TRIO_SAVINGS_150G) || 28 },
-  "All 250g": { price: Number(process.env.NEXT_PUBLIC_BUNDLE_TRIO_PRICE_250G) || 1199, savings: Number(process.env.NEXT_PUBLIC_BUNDLE_TRIO_SAVINGS_250G) || 48 },
+interface BundleSettingsData {
+  images: { id: string; src: string }[];
+  sizes: { label: string; price: number; savings: number }[];
+  bundleText: { title: string; subtitle: string; flavors: string };
+}
+
+const defaultBundle: BundleSettingsData = {
+  images: [
+    { id: "1", src: "https://images.unsplash.com/photo-1578474846511-04ba529f0b88?w=600&q=80" },
+    { id: "2", src: "https://images.unsplash.com/photo-1600959908209-755b03e7c66f?w=600&q=80" },
+    { id: "3", src: "https://images.unsplash.com/photo-1578474846511-04ba529f0b88?w=600&q=80" },
+    { id: "4", src: "https://images.unsplash.com/photo-1600959908209-755b03e7c66f?w=600&q=80" },
+    { id: "5", src: "https://images.unsplash.com/photo-1578474846511-04ba529f0b88?w=600&q=80" },
+  ],
+  sizes: [
+    { label: "All 80g", price: 449, savings: 18 },
+    { label: "All 150g", price: 749, savings: 28 },
+    { label: "All 250g", price: 1199, savings: 48 },
+  ],
+  bundleText: {
+    title: "The Trio",
+    subtitle: "One of each. The best way to find your favourite.",
+    flavors: "Ghee & Black Pepper · Ghee & Curry Leaf · Coffee Chikki",
+  },
 };
-
-const bundleSizes = ["All 80g", "All 150g", "All 250g"];
-
-const bundleImages = [
-  "https://images.unsplash.com/photo-1578474846511-04ba529f0b88?w=600&q=80",
-  "https://images.unsplash.com/photo-1600959908209-755b03e7c66f?w=600&q=80",
-  "https://images.unsplash.com/photo-1578474846511-04ba529f0b88?w=600&q=80",
-  "https://images.unsplash.com/photo-1600959908209-755b03e7c66f?w=600&q=80",
-  "https://images.unsplash.com/photo-1578474846511-04ba529f0b88?w=600&q=80",
-];
 
 const TRIO_SLUGS = ["ghee-black-pepper", "ghee-curry-leaf", "coffee-chikki"];
 
 export function BundleCard() {
-  const [selectedBundle, setSelectedBundle] = useState<string>(bundleSizes[0]);
+  const [bundle, setBundle] = useState<BundleSettingsData>(defaultBundle);
+  const [selectedBundle, setSelectedBundle] = useState<string>(defaultBundle.sizes[0]?.label || "");
   const [currentImage, setCurrentImage] = useState(0);
   const [trioProducts, setTrioProducts] = useState<Product[]>([]);
   const { addItem } = useCart();
 
   useEffect(() => {
-    fetch("/api/products")
+    fetch("/api/settings?key=bundle")
       .then((r) => r.json())
       .then((data) => {
-        if (!data?.success) return;
-        const list = data.data as Product[];
-        setTrioProducts(list.filter((p: Product) => TRIO_SLUGS.includes(p.slug)));
+        if (data?.success && data.data?.value) {
+          const v = data.data.value as Partial<BundleSettingsData>;
+          setBundle((prev) => ({
+            images: Array.isArray(v.images) && v.images.length > 0 ? v.images : prev.images,
+            sizes: Array.isArray(v.sizes) && v.sizes.length > 0 ? v.sizes : prev.sizes,
+            bundleText: v.bundleText ? { ...prev.bundleText, ...v.bundleText } : prev.bundleText,
+          }));
+        }
       })
       .catch(console.error);
   }, []);
 
-  const bundleData = bundlePrices[selectedBundle];
+  const bundleImages = bundle.images.map((i) => i.src);
+  const currentImgIndex = bundleImages.length > 0 ? currentImage % bundleImages.length : 0;
+  const displayImage = bundleImages[currentImgIndex] || defaultBundle.images[0].src;
+
+  useEffect(() => {
+    fetch(`/api/products?slugs=${TRIO_SLUGS.join(",")}`)
+      .then((r) => r.json())
+      .then((data) => {
+        if (!data?.success) return;
+        const list = data.data as Product[];
+        setTrioProducts(list);
+      })
+      .catch(console.error);
+  }, []);
+
+  const effectiveSelected = bundle.sizes.some((s) => s.label === selectedBundle)
+    ? selectedBundle
+    : (bundle.sizes[0]?.label || "");
+  const bundleData = bundle.sizes.find((s) => s.label === effectiveSelected) || bundle.sizes[0];
+  const bundleSizes = bundle.sizes.map((s) => s.label);
 
   const getVariantForSize = (sizeLabel: string): string => {
     const map: Record<string, string> = {
@@ -61,13 +96,13 @@ export function BundleCard() {
       toast.error("Bundle products not loaded yet. Please try again.");
       return;
     }
-    const variantLabel = getVariantForSize(selectedBundle);
+    const variantLabel = getVariantForSize(effectiveSelected);
     trioProducts.forEach((product) => {
       const variants: ProductVariant[] = product.sizes || product.variants || [];
       const variant = variants.find((v) => v.label === variantLabel);
       addItem(product, variant || null);
     });
-    toast.success(`The Trio (${selectedBundle}) added to Cart ✓`);
+    toast.success(`${bundle.bundleText.title || "The Trio"} (${effectiveSelected}) added to Cart ✓`);
   };
 
   const nextImage = () => setCurrentImage((prev) => (prev + 1) % bundleImages.length);
@@ -99,8 +134,8 @@ export function BundleCard() {
                   className="absolute inset-0"
                 >
                   <Image
-                    src={bundleImages[currentImage]}
-                    alt="The Trio bundle"
+                    src={displayImage}
+                    alt={bundle.bundleText.title || "Bundle"}
                     fill
                     className="object-cover transition-transform duration-500 ease-out group-hover:scale-105"
                     sizes="(max-width: 768px) 100vw, 50vw"
@@ -110,25 +145,31 @@ export function BundleCard() {
               <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
 
               {/* Carousel arrows */}
-              <button onClick={prevImage} className="absolute left-3 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/80 hover:bg-white flex items-center justify-center shadow-sm transition-all hover:scale-105">
-                <ChevronLeft className="h-4 w-4 text-[#1A1A1A]" />
-              </button>
-              <button onClick={nextImage} className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/80 hover:bg-white flex items-center justify-center shadow-sm transition-all hover:scale-105">
-                <ChevronRight className="h-4 w-4 text-[#1A1A1A]" />
-              </button>
+              {bundleImages.length > 1 && (
+                <>
+                  <button onClick={prevImage} className="absolute left-3 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/80 hover:bg-white flex items-center justify-center shadow-sm transition-all hover:scale-105">
+                    <ChevronLeft className="h-4 w-4 text-[#1A1A1A]" />
+                  </button>
+                  <button onClick={nextImage} className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/80 hover:bg-white flex items-center justify-center shadow-sm transition-all hover:scale-105">
+                    <ChevronRight className="h-4 w-4 text-[#1A1A1A]" />
+                  </button>
+                </>
+              )}
 
               {/* Dots */}
-              <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
-                {bundleImages.map((_, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setCurrentImage(i)}
-                    className={`w-1.5 h-1.5 transition-all duration-300 ${
-                      i === currentImage ? "bg-white w-4" : "bg-white/50 hover:bg-white/70"
-                    }`}
-                  />
-                ))}
-              </div>
+              {bundleImages.length > 1 && (
+                <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
+                  {bundleImages.map((_, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setCurrentImage(i)}
+                      className={`w-1.5 h-1.5 transition-all duration-300 ${
+                        i === currentImage ? "bg-white w-4" : "bg-white/50 hover:bg-white/70"
+                      }`}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Content side */}
@@ -138,18 +179,18 @@ export function BundleCard() {
               </span>
 
               <h2 className="text-3xl md:text-4xl text-[#1A1A1A]" style={{ fontFamily: "var(--font-playfair)" }}>
-                The Trio
+                {bundle.bundleText.title || "The Trio"}
               </h2>
               <p className="text-[#444444] text-sm mt-2 leading-relaxed">
-                One of each. The best way to find your favourite.
+                {bundle.bundleText.subtitle || "One of each. The best way to find your favourite."}
               </p>
               <p className="text-[#DC0218] text-xs mt-4 font-medium tracking-wide">
-                Ghee &amp; Black Pepper <span className="text-[#444444]">·</span> Ghee &amp; Curry Leaf <span className="text-[#444444]">·</span> Coffee Chikki
+                {bundle.bundleText.flavors || "Ghee & Black Pepper · Ghee & Curry Leaf · Coffee Chikki"}
               </p>
 
               <div className="flex flex-wrap gap-2 mt-6">
                 {bundleSizes.map((size) => {
-                  const isSelected = selectedBundle === size;
+                  const isSelected = effectiveSelected === size;
                   return (
                     <button
                       key={size}

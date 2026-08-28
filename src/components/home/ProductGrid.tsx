@@ -17,15 +17,14 @@ export function ProductGrid() {
   const [addedFeedback, setAddedFeedback] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
-    fetch("/api/products")
+    fetch(`/api/products?slugs=${TRIO_SLUGS.join(",")}`)
       .then((r) => r.json())
       .then((data) => {
         if (!data?.success) return;
         const list = data.data as Product[];
-        const trios = list.filter((p: Product) => TRIO_SLUGS.includes(p.slug));
-        setTrioProducts(trios);
+        setTrioProducts(list);
         const init: Record<string, string> = {};
-        trios.forEach((p: Product) => {
+        list.forEach((p: Product) => {
           const variants: ProductVariant[] = p.sizes || p.variants || [];
           if (variants.length > 0) init[p.id || p._id || ""] = variants[0].label;
         });

@@ -103,4 +103,10 @@ const ProductSchema = new Schema<IProduct>(
   { timestamps: true }
 );
 
+ProductSchema.index({ category: 1 });
+ProductSchema.index({ showOnHomepage: 1 });
+ProductSchema.index({ isBestSeller: 1 });
+ProductSchema.index({ isFeatured: 1 });
+ProductSchema.index({ isPublished: 1 });
+
 export default mongoose.models.Product || mongoose.model<IProduct>("Product", ProductSchema);

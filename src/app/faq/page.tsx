@@ -16,11 +16,11 @@ const faqs = [
   },
   {
     q: "Do you offer free shipping?",
-    a: "We offer free shipping on all orders across India.",
+    a: "We offer free delivery on all orders above ₹329 across India.",
   },
   {
     q: "What is your return policy?",
-    a: "We stand by the quality of our popcorn. If you're not satisfied with your order, contact us within 48 hours of delivery and we'll make it right — including a replacement or full refund.",
+    a: "We do not offer cancellations or returns after an order is placed. Every batch is freshly popped and packed to order. If you receive a damaged or incorrect order, contact us within 48 hours of delivery and we'll make it right.",
   },
   {
     q: "How should I store my popcorn?",

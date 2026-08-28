@@ -60,13 +60,17 @@ export function FeaturedProducts() {
               >
                 <Link href={`/products/${product.slug}`}>
                   <div className="relative h-56 overflow-hidden bg-[#FFF8F0]">
-                    <Image
-                      src={product.images[0]}
-                      alt={product.name}
-                      fill
-                      className="object-cover group-hover:scale-105 transition-transform duration-700"
-                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                    />
+                    {product.images?.[0] ? (
+                      <Image
+                        src={product.images[0]}
+                        alt={product.name}
+                        fill
+                        className="object-cover group-hover:scale-105 transition-transform duration-700"
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-6xl">🍿</div>
+                    )}
                     {displayOriginal && displayOriginal > displayPrice && (
                       <div className="absolute top-3 left-3 bg-[#DC0218] text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg">
                         SAVE ₹{displayOriginal - displayPrice}

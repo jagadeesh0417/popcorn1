@@ -86,4 +86,9 @@ const OrderSchema = new Schema<IOrder>(
   { timestamps: true }
 );
 
+OrderSchema.index({ orderId: 1 }, { unique: true });
+OrderSchema.index({ userId: 1 });
+OrderSchema.index({ status: 1 });
+OrderSchema.index({ createdAt: -1 });
+
 export default mongoose.models.Order || mongoose.model<IOrder>("Order", OrderSchema);

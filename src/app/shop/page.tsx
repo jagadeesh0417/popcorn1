@@ -115,7 +115,11 @@ export default function ShopPage() {
               >
                 <Link href={`/products/${product.slug}`}>
                   <div className="relative h-48 bg-[#FFF8F0]">
-                    <Image src={product.images[0]} alt={product.name} fill className="object-cover group-hover:scale-105 transition-transform duration-700" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" />
+                    {product.images?.[0] ? (
+                      <Image src={product.images[0]} alt={product.name} fill className="object-cover group-hover:scale-105 transition-transform duration-700" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-6xl">🍿</div>
+                    )}
                   </div>
                 </Link>
                 <div className="p-5">

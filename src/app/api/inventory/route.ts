@@ -5,7 +5,7 @@ import { successResponse, errorResponse } from "@/lib/api-utils";
 export async function GET() {
   try {
     await connectDB();
-    const products = await Product.find({}).sort({ name: 1 });
+    const products = await Product.find({}).sort({ name: 1 }).lean();
     return successResponse(products);
   } catch (err) {
     console.error("Failed to fetch inventory", err);

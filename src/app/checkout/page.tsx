@@ -486,7 +486,7 @@ export default function CheckoutPage() {
 
               <Separator className="mb-4 bg-[rgba(220,2,24,0.08)]" />
               <div className="space-y-2 text-sm">
-                <div className="flex justify-between text-[#444444]"><span>Subtotal</span><span>₹{getSubtotal()}</span></div>
+                <div className="flex justify-between text-[#444444]"><span>Cart Total</span><span>₹{getSubtotal()}</span></div>
                 {getDiscount() > 0 && <div className="flex justify-between text-green-600"><span>Discount</span><span>-₹{getDiscount()}</span></div>}
                 <div className="flex justify-between text-[#444444]">
                   <span>Shipping</span>

@@ -102,7 +102,11 @@ export default function CartPage() {
                 >
                   <Link href={`/products/${item.product.slug}`}>
                     <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-xl overflow-hidden bg-[#FFF8F0] shrink-0">
-                      <Image src={item.product.images[0]} alt={item.product.name} fill className="object-cover" sizes="112px" />
+                      {item.product.images?.[0] ? (
+                        <Image src={item.product.images[0]} alt={item.product.name} fill className="object-cover" sizes="112px" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-3xl">🍿</div>
+                      )}
                     </div>
                   </Link>
                   <div className="flex-1 min-w-0">
@@ -140,7 +144,7 @@ export default function CartPage() {
               <h3 className="font-bold text-lg text-[#1A1A1A] mb-4">Order Summary</h3>
               <div className="space-y-3 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-[#444444]">Subtotal</span>
+                  <span className="text-[#444444]">Cart Total</span>
                   <span className="font-medium text-[#1A1A1A]">₹{getSubtotal()}</span>
                 </div>
                 {getDiscount() > 0 && (

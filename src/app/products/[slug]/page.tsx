@@ -30,6 +30,11 @@ function safeImgSrc(images: unknown): string | null {
   return typeof first === "string" && first.length > 0 ? first : null;
 }
 
+function allImages(product: Product | null): string[] {
+  const arr = safeArray<string>(product?.images);
+  return arr.filter((img) => typeof img === "string" && img.trim().length > 0);
+}
+
 export default function ProductDetailPage() {
   const params = useParams();
   const slug = params.slug as string;
@@ -41,30 +46,38 @@ export default function ProductDetailPage() {
   const [selectedSize, setSelectedSize] = useState<string>("");
   const [activeTab, setActiveTab] = useState<"description" | "ingredients" | "nutrition" | "reviews">("description");
   const [added, setAdded] = useState(false);
+  const [activeImage, setActiveImage] = useState(0);
 
   const variants: ProductVariant[] = safeArray(product?.sizes).length > 0
     ? safeArray(product?.sizes)
     : safeArray(product?.variants);
 
   useEffect(() => {
-    fetch("/api/products")
-      .then((r) => r.json())
-      .then((data) => {
-        if (!data?.success) return;
-        const list = safeArray<Product>(data.data);
-        const found = list.find((p) => p.slug === slug);
+    let cancelled = false;
+    Promise.all([
+      fetch("/api/products?slug=" + encodeURIComponent(slug)).then((r) => r.json()),
+      fetch("/api/products").then((r) => r.json()),
+    ])
+      .then(([productRes, allRes]) => {
+        if (cancelled) return;
+        const found = productRes?.success ? (productRes.data as Product) : undefined;
         if (found) {
           setProduct(found);
+          setActiveImage(0);
           const v = safeArray<ProductVariant>(found.sizes).length > 0
             ? safeArray<ProductVariant>(found.sizes)
             : safeArray<ProductVariant>(found.variants);
           const defaultVar = v.find((s) => s.isDefault) || v[0];
           setSelectedSize(defaultVar?.label ?? "");
-          setRelated(list.filter((p) => (p.category || "") === (found.category || "") && p.slug !== slug).slice(0, 4));
+          if (allRes?.success) {
+            const list = safeArray<Product>(allRes.data);
+            setRelated(list.filter((p) => (p.category || "") === (found.category || "") && p.slug !== slug).slice(0, 4));
+          }
         }
       })
       .catch(console.error)
-      .finally(() => setLoading(false));
+      .finally(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; };
   }, [slug]);
 
   if (loading) return <div className="min-h-screen pt-20 bg-white" />;
@@ -104,16 +117,51 @@ export default function ProductDetailPage() {
 
         <div className="grid lg:grid-cols-2 gap-12 mb-16">
           <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
-            <div className="relative h-80 sm:h-96 lg:h-[500px] overflow-hidden bg-[#FFF8F0]">
-              {(() => {
-                const src = safeImgSrc(product.images);
-                return src ? (
-                  <Image src={src} alt={safeStr(product.name)} fill className="object-cover" sizes="(max-width: 1024px) 100vw, 50vw" priority />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-[#444444] text-sm">No image</div>
-                );
-              })()}
-            </div>
+            {(() => {
+              const imgs = allImages(product);
+              const current = imgs[activeImage] || imgs[0];
+              return (
+                <div>
+                  <div className="relative h-80 sm:h-96 lg:h-[500px] overflow-hidden bg-[#FFF8F0]">
+                    {current ? (
+                      <Image
+                        key={current}
+                        src={current}
+                        alt={safeStr(product.name)}
+                        fill
+                        className="object-cover"
+                        sizes="(max-width: 1024px) 100vw, 50vw"
+                        priority
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-[#444444] text-sm">No image</div>
+                    )}
+                  </div>
+                  {imgs.length > 1 && (
+                    <div className="flex gap-3 mt-3 overflow-x-auto pb-1">
+                      {imgs.map((img, i) => (
+                        <button
+                          key={img + i}
+                          onClick={() => setActiveImage(i)}
+                          aria-label={`View image ${i + 1}`}
+                          className={`relative w-20 h-20 sm:w-24 sm:h-24 overflow-hidden border-2 shrink-0 transition-colors ${
+                            i === activeImage ? "border-[#DC0218]" : "border-transparent hover:border-[#DC0218]/40"
+                          }`}
+                        >
+                          <Image
+                            src={img}
+                            alt={`${safeStr(product.name)} thumbnail ${i + 1}`}
+                            fill
+                            sizes="96px"
+                            className="object-cover"
+                          />
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
           </motion.div>
 
           <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="flex flex-col">
@@ -213,9 +261,9 @@ export default function ProductDetailPage() {
 
             <div className="grid grid-cols-3 gap-3 mt-8">
               {[
-                { icon: Truck, text: "Free delivery above ₹300" },
+                { icon: Truck, text: "Free delivery on orders above ₹329" },
                 { icon: Shield, text: "Freshness guaranteed" },
-                { icon: RotateCcw, text: "Easy returns" },
+                { icon: RotateCcw, text: "No Cancellation / Returns" },
               ].map(({ icon: Icon, text }) => (
                 <div key={text} className="flex flex-col items-center text-center p-3 bg-[#FFF8F0]">
                   <Icon className="h-5 w-5 text-[#DC0218] mb-1" />
