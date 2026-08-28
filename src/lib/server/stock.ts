@@ -1,6 +1,17 @@
+import mongoose from "mongoose";
 import { connectDB } from "@/lib/db";
 import Product from "@/lib/models/Product";
 import Setting from "@/lib/models/Setting";
+
+// Mongoose throws a CastError when you query { _id: <non-ObjectId-string> } (e.g. a
+// slug). Build the lookup so the _id branch is only present for genuinely valid
+// ObjectIds, otherwise fall back to the slug lookup.
+function refQuery(ref: string | undefined) {
+  const value = String(ref ?? "");
+  if (!value) return {};
+  const isObjectId = mongoose.isValidObjectId(value);
+  return isObjectId ? { $or: [{ _id: value }, { slug: value }] } : { slug: value };
+}
 
 export interface ResolvedItem {
   productId: string;
@@ -228,9 +239,7 @@ export async function validateAndResolveItems(rawItems: RawItem[]): Promise<Stoc
     }
 
     const ref = item.productId;
-    const product = await Product.findOne({
-      $or: [{ _id: ref }, { slug: ref }],
-    }).lean();
+    const product = await Product.findOne(refQuery(ref)).lean();
 
     if (!product) {
       throw new StockError(`One or more items in your cart are no longer available. ("${item.name || "Unknown"}")`);
@@ -335,7 +344,7 @@ export async function reserveStock(items: (RawItem | ResolvedItem)[]): Promise<v
       const label = r.variantLabel;
       const res = await Product.updateOne(
         {
-          $or: [{ _id: ref }, { slug: ref }],
+          ...refQuery(ref),
           "sizes.label": label,
           "sizes.inStock": { $ne: false },
           "sizes.stock": { $gte: r.qty },
@@ -353,7 +362,7 @@ export async function reserveStock(items: (RawItem | ResolvedItem)[]): Promise<v
     } else {
       const res = await Product.updateOne(
         {
-          $or: [{ _id: ref }, { slug: ref }],
+          ...refQuery(ref),
           inStock: { $ne: false },
           stockQuantity: { $gte: r.qty },
         },

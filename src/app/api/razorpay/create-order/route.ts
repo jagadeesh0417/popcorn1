@@ -9,18 +9,25 @@ export async function POST(req: Request) {
   let amount: number;
   let currency: string;
 
+  let body: { items?: unknown; shipping?: unknown; coupon?: unknown; currency?: unknown };
   try {
-    const body = await req.json();
-    currency = body.currency || "INR";
+    body = await req.json();
+  } catch (e) {
+    console.error("[RAZORPAY] failed to parse JSON request body:", e);
+    return errorResponse("Invalid request body", 400);
+  }
+
+  try {
+    currency = String(body.currency || "INR");
 
     // Server-side source of truth: resolve items from the DB and confirm stock
     // before creating the Razorpay order. Never trust a browser amount.
-    const resolved = await validateAndResolveItems(body.items);
+    const resolved = await validateAndResolveItems(body.items as Parameters<typeof validateAndResolveItems>[0]);
     const subtotal = resolved.subtotal;
     const shippingCost = Number(body.shipping) || 0;
     let discount = 0;
     if (body.coupon) {
-      const couponResult = await validateCoupon(body.coupon, subtotal);
+      const couponResult = await validateCoupon(String(body.coupon), subtotal);
       if (couponResult.valid) {
         discount = couponResult.discount ?? 0;
       }
@@ -28,11 +35,18 @@ export async function POST(req: Request) {
     const total = Math.max(0, subtotal - discount + shippingCost);
     amount = Math.round(total * 100);
   } catch (e) {
-    console.error("[RAZORPAY] failed to parse request body:", e);
+    console.error("[RAZORPAY] create-order validation failed:", e);
     if (e instanceof StockError) {
       return errorResponse(e.message, e.code);
     }
-    return errorResponse("Invalid request body", 400);
+    // Structurally valid JSON that failed our own validation: log the underlying
+    // detail for debugging but never leak internals to the customer.
+    console.error("[RAZORPAY] validation error detail:", {
+      name: e instanceof Error ? e.name : typeof e,
+      message: e instanceof Error ? e.message : String(e),
+      stack: e instanceof Error ? e.stack : undefined,
+    });
+    return errorResponse("The order could not be created. Please review your cart and try again.", 400);
   }
 
   console.log("[RAZORPAY] create-order request", { amount, currency });
