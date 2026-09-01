@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Printer, Loader2, Package, AlertTriangle, Phone } from "lucide-react";
+import { X, Printer, Loader2, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
 import type { ShippingLabelData } from "@/lib/shipping/label";
 import "./shipping-label-print.css";
@@ -77,59 +77,43 @@ function LabelBody({ orderId, onClose }: { orderId: string; onClose: () => void 
           )}
 
           {/* The printable label */}
-          <div className="shipping-label-print">
-            {/* Brand */}
-            <div className="text-center mb-3">
-              <div className="text-[22px] font-black leading-none tracking-[0.08em]">{label.sender.brand}</div>
-              <div className="text-[12px] font-semibold tracking-[0.35em] mt-0.5">SHIPPING LABEL</div>
-            </div>
-
-            <div className="my-2 border-t-2 border-black" />
-
-            {/* FROM */}
-            <div className="mb-3">
-              <div className="text-[13px] font-bold tracking-[0.2em]">FROM</div>
-              <div className="text-[14px] font-bold mt-1">{label.sender.name}</div>
-              <div className="text-[12px] mt-0.5">Mobile: {label.sender.phone}</div>
-              <div className="text-[12px] mt-0.5 leading-snug">{label.sender.address}</div>
-            </div>
-
-            <div className="my-2 border-t border-black" />
-
-            {/* TO */}
-            <div className="mb-3">
-              <div className="text-[13px] font-bold tracking-[0.2em]">TO</div>
-              <div className="text-[26px] font-black leading-tight mt-1 break-words">{label.recipient.name}</div>
-              <div className="text-[14px] font-semibold mt-1.5 flex items-center gap-1.5">
-                <Phone className="h-3.5 w-3.5" />
-                Mobile: {label.recipient.phone}
-              </div>
-              <div className="text-[15px] leading-snug mt-2">
+          <div className="shipping-label">
+            {/* TO section (customer) */}
+            <section className="to-section">
+              <div className="section-heading">TO</div>
+              <div className="recipient-name">{label.recipient.name}</div>
+              {label.recipient.phone && (
+                <div className="phone-line">Mobile: {label.recipient.phone}</div>
+              )}
+              <div className="address-block">
                 {label.recipient.addressLines.length > 0 ? (
                   label.recipient.addressLines.map((line, i) => (
-                    <div key={i} className="break-words">{line}</div>
+                    <div key={i} className={i > 0 ? "line" : ""}>{line}</div>
                   ))
                 ) : (
-                  <div>—</div>
+                  <div className="line">—</div>
                 )}
-                {label.recipient.cityState && <div className="mt-0.5">{label.recipient.cityState}</div>}
+                {label.recipient.cityState && <div className="line">{label.recipient.cityState}</div>}
               </div>
               {label.recipient.pincode && (
-                <div className="text-[18px] font-black tracking-wide mt-2">PIN CODE: {label.recipient.pincode}</div>
+                <div className="pin-line">PIN CODE: {label.recipient.pincode}</div>
               )}
-            </div>
+            </section>
 
-            <div className="my-2 border-t border-black" />
+            <div className="shipping-divider" />
 
-            {/* Meta */}
-            <div className="flex items-center justify-between text-[11px] pt-1">
-              <div className="flex items-center gap-1.5">
-                <Package className="h-3.5 w-3.5" />
-                Items: {label.order.itemCount}
-              </div>
-              {label.order.id && <div className="font-semibold">Order: {label.order.id}</div>}
+            {/* FROM section (sender) */}
+            <section className="from-section">
+              <div className="section-heading">FROM</div>
+              <div className="sender-name">{label.sender.name}</div>
+              <div className="phone-line">Mobile: {label.sender.phone}</div>
+              <div className="address-block line">{label.sender.address}</div>
+            </section>
+
+            {label.order.id && (
+              <div className="order-id">Order ID: {label.order.id}</div>
+            )}
             </div>
-          </div>
 
           {/* Modal actions */}
           <div className="shipping-label-print-ui mt-5 flex flex-wrap items-center justify-end gap-2">

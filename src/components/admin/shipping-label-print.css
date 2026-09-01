@@ -1,79 +1,194 @@
-/* Shipping label print styles.
-   Only the element(s) carrying the .shipping-label-print class are printed.
-   Everything else in the admin UI is hidden so the label prints cleanly. */
+/* ---------------------------------------------------------------------------
+   Shipping label print styles.
+   
+   The printed output IS the label: a single 100mm x 150mm portrait page.
+   We deliberately do NOT wrap the label in an A4 sheet - @page is sized to
+   the label itself so there is no huge blank area and nothing shrinks to a
+   tiny box at the top of a page.
+--------------------------------------------------------------------------- */
+
+/* Screen-rendered label: fixed physical size, thin border, print-friendly B/W.
+   This is used both for the on-screen preview and the print output. */
+.shipping-label {
+  width: 100mm;
+  height: 150mm;
+  box-sizing: border-box;
+  padding: 7mm 7mm 6mm 7mm;
+  border: 1px solid #111111;
+  border-radius: 1mm;
+  background: #ffffff;
+  color: #000000;
+  font-family: Arial, Helvetica, sans-serif;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+/* ------------------------- TO / FROM sections --------------------------- */
+
+.shipping-label .to-section {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  flex: 1 1 auto;
+}
+
+.shipping-label .from-section {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  flex: 0 0 auto;
+  margin-top: 4mm;
+}
+
+.shipping-label .section-heading {
+  font-size: 16px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding-bottom: 1mm;
+  border-bottom: 1px solid #111111;
+  margin-bottom: 3mm;
+}
+
+.shipping-label .recipient-name {
+  font-size: 21px;
+  font-weight: 700;
+  text-transform: uppercase;
+  line-height: 1.15;
+  letter-spacing: 0.01em;
+  margin: 0 0 2mm 0;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+.shipping-label .phone-line {
+  font-size: 13px;
+  font-weight: 500;
+  color: #000000;
+  margin: 0 0 2.5mm 0;
+}
+
+.shipping-label .address-block {
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.4;
+  color: #000000;
+  margin: 0;
+}
+
+.shipping-label .address-block .line {
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+.shipping-label .pin-line {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  margin: 2.5mm 0 0 0;
+}
+
+/* ----------------------------- divider ---------------------------------- */
+
+.shipping-label .shipping-divider {
+  border-top: 1px solid #111111;
+  margin: 4mm 0;
+}
+
+/* ------------------------------- sender --------------------------------- */
+
+.shipping-label .sender-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: #000000;
+  margin: 0 0 1.5mm 0;
+}
+
+.shipping-label .from-section .phone-line {
+  margin: 0 0 2mm 0;
+}
+
+.shipping-label .from-section .address-block {
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+/* ----------------------------- order id --------------------------------- */
+
+.shipping-label .order-id {
+  margin-top: auto;
+  padding-top: 1.5mm;
+  font-size: 10px;
+  font-weight: 500;
+  color: #000000;
+  letter-spacing: 0.02em;
+}
+
+/* ===========================================================================
+   PRINT
+   The page is exactly the label. html/body and the label are all sized to
+   100mm x 150mm so the label fills the printed page completely - no blank A4.
+=========================================================================== */
 
 @media print {
   @page {
-    size: A4;
-    margin: 10mm;
+    size: 100mm 150mm;
+    margin: 0;
   }
 
   html,
   body {
-    background: #ffffff !important;
-    width: 100% !important;
-    height: auto !important;
+    width: 100mm !important;
+    height: 150mm !important;
     margin: 0 !important;
     padding: 0 !important;
-    overflow: visible !important;
+    background: #ffffff !important;
+    overflow: hidden !important;
   }
 
-  /* Hide every admin/page element by default */
+  /* Hide everything except the label */
   body * {
     visibility: hidden !important;
   }
 
-  /* Reveal only the shipping label subtree */
-  .shipping-label-print,
-  .shipping-label-print * {
+  .shipping-label,
+  .shipping-label * {
     visibility: visible !important;
   }
 
-  /* Mask the modal backdrop and hide all non-label modal chrome while printing */
+  .shipping-label {
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100mm !important;
+    height: 150mm !important;
+    padding: 7mm 7mm 6mm 7mm !important;
+    border: 1px solid #111111 !important;
+    border-radius: 0 !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+    background: #ffffff !important;
+    color: #000 !important;
+  }
+
+  /* Remove any modal/backdrop chrome so it cannot influence the page */
+  .shipping-label-print-ui {
+    display: none !important;
+  }
+
   .shipping-label-overlay {
     background: transparent !important;
     backdrop-filter: none !important;
   }
 
-  .shipping-label-print-ui {
-    display: none !important;
-  }
-
-  .shipping-label-print {
-    position: absolute !important;
-    left: 0 !important;
-    top: 0 !important;
-    width: 96% !important;
-    max-width: 96% !important;
-    margin: 0 auto !important;
-    padding: 12px 16px !important;
-    border: 2px solid #000 !important;
-    border-radius: 0 !important;
-    background: #ffffff !important;
-    color: #000 !important;
-    box-shadow: none !important;
-    break-inside: avoid !important;
-    page-break-inside: avoid !important;
-    overflow: visible !important;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
-  }
-
-  .shipping-label-print * {
+  .shipping-label * {
     box-shadow: none !important;
     text-shadow: none !important;
     background: transparent !important;
+    color: #000000 !important;
   }
-
-  .shipping-label-print a {
-    text-decoration: none !important;
-    color: #000 !important;
-  }
-}
-
-/* Screen preview mirror of key print properties so the modal matches output */
-.shipping-label-print {
-  border: 2px solid #000;
-  background: #ffffff;
-  color: #000;
-  border-radius: 0;
 }

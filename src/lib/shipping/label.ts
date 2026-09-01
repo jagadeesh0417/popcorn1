@@ -12,6 +12,7 @@ export interface ShippingLabelSender {
 export interface ShippingLabelRecipient {
   name: string;
   phone: string;
+  address: string;
   addressLines: string[];
   cityState: string;
   pincode?: string;
@@ -59,9 +60,10 @@ function splitAddress(raw: string): string[] {
   const address = clean(raw);
   if (!address) return [];
   if (isPickup(address)) return ["Mysuru Pickup"];
-  // Break on commas and semicolons so multi-part addresses print on their own lines.
+  // Break on real separators (semicolons / newlines) so comma-separated
+  // address parts stay grouped on readable lines and wrap naturally.
   return address
-    .split(/[;,]+/)
+    .split(/[;\n]+/)
     .map((line) => line.trim())
     .filter(Boolean);
 }
@@ -84,7 +86,8 @@ export function buildShippingLabel(order: RawOrder): ShippingLabelData | null {
   const pincode = clean(details.zipCode);
 
   const addressLines = splitAddress(details.address || "");
-  const isPickupOrder = addressLines.length === 1 && isPickup(addressLines[0]);
+  const rawAddress = clean(details.address);
+  const isPickupOrder = isPickup(rawAddress || "");
 
   const missingFields: string[] = [];
   if (!fullName) missingFields.push("Customer Name");
@@ -110,6 +113,7 @@ export function buildShippingLabel(order: RawOrder): ShippingLabelData | null {
     recipient: {
       name: fullName.toUpperCase(),
       phone,
+      address: rawAddress,
       addressLines,
       cityState,
       pincode,

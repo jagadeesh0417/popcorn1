@@ -3,7 +3,7 @@
 // Change values here to update the sender block across the whole app.
 export const senderConfig = {
   brand: "POPRIKA",
-  name: "Sanjan (POPRIKA)",
+  name: "Sanjan C.S (Poprika)",
   phone: "8197175807",
-  address: "#30 Srinivasa, RCE Layout, Vijayanagar 4th Stage, Mysore, Karnataka - 570032",
+  address: "#30, Srinivasa, RCE Layout, Vijayanagar 4th Stage, Mysore, Karnataka - 570032",
 } as const;
