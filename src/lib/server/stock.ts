@@ -333,7 +333,8 @@ function flattenReservations(items: (RawItem | ResolvedItem)[]): ProductReservat
 
 // Atomically reserve/decrement stock so two simultaneous purchases of the last unit
 // cannot both succeed. Throws StockError if any item can't be satisfied.
-export async function reserveStock(items: (RawItem | ResolvedItem)[]): Promise<void> {
+// `orderId` is optional; when provided it is included in inventory-update logs.
+export async function reserveStock(items: (RawItem | ResolvedItem)[], orderId?: string): Promise<void> {
   await connectDB();
   const reservations = flattenReservations(items);
   for (const r of reservations) {
@@ -342,6 +343,16 @@ export async function reserveStock(items: (RawItem | ResolvedItem)[]): Promise<v
 
     if (r.variantLabel) {
       const label = r.variantLabel;
+      const product = await Product.findOne({ ...refQuery(ref), "sizes.label": label }).lean();
+      if (!product) {
+        console.log(`[INVENTORY] orderId=${orderId || "?"} productId=${ref} variant=${label} qty=${r.qty} status=not_found`);
+        throw new StockError("Some items in your order are no longer available. Please review your cart.");
+      }
+      const sizes = product.sizes as Record<string, unknown>[];
+      const variant = sizes.find((s) => (s.label as string) === label);
+      const v = variant as { stock?: number };
+      const prevStock = typeof v.stock === "number" ? v.stock : 0;
+
       const res = await Product.updateOne(
         {
           ...refQuery(ref),
@@ -352,14 +363,26 @@ export async function reserveStock(items: (RawItem | ResolvedItem)[]): Promise<v
         { $inc: { "sizes.$.stock": -r.qty } }
       );
       if (res.modifiedCount !== 1) {
+        console.log(`[INVENTORY] orderId=${orderId || "?"} productId=${ref} variant=${label} qty=${r.qty} prev=${prevStock} status=deduct_failed`);
         throw new StockError("Some items in your order are no longer available. Please review your cart.");
       }
+      const newStock = prevStock - r.qty;
+      console.log(`[INVENTORY] orderId=${orderId || "?"} productId=${ref} variant=${label} qty=${r.qty} prev=${prevStock} new=${newStock} status=deducted`);
+
+      // Keep the master stockQuantity in sync with the variant stock actually deducted,
+      // so the admin inventory page (which reads stockQuantity) reflects the deduction.
+      await Product.updateOne({ ...refQuery(ref) }, { $inc: { stockQuantity: -r.qty } });
+
       // If the variant hit 0, mark it out of stock so it can't be selected again.
       await Product.updateOne(
         { "sizes.label": label, "sizes.stock": { $lte: 0 } },
         { $set: { "sizes.$.inStock": false } }
       );
     } else {
+      const product = await Product.findOne(refQuery(ref)).lean();
+      const p = product as Record<string, unknown> | null;
+      const prevStock: number = p ? (Number((p as { stockQuantity?: number }).stockQuantity) || 0) : 0;
+
       const res = await Product.updateOne(
         {
           ...refQuery(ref),
@@ -369,8 +392,12 @@ export async function reserveStock(items: (RawItem | ResolvedItem)[]): Promise<v
         { $inc: { stockQuantity: -r.qty } }
       );
       if (res.modifiedCount !== 1) {
+        console.log(`[INVENTORY] orderId=${orderId || "?"} productId=${ref} qty=${r.qty} prev=${prevStock} status=deduct_failed`);
         throw new StockError("Some items in your order are no longer available. Please review your cart.");
       }
+      const newStock = prevStock - r.qty;
+      console.log(`[INVENTORY] orderId=${orderId || "?"} productId=${ref} qty=${r.qty} prev=${prevStock} new=${newStock} status=deducted`);
+
       await Product.updateMany(
         { stockQuantity: { $lte: 0 } },
         { $set: { inStock: false } }

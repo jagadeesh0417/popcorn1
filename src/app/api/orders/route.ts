@@ -79,19 +79,48 @@ export async function POST(req: Request) {
     orderData.discount = discount;
     orderData.total = total;
 
-    // Atomically reserve stock (rejects if the last unit was just taken by someone else).
+    // Create the order BEFORE reserving stock so the order is the
+    // idempotency anchor (duplicate orderId returns early above).
+    let order;
     try {
-      await reserveStock(resolved.items);
+      order = await Order.create(orderData);
+      console.log("[ORDERS] order created", { orderId: order.orderId });
+    } catch (e: unknown) {
+      // Race: another request created the same order concurrently.
+      const duplicate = await Order.findOne({ orderId: body.orderId });
+      if (duplicate) {
+        console.log("[ORDERS] concurrent duplicate order", { orderId: body.orderId });
+        return successResponse(duplicate);
+      }
+      console.error("[ORDERS] Failed to create order", e);
+      if (e && typeof e === "object" && "errors" in e) {
+        console.error("[ORDERS] validation errors:", JSON.stringify((e as { errors: Record<string, { message: string }> }).errors));
+      }
+      try {
+        const body2 = await req.clone().json().catch(() => ({}));
+        await OrphanPayment.create({
+          razorpay_order_id: body2.orderId,
+          status: "needs_review",
+          orderData: body2,
+          error: e instanceof Error ? e.message : String(e),
+        });
+      } catch { /* orphan write failure is non-fatal */ }
+      return errorResponse("Failed to create order", 500);
+    }
+
+    // Now reserve/deduct stock. Because the order already exists, any
+    // retry after this point is caught by the duplicate-order check above.
+    try {
+      await reserveStock(resolved.items, order.orderId);
     } catch (err) {
       if (err instanceof StockError) {
+        // Mark the order as pending so it is not left in a misleading
+        // state when stock could not be reserved.
+        try { await Order.findByIdAndUpdate(order._id, { $set: { status: "pending" } }); } catch { /* non-fatal */ }
         return errorResponse(err.message, err.code);
       }
       throw err;
     }
-
-    const order = await Order.create(orderData);
-
-    return successResponse(order, 201);
   } catch (err) {
     console.error("[ORDERS] Failed to create order", err);
     if (err && typeof err === "object" && "errors" in err) {

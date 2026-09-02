@@ -34,6 +34,9 @@ export async function PUT(req: Request) {
     if (inStock !== undefined) update.inStock = inStock;
     const product = await Product.findByIdAndUpdate(id, { $set: update }, { new: true });
     if (!product) return errorResponse("Not found", 404);
+    // Keep per-variant stock in sync with the master stockQuantity so the
+    // inventory page remains the single source of truth for stock.
+    await Product.updateOne({ _id: id }, { $set: { "sizes.$[].stock": stockQuantity } });
     revalidateTag(PRODUCT_CACHE_TAG);
     return successResponse(product);
   } catch (err) {

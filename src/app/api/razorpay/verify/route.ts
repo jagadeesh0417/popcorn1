@@ -103,9 +103,9 @@ export async function POST(req: Request) {
   }
 
   let order;
-  // Server-side source of truth: resolve items from the DB and confirm stock is
-  // available. If the product went out of stock after the customer paid, we must
-  // NOT create the order — record an orphan so the money can be refunded.
+  // Server-side source of truth: resolve items from the DB and confirm stock
+  // is available. If the product went out of stock after the customer paid, we
+  // must NOT create the order — record an orphan so the money can be refunded.
   let resolved;
   try {
     resolved = await validateAndResolveItems(orderData.items);
@@ -147,35 +147,9 @@ export async function POST(req: Request) {
   }
   const computedTotal = Math.max(0, subtotalForCoupon - discount + shippingCost);
 
-  // Atomically reserve stock BEFORE creating the order (rejects if the last unit
-  // was just taken by a concurrent request).
-  try {
-    await reserveStock(resolved.items);
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
-    console.error("[PAYMENT] stock reserve failed", { orderId: orderData.orderId, msg });
-    try {
-      await OrphanPayment.create({
-        razorpay_payment_id,
-        razorpay_order_id,
-        amount: orderData.total,
-        email: orderData.customerDetails?.email,
-        status: "needs_review",
-        orderData,
-        error: msg,
-      });
-    } catch { /* non-fatal */ }
-    return NextResponse.json(
-      {
-        success: false,
-        error: msg || "Some items in your order are no longer available.",
-        payment_id: razorpay_payment_id,
-        needs_refund: true,
-      },
-      { status: 409 }
-    );
-  }
-
+  // Create the order BEFORE reserving stock so the order becomes the
+  // idempotency anchor: a duplicate webhook finds it and returns early,
+  // guaranteeing stock is deducted at most once.
   try {
     order = await Order.create({
       orderId: orderData.orderId,
@@ -194,6 +168,12 @@ export async function POST(req: Request) {
     });
     console.log("[PAYMENT] order created in DB", { orderId: order.orderId, paymentId: razorpay_payment_id });
   } catch (e: unknown) {
+    // Race: another request created the same order concurrently.
+    const duplicate = await Order.findOne({ orderId: orderData.orderId });
+    if (duplicate) {
+      console.log("[PAYMENT] concurrent duplicate order", { orderId: orderData.orderId });
+      return NextResponse.json({ success: true, data: { order: duplicate } });
+    }
     const msg = e instanceof Error ? e.message : String(e);
     console.error("[PAYMENT] order creation failed:", msg);
     if (e && typeof e === "object" && "errors" in e) {
@@ -225,6 +205,40 @@ export async function POST(req: Request) {
         detail: msg,
       },
       { status: 500 }
+    );
+  }
+
+  // Now reserve/deduct stock. Because the order already exists, any retry
+  // after this point is caught by the duplicate-order check above.
+  try {
+    await reserveStock(resolved.items, order.orderId);
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error("[PAYMENT] stock reserve failed", { orderId: order.orderId, msg });
+    // Mark the order as pending so it is not left in a misleading confirmed
+    // state when stock could not be reserved.
+    try {
+      await Order.findByIdAndUpdate(order._id, { $set: { status: "pending" } });
+    } catch { /* non-fatal */ }
+    try {
+      await OrphanPayment.create({
+        razorpay_payment_id,
+        razorpay_order_id,
+        amount: orderData.total,
+        email: orderData.customerDetails?.email,
+        status: "needs_review",
+        orderData,
+        error: msg,
+      });
+    } catch { /* non-fatal */ }
+    return NextResponse.json(
+      {
+        success: false,
+        error: msg || "Some items in your order are no longer available.",
+        payment_id: razorpay_payment_id,
+        needs_refund: true,
+      },
+      { status: 409 }
     );
   }
 
