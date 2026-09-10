@@ -7,6 +7,8 @@ import { errorResponse } from "@/lib/api-utils";
 import { validateCoupon, incrementCouponUsage } from "@/lib/server/coupon";
 import { validateAndResolveItems, reserveStock } from "@/lib/server/stock";
 import { getRazorpayCredentials } from "@/lib/server/razorpay";
+import { loadShippingSettings } from "@/lib/server/shipping";
+import { computeShippingCost } from "@/lib/shipping";
 
 export async function POST(req: Request) {
   let body;
@@ -136,7 +138,15 @@ export async function POST(req: Request) {
 
   // Recompute subtotal, discount + total server-side from authoritative item prices.
   const subtotalForCoupon = resolved.subtotal;
-  const shippingCost = Number(orderData.shipping) || 0;
+  // Shipping is recomputed server-side from the resolved subtotal + requested
+  // delivery method. A tampered orderData.shipping is never trusted.
+  const shippingSettings = await loadShippingSettings();
+  const shippingCost = computeShippingCost(
+    subtotalForCoupon,
+    shippingSettings,
+    typeof orderData.shippingMethod === "string" ? orderData.shippingMethod : undefined
+  );
+  console.log("[PAYMENT] server-side shipping", { subtotal: subtotalForCoupon, shippingCost, shippingMethod: orderData.shippingMethod ?? "shipping" });
   let discount = 0;
   if (orderData.coupon) {
     const couponResult = await validateCoupon(orderData.coupon, subtotalForCoupon);

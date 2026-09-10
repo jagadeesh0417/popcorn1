@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { useCart, itemPrice, itemName } from "@/lib/store";
 import { useShipping } from "@/lib/shipping-settings";
+import { formatRupees } from "@/lib/shipping";
 import { optimizeImageUrl, getProductImage } from "@/lib/image";
 import { getAvailableQty } from "@/lib/stock";
 import { Coupon } from "@/lib/types";
@@ -20,6 +21,7 @@ export default function CartPage() {
   const sub = getSubtotal();
   const remains = shippingCtx.freeShippingRemaining(sub);
   const isFree = shippingCtx.qualifiesForFree(sub);
+  const cartShipping = shippingCtx.getShippingCost(sub);
   const [couponInput, setCouponInput] = useState("");
   const [couponMsg, setCouponMsg] = useState("");
   const [coupons, setCoupons] = useState<Coupon[]>([]);
@@ -90,7 +92,7 @@ export default function CartPage() {
           {isFree ? (
             <span>🎉 Congratulations! Your order qualifies for FREE delivery.</span>
           ) : (
-            <span>Add <span className="font-bold text-[#DC0218]">₹{remains}</span> more to unlock <span className="font-bold">free shipping</span>!</span>
+            <span>Add <span className="font-bold text-[#DC0218]">₹{formatRupees(remains)}</span> more to unlock <span className="font-bold">free shipping</span>!</span>
           )}
         </div>
 
@@ -188,15 +190,15 @@ export default function CartPage() {
                 )}
                 <div className="flex justify-between">
                   <span className="text-[#444444]">Shipping</span>
-                  <span className="font-medium text-[#1A1A1A]">{isFree ? "FREE" : `₹${shippingCtx.settings.panIndiaShippingFee}`}</span>
+                  <span className="font-medium text-[#1A1A1A]">{cartShipping === 0 ? "FREE" : `₹${cartShipping}`}</span>
                 </div>
                 {!isFree && (
-                  <p className="text-xs text-[#444444]">Free shipping on orders above ₹{shippingCtx.settings.freeShippingThreshold}</p>
+                  <p className="text-xs text-[#444444]">Free shipping on orders of ₹{shippingCtx.settings.freeShippingThreshold} or more</p>
                 )}
                 <Separator className="bg-[rgba(220,2,24,0.08)]" />
                 <div className="flex justify-between text-lg">
                   <span className="font-bold text-[#1A1A1A]">Total</span>
-                  <span className="font-bold text-[#DC0218]">₹{getSubtotal() - getDiscount() + (isFree ? 0 : shippingCtx.settings.panIndiaShippingFee)}</span>
+                  <span className="font-bold text-[#DC0218]">₹{getSubtotal() - getDiscount() + cartShipping}</span>
                 </div>
               </div>
 
@@ -227,7 +229,7 @@ export default function CartPage() {
               ) : (
                 <Link href="/checkout">
                   <Button className="w-full mt-4 bg-[#DC0218] hover:bg-[#C70015] text-white rounded-xl h-12 text-base shadow-lg shadow-[#DC0218]/20">
-                    Proceed to Checkout — ₹{getSubtotal() - getDiscount() + (isFree ? 0 : shippingCtx.settings.panIndiaShippingFee)}
+                    Proceed to Checkout — ₹{getSubtotal() - getDiscount() + cartShipping}
                   </Button>
                 </Link>
               )}

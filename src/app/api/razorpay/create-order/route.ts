@@ -4,12 +4,14 @@ import { errorResponse } from "@/lib/api-utils";
 import { validateCoupon } from "@/lib/server/coupon";
 import { validateAndResolveItems, StockError } from "@/lib/server/stock";
 import { getRazorpayCredentials } from "@/lib/server/razorpay";
+import { loadShippingSettings } from "@/lib/server/shipping";
+import { computeShippingCost } from "@/lib/shipping";
 
 export async function POST(req: Request) {
   let amount: number;
   let currency: string;
 
-  let body: { items?: unknown; shipping?: unknown; coupon?: unknown; currency?: unknown };
+  let body: { items?: unknown; shipping?: unknown; shippingMethod?: unknown; coupon?: unknown; currency?: unknown };
   try {
     body = await req.json();
   } catch (e) {
@@ -24,7 +26,15 @@ export async function POST(req: Request) {
     // before creating the Razorpay order. Never trust a browser amount.
     const resolved = await validateAndResolveItems(body.items as Parameters<typeof validateAndResolveItems>[0]);
     const subtotal = resolved.subtotal;
-    const shippingCost = Number(body.shipping) || 0;
+    // Shipping is recomputed from the authoritative subtotal + delivery method.
+    // The browser-supplied shipping number is ignored (anti-tampering).
+    const shippingSettings = await loadShippingSettings();
+    const shippingCost = computeShippingCost(
+      subtotal,
+      shippingSettings,
+      typeof body.shippingMethod === "string" ? body.shippingMethod : undefined
+    );
+    console.log("[RAZORPAY] server-side shipping", { subtotal, shippingCost, shippingMethod: body.shippingMethod ?? "shipping" });
     let discount = 0;
     if (body.coupon) {
       const couponResult = await validateCoupon(String(body.coupon), subtotal);

@@ -1,46 +1,21 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect, useMemo, useCallback, ReactNode } from "react";
-
-export interface ShippingSettings {
-  freeShippingEnabled: boolean;
-  freeShippingThreshold: number;
-  flatDeliveryCharge: number;
-  mysuruPickupEnabled: boolean;
-  mysuruPickupFee: number;
-  localMysuruDeliveryEnabled: boolean;
-  localMysuruDeliveryFee: number;
-  panIndiaShippingEnabled: boolean;
-  panIndiaShippingFee: number;
-  expressDeliveryEnabled: boolean;
-  expressDeliveryCharge: number;
-  codEnabled: boolean;
-  codCharge: number;
-}
-
-const defaultSettings: ShippingSettings = {
-  freeShippingEnabled: true,
-  freeShippingThreshold: 329,
-  flatDeliveryCharge: 49,
-  mysuruPickupEnabled: true,
-  mysuruPickupFee: 0,
-  localMysuruDeliveryEnabled: false,
-  localMysuruDeliveryFee: 0,
-  panIndiaShippingEnabled: true,
-  panIndiaShippingFee: 140,
-  expressDeliveryEnabled: false,
-  expressDeliveryCharge: 99,
-  codEnabled: false,
-  codCharge: 20,
-};
+import {
+  DEFAULT_SHIPPING_SETTINGS,
+  ShippingSettings,
+  qualifiesForFreeShipping,
+  computeShippingCost,
+  remainingToFreeShipping,
+} from "@/lib/shipping";
 
 function loadInitialSettings(): ShippingSettings {
-  if (typeof window === "undefined") return defaultSettings;
+  if (typeof window === "undefined") return { ...DEFAULT_SHIPPING_SETTINGS };
   try {
     const stored = localStorage.getItem("poprika-shipping");
-    if (stored) return { ...defaultSettings, ...JSON.parse(stored) };
+    if (stored) return { ...DEFAULT_SHIPPING_SETTINGS, ...JSON.parse(stored) };
   } catch { /* ignore */ }
-  return defaultSettings;
+  return { ...DEFAULT_SHIPPING_SETTINGS };
 }
 
 interface ShippingContextType {
@@ -61,7 +36,7 @@ export function ShippingProvider({ children }: { children: ReactNode }) {
       .then((r) => r.json())
       .then((data) => {
         if (data?.success && data.data?.value) {
-          const merged = { ...defaultSettings, ...data.data.value };
+          const merged = { ...DEFAULT_SHIPPING_SETTINGS, ...data.data.value };
           setSettings(merged);
           localStorage.setItem("poprika-shipping", JSON.stringify(merged));
         }
@@ -75,26 +50,18 @@ export function ShippingProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const qualifiesForFree = useCallback(
-    (subtotal: number) => settings.freeShippingEnabled && subtotal > settings.freeShippingThreshold,
+    (subtotal: number) => qualifiesForFreeShipping(subtotal, settings),
     [settings]
   );
 
   const freeShippingRemaining = useCallback(
-    (subtotal: number) => Math.max(0, settings.freeShippingThreshold - subtotal),
+    (subtotal: number) => remainingToFreeShipping(subtotal, settings),
     [settings]
   );
 
   const getShippingCost = useCallback(
-    (subtotal: number, method?: string) => {
-      if (qualifiesForFree(subtotal)) return 0;
-      switch (method) {
-        case "pickup": return settings.mysuruPickupFee;
-        case "local": return settings.localMysuruDeliveryFee;
-        case "express": return settings.expressDeliveryEnabled ? settings.expressDeliveryCharge : settings.panIndiaShippingFee;
-        default: return settings.panIndiaShippingEnabled ? settings.panIndiaShippingFee : settings.flatDeliveryCharge;
-      }
-    },
-    [settings, qualifiesForFree]
+    (subtotal: number, method?: string) => computeShippingCost(subtotal, settings, method),
+    [settings]
   );
 
   const value = useMemo(

@@ -16,7 +16,7 @@ const faqs = [
   },
   {
     q: "Do you offer free shipping?",
-    a: "We offer free delivery on all orders above ₹329 across India.",
+    a: "We offer free delivery on all orders of ₹329 or more across India.",
   },
   {
     q: "What is your return policy?",

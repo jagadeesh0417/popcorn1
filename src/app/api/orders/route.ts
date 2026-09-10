@@ -5,6 +5,8 @@ import { successResponse, errorResponse } from "@/lib/api-utils";
 import { validateCoupon, incrementCouponUsage } from "@/lib/server/coupon";
 import { validateAndResolveItems, reserveStock, StockError } from "@/lib/server/stock";
 import { requireAdmin } from "@/lib/server/auth";
+import { loadShippingSettings } from "@/lib/server/shipping";
+import { computeShippingCost } from "@/lib/shipping";
 
 export async function GET() {
   const denied = await requireAdmin();
@@ -64,7 +66,15 @@ export async function POST(req: Request) {
 
     // Recompute subtotal, discount + total server-side from authoritative item prices.
     const subtotal = resolved.subtotal;
-    const shippingCost = Number(body.shipping) || 0;
+    // Shipping is recomputed server-side from the resolved subtotal + requested
+    // delivery method. A tampered body.shipping is never trusted.
+    const shippingSettings = await loadShippingSettings();
+    const shippingCost = computeShippingCost(
+      subtotal,
+      shippingSettings,
+      typeof body.shippingMethod === "string" ? body.shippingMethod : undefined
+    );
+    console.log("[ORDERS] server-side shipping", { subtotal, shippingCost, shippingMethod: body.shippingMethod ?? "shipping" });
     let discount = 0;
     if (body.coupon) {
       const couponResult = await validateCoupon(body.coupon, subtotal);

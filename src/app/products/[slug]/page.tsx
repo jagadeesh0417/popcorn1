@@ -277,7 +277,7 @@ export default function ProductDetailPage() {
 
             <div className="grid grid-cols-3 gap-3 mt-8">
               {[
-                { icon: Truck, text: "Free delivery on orders above ₹329" },
+                { icon: Truck, text: "Free delivery on orders of ₹329 or more" },
                 { icon: Shield, text: "Freshness guaranteed" },
                 { icon: RotateCcw, text: "No Cancellation / Returns" },
               ].map(({ icon: Icon, text }) => (

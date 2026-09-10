@@ -137,6 +137,7 @@ export default function CheckoutPage() {
     }),
     subtotal: getSubtotal(),
     shipping,
+    shippingMethod,
     discount: getDiscount(),
     coupon: state.couponCode || undefined,
     total: getSubtotal() - getDiscount() + shipping,
@@ -226,6 +227,7 @@ export default function CheckoutPage() {
           ),
           subtotal: getSubtotal(),
           shipping,
+          shippingMethod,
           coupon: state.couponCode || undefined,
           currency: "INR",
         }),
@@ -342,7 +344,7 @@ export default function CheckoutPage() {
     );
   }
 
-  const shipping = shippingMethod === "pickup" ? 0 : shippingCtx.getShippingCost(getSubtotal());
+  const shipping = shippingCtx.getShippingCost(getSubtotal(), shippingMethod);
 
   return (
     <div className="min-h-screen pt-20 bg-gradient-to-b from-white to-[#FFFDF9]">

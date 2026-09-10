@@ -59,7 +59,7 @@ export function DeliveryInfo() {
               </li>
               <li className="text-[#444444] text-sm leading-relaxed flex items-start gap-2">
                 <span className="text-[#DC0218] mt-0.5">•</span>
-                Free shipping on orders above ₹329
+                Free shipping on orders of ₹329 or more
               </li>
             </ul>
             <p className="text-[#444444] text-sm mt-6 leading-relaxed">
