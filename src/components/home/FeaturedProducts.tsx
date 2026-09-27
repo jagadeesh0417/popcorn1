@@ -8,22 +8,56 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/lib/store";
 import { Product, ProductVariant } from "@/lib/types";
+import { optimizeImageUrl, getProductImage } from "@/lib/image";
+import { isBuyable } from "@/lib/stock";
+
+function FeaturedSkeleton() {
+  return (
+    <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6" aria-hidden="true">
+      {Array.from({ length: 4 }).map((_, i) => (
+        <div key={i} className="bg-white rounded-[28px] overflow-hidden border border-brand/8">
+          <div className="h-56 bg-[#FFF8F0] animate-pulse" />
+          <div className="p-5 space-y-3">
+            <div className="h-4 w-2/3 bg-[#F0E9DE] animate-pulse rounded" />
+            <div className="h-3 w-full bg-[#F5EFE6] animate-pulse rounded" />
+            <div className="h-3 w-4/5 bg-[#F5EFE6] animate-pulse rounded" />
+            <div className="h-9 w-full bg-[#F0E9DE] animate-pulse rounded" />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
 
 export function FeaturedProducts() {
   const { addItem } = useCart();
   const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const [tick, setTick] = useState(0);
 
   useEffect(() => {
+    let cancelled = false;
     fetch("/api/products?homepage=true")
       .then((r) => r.json())
-      .then((data) => { if (data?.success) setProducts(data.data); })
-      .catch(console.error);
-  }, []);
+      .then((data) => { if (!cancelled && data?.success) setProducts(data.data); })
+      .catch(() => { if (!cancelled) setError(true); })
+      .finally(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; };
+  }, [tick]);
+
+  const retry = () => {
+    setLoading(true);
+    setError(false);
+    setTick((t) => t + 1);
+  };
 
   const getDefaultVariant = (p: Product): ProductVariant | null => {
     const variants: ProductVariant[] = p.sizes || p.variants || [];
     return variants.find((v) => v.isDefault) || variants[0] || null;
   };
+
+  const displayProducts = products.slice(0, 8);
 
   return (
     <section className="py-24 bg-white">
@@ -43,11 +77,32 @@ export function FeaturedProducts() {
           </p>
         </motion.div>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {products.slice(0, 8).map((product, index) => {
+        {loading ? (
+          <FeaturedSkeleton />
+        ) : error || displayProducts.length === 0 ? (
+          <div className="text-center py-12">
+            <div className="text-5xl mb-4">🍿</div>
+            <p className="text-[#444444] mb-4 text-sm">
+              {error ? "We couldn't load the collection right now." : "Our new flavours are being popped — check back soon."}
+            </p>
+            {error && (
+              <Button
+                variant="outline"
+                size="lg"
+                onClick={retry}
+                className="rounded-2xl border-brand text-brand hover:bg-brand hover:text-white px-8"
+              >
+                Try Again
+              </Button>
+            )}
+          </div>
+        ) : (
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {displayProducts.map((product, index) => {
             const defaultVar = getDefaultVariant(product);
             const displayPrice = defaultVar?.price ?? product.price;
             const displayOriginal = defaultVar?.originalPrice ?? product.originalPrice;
+            const buyable = isBuyable(product, defaultVar);
             return (
               <motion.div
                 key={product.id}
@@ -60,13 +115,17 @@ export function FeaturedProducts() {
               >
                 <Link href={`/products/${product.slug}`}>
                   <div className="relative h-56 overflow-hidden bg-[#FFF8F0]">
-                    <Image
-                      src={product.images[0]}
-                      alt={product.name}
-                      fill
-                      className="object-cover group-hover:scale-105 transition-transform duration-700"
-                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                    />
+                    {getProductImage(product) ? (
+                      <Image
+                        src={optimizeImageUrl(getProductImage(product), 500) || ""}
+                        alt={product.name}
+                        fill
+                        className="object-cover group-hover:scale-105 transition-transform duration-700"
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-6xl">🍿</div>
+                    )}
                     {displayOriginal && displayOriginal > displayPrice && (
                       <div className="absolute top-3 left-3 bg-brand text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg">
                         SAVE ₹{displayOriginal - displayPrice}
@@ -93,20 +152,25 @@ export function FeaturedProducts() {
                         <span className="text-[#444444] line-through text-sm">₹{displayOriginal}</span>
                       )}
                     </div>
-                    <Button
-                      size="sm"
-                      className="bg-brand hover:bg-brand-deep text-white rounded-xl text-xs px-4 h-9 transition-all duration-300"
-                      onClick={() => addItem(product, defaultVar)}
-                    >
-                      <ShoppingBag className="h-3.5 w-3.5 mr-1.5" />
-                      Add to Cart
-                    </Button>
+                    {buyable ? (
+                      <Button
+                        size="sm"
+                        className="bg-brand hover:bg-brand-deep text-white rounded-xl text-xs px-4 h-9 transition-all duration-300"
+                        onClick={() => addItem(product, defaultVar)}
+                      >
+                        <ShoppingBag className="h-3.5 w-3.5 mr-1.5" />
+                        Add to Cart
+                      </Button>
+                    ) : (
+                      <span className="text-[10px] font-semibold uppercase tracking-wide text-brand bg-red-50 px-2.5 py-1.5 rounded-full">Out of Stock</span>
+                    )}
                   </div>
                 </div>
               </motion.div>
             );
           })}
-        </div>
+          </div>
+        )}
 
         <motion.div
           initial={{ opacity: 0 }}

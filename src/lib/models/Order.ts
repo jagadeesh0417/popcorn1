@@ -2,7 +2,17 @@ import mongoose, { Schema, Document } from "mongoose";
 
 export interface IOrder extends Document {
   orderId: string;
-  items: { productId: string; name: string; price: number; quantity: number; image: string; variant?: { label: string; grams: number } }[];
+  items: {
+    productId: string;
+    name: string;
+    price: number;
+    quantity: number;
+    image: string;
+    type?: string;
+    bundleId?: string;
+    variant?: { label: string; grams: number };
+    parts?: { productId: string; name: string; variantLabel?: string; quantity: number }[];
+  }[];
   total: number;
   subtotal: number;
   shipping: number;
@@ -47,10 +57,20 @@ const OrderSchema = new Schema<IOrder>(
         price: Number,
         quantity: Number,
         image: String,
+        type: { type: String },
+        bundleId: { type: String },
         variant: {
           label: String,
           grams: Number,
         },
+        parts: [
+          {
+            productId: String,
+            name: String,
+            variantLabel: String,
+            quantity: Number,
+          },
+        ],
       },
     ],
     total: { type: Number, required: true },
@@ -98,5 +118,11 @@ const OrderSchema = new Schema<IOrder>(
   },
   { timestamps: true }
 );
+
+OrderSchema.index({ orderId: 1 }, { unique: true });
+OrderSchema.index({ userId: 1 });
+OrderSchema.index({ status: 1 });
+OrderSchema.index({ createdAt: -1 });
+OrderSchema.index({ "customerDetails.email": 1 });
 
 export default mongoose.models.Order || mongoose.model<IOrder>("Order", OrderSchema);

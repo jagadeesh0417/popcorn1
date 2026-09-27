@@ -184,7 +184,7 @@ function ThankYouContent() {
               </div>
               <Separator className="my-3 bg-brand/8" />
               <div className="space-y-1 text-sm">
-                <div className="flex justify-between text-[#444444]"><span>Subtotal</span><span>₹{order.subtotal}</span></div>
+                <div className="flex justify-between text-[#444444]"><span>Cart Total</span><span>₹{order.subtotal}</span></div>
                 {order.discount > 0 && <div className="flex justify-between text-green-600"><span>Discount</span><span>-₹{order.discount}</span></div>}
                 <div className="flex justify-between text-[#444444]"><span>{isPickupOrder(order) ? "Pickup" : "Delivery"}</span><span>{order.shipping === 0 ? "FREE" : `₹${order.shipping}`}</span></div>
                 <Separator className="my-2 bg-brand/8" />

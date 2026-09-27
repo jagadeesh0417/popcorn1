@@ -1,18 +1,62 @@
 import { NextResponse } from "next/server";
 import Razorpay from "razorpay";
 import { errorResponse } from "@/lib/api-utils";
+import { validateCoupon } from "@/lib/server/coupon";
+import { validateAndResolveItems, StockError } from "@/lib/server/stock";
+import { getRazorpayCredentials } from "@/lib/server/razorpay";
+import { loadShippingSettings } from "@/lib/server/shipping";
+import { computeShippingCost } from "@/lib/shipping";
 
 export async function POST(req: Request) {
   let amount: number;
   let currency: string;
 
+  let body: { items?: unknown; shipping?: unknown; shippingMethod?: unknown; coupon?: unknown; currency?: unknown };
   try {
-    const body = await req.json();
-    amount = body.amount;
-    currency = body.currency || "INR";
+    body = await req.json();
   } catch (e) {
-    console.error("[RAZORPAY] failed to parse request body:", e);
+    console.error("[RAZORPAY] failed to parse JSON request body:", e);
     return errorResponse("Invalid request body", 400);
+  }
+
+  try {
+    currency = String(body.currency || "INR");
+
+    // Server-side source of truth: resolve items from the DB and confirm stock
+    // before creating the Razorpay order. Never trust a browser amount.
+    const resolved = await validateAndResolveItems(body.items as Parameters<typeof validateAndResolveItems>[0]);
+    const subtotal = resolved.subtotal;
+    // Shipping is recomputed from the authoritative subtotal + delivery method.
+    // The browser-supplied shipping number is ignored (anti-tampering).
+    const shippingSettings = await loadShippingSettings();
+    const shippingCost = computeShippingCost(
+      subtotal,
+      shippingSettings,
+      typeof body.shippingMethod === "string" ? body.shippingMethod : undefined
+    );
+    console.log("[RAZORPAY] server-side shipping", { subtotal, shippingCost, shippingMethod: body.shippingMethod ?? "shipping" });
+    let discount = 0;
+    if (body.coupon) {
+      const couponResult = await validateCoupon(String(body.coupon), subtotal);
+      if (couponResult.valid) {
+        discount = couponResult.discount ?? 0;
+      }
+    }
+    const total = Math.max(0, subtotal - discount + shippingCost);
+    amount = Math.round(total * 100);
+  } catch (e) {
+    console.error("[RAZORPAY] create-order validation failed:", e);
+    if (e instanceof StockError) {
+      return errorResponse(e.message, e.code);
+    }
+    // Structurally valid JSON that failed our own validation: log the underlying
+    // detail for debugging but never leak internals to the customer.
+    console.error("[RAZORPAY] validation error detail:", {
+      name: e instanceof Error ? e.name : typeof e,
+      message: e instanceof Error ? e.message : String(e),
+      stack: e instanceof Error ? e.stack : undefined,
+    });
+    return errorResponse("The order could not be created. Please review your cart and try again.", 400);
   }
 
   console.log("[RAZORPAY] create-order request", { amount, currency });
@@ -27,17 +71,12 @@ export async function POST(req: Request) {
     return errorResponse("Only INR is supported", 400);
   }
 
-  const keyId = process.env.RAZORPAY_KEY_ID;
-  const keySecret = process.env.RAZORPAY_KEY_SECRET;
-
-  if (!keyId || !keySecret) {
-    console.error("[RAZORPAY] credentials not found in env", {
-      hasKeyId: !!keyId,
-      hasKeySecret: !!keySecret,
-      keyIdPrefix: keyId ? keyId.substring(0, 8) : "none",
-    });
+  const credentials = await getRazorpayCredentials();
+  if (!credentials) {
+    console.error("[RAZORPAY] credentials not configured (env or stored payment setting)");
     return errorResponse("Razorpay not configured", 500);
   }
+  const { keyId, keySecret } = credentials;
 
   console.log("[RAZORPAY] credentials loaded", {
     keyIdPrefix: keyId.substring(0, 8) + "...",
@@ -59,7 +98,7 @@ export async function POST(req: Request) {
       currency: order.currency,
     });
 
-    return NextResponse.json({ success: true, data: { razorpayOrderId: order.id } });
+    return NextResponse.json({ success: true, data: { razorpayOrderId: order.id, amount, keyId } });
   } catch (err: unknown) {
     const errorBody = err && typeof err === "object"
       ? JSON.stringify(err, Object.getOwnPropertyNames(err))

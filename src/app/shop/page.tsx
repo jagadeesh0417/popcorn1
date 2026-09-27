@@ -8,6 +8,8 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/lib/store";
 import { Product, ProductVariant } from "@/lib/types";
+import { optimizeImageUrl, getProductImage } from "@/lib/image";
+import { isBuyable, isOutOfStock } from "@/lib/stock";
 
 const categories = [
   { id: "all", name: "All Flavours", icon: "🍿" },
@@ -105,6 +107,8 @@ export default function ShopPage() {
             const variants: ProductVariant[] = product.sizes || product.variants || [];
             const defaultVar = getDefaultVariant(product);
             const minPrice = variants.length > 0 ? Math.min(...variants.map((s) => s.price)) : product.price;
+            const buyable = isBuyable(product, defaultVar);
+            const out = isOutOfStock(product) || !buyable;
             return (
               <motion.div
                 key={product.id}
@@ -115,7 +119,16 @@ export default function ShopPage() {
               >
                 <Link href={`/products/${product.slug}`}>
                   <div className="relative h-48 bg-[#FFF8F0]">
-                    <Image src={product.images[0]} alt={product.name} fill className="object-cover group-hover:scale-105 transition-transform duration-700" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" />
+                    {getProductImage(product) ? (
+                      <Image src={optimizeImageUrl(getProductImage(product), 600) || ""} alt={product.name} fill className="object-cover group-hover:scale-105 transition-transform duration-700" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-6xl">🍿</div>
+                    )}
+                    {out && (
+                      <div className="absolute inset-0 bg-white/60 flex items-center justify-center">
+                        <span className="bg-brand text-white text-xs font-bold uppercase tracking-[0.12em] px-4 py-1.5">Out of Stock</span>
+                      </div>
+                    )}
                   </div>
                 </Link>
                 <div className="p-5">
@@ -133,10 +146,14 @@ export default function ShopPage() {
 
                   <div className="flex items-center justify-between mt-3 pt-3 border-t border-brand/8">
                     <span className="text-base font-semibold text-[#1A1A1A]">From ₹{minPrice}</span>
-                    <Button size="sm" className="bg-brand hover:bg-brand-deep text-white h-9 px-4 text-xs transition-all" onClick={() => addItem(product, defaultVar)}>
-                      <ShoppingBag className="h-3.5 w-3.5 mr-1" />
-                      Add
-                    </Button>
+                    {buyable ? (
+                      <Button size="sm" className="bg-brand hover:bg-brand-deep text-white h-9 px-4 text-xs transition-all" onClick={() => addItem(product, defaultVar)}>
+                        <ShoppingBag className="h-3.5 w-3.5 mr-1" />
+                        Add
+                      </Button>
+                    ) : (
+                      <span className="text-[10px] font-semibold uppercase tracking-wide text-brand bg-red-50 px-2.5 py-1.5 rounded-full">Out of Stock</span>
+                    )}
                   </div>
                 </div>
               </motion.div>

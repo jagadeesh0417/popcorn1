@@ -8,19 +8,29 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
-import { useCart } from "@/lib/store";
+import { useCart, itemPrice, itemName } from "@/lib/store";
 import { useShipping } from "@/lib/shipping-settings";
+import { formatRupees } from "@/lib/shipping";
+import { optimizeImageUrl, getProductImage } from "@/lib/image";
+import { getAvailableQty } from "@/lib/stock";
 import { Coupon } from "@/lib/types";
 
 export default function CartPage() {
-  const { state, updateQuantity, removeItem, getSubtotal, getDiscount, getItemCount, applyCoupon } = useCart();
+  const { state, updateQuantity, removeItem, getSubtotal, getDiscount, getItemCount, applyCoupon, refreshStock, hasUnavailableItems } = useCart();
   const shippingCtx = useShipping();
   const sub = getSubtotal();
   const remains = shippingCtx.freeShippingRemaining(sub);
   const isFree = shippingCtx.qualifiesForFree(sub);
+  const cartShipping = shippingCtx.getShippingCost(sub);
   const [couponInput, setCouponInput] = useState("");
   const [couponMsg, setCouponMsg] = useState("");
   const [coupons, setCoupons] = useState<Coupon[]>([]);
+
+  // Revalidate cart against fresh product data (handles items that went out of stock).
+  useEffect(() => {
+    refreshStock();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     fetch("/api/coupons")
@@ -42,8 +52,6 @@ export default function CartPage() {
       setCouponMsg("Invalid coupon code");
     }
   };
-
-  const getPrice = (item: typeof state.items[0]) => item.variant?.price ?? item.product.price ?? 0;
 
   if (state.items.length === 0) {
     return (
@@ -84,41 +92,69 @@ export default function CartPage() {
           {isFree ? (
             <span>🎉 Congratulations! Your order qualifies for FREE delivery.</span>
           ) : (
-            <span>Add <span className="font-bold text-brand">₹{remains}</span> more to unlock <span className="font-bold">free shipping</span>!</span>
+            <span>Add <span className="font-bold text-brand">₹{formatRupees(remains)}</span> more to unlock <span className="font-bold">free shipping</span>!</span>
           )}
         </div>
 
         <div className="grid lg:grid-cols-3 gap-10">
           <div className="lg:col-span-2 space-y-4">
             {state.items.map((item, index) => {
-              const price = getPrice(item);
+              const price = itemPrice(item);
+              const isBundle = item.type === "bundle";
+              const bundle = item.bundle;
+              const product = item.product;
+              const maxQty = isBundle ? Infinity : getAvailableQty(item.product, item.variant);
+              const unavailable = item.unavailable === true;
+              const linkHref = isBundle ? "/shop" : `/products/${product?.slug}`;
+              const image = isBundle
+                ? (bundle?.image || "")
+                : (product ? (optimizeImageUrl(getProductImage(product), 200) || "") : "");
+              const alt = isBundle ? (bundle?.name || "Bundle") : (product?.name || "Product");
+              const itemSummary = isBundle
+                ? (bundle?.sizeLabel || "Bundle")
+                : (item.variant ? `${item.variant.label} · ₹${price}/pack` : (product?.weight || ""));
               return (
                 <motion.div
                   key={item.cartId}
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.05 }}
-                  className="flex gap-4 p-4 bg-white rounded-2xl border border-brand/8 shadow-sm"
+                  className={`flex gap-4 p-4 bg-white rounded-2xl border shadow-sm ${unavailable ? "border-red-200 bg-red-50/40" : "border-brand/8"}`}
                 >
-                  <Link href={`/products/${item.product.slug}`}>
+                  <Link href={linkHref}>
                     <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-xl overflow-hidden bg-[#FFF8F0] shrink-0">
-                      <Image src={item.product.images[0]} alt={item.product.name} fill className="object-cover" sizes="112px" />
+                      {image ? (
+                        <Image src={image} alt={alt} fill className="object-cover" sizes="112px" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-3xl">🍿</div>
+                      )}
+                      {unavailable && (
+                        <div className="absolute inset-0 bg-white/60 flex items-center justify-center">
+                          <span className="bg-brand text-white text-[10px] font-bold uppercase tracking-widest px-2 py-1">Out of Stock</span>
+                        </div>
+                      )}
                     </div>
                   </Link>
                   <div className="flex-1 min-w-0">
-                    <Link href={`/products/${item.product.slug}`}>
-                      <h3 className="font-semibold text-[#1A1A1A] hover:text-brand transition-colors">{item.product.name}</h3>
+                    <Link href={linkHref}>
+                      <h3 className="font-semibold text-[#1A1A1A] hover:text-brand transition-colors">{isBundle ? itemName(item) : product?.name}</h3>
                     </Link>
-                    <p className="text-xs text-[#444444] mt-0.5">
-                      {item.variant ? `${item.variant.label} · ₹${price}/pack` : item.product.weight}
-                    </p>
+                    <p className="text-xs text-[#444444] mt-0.5">{itemSummary}</p>
+                    {isBundle && bundle?.parts && (
+                      <p className="text-[11px] text-[#444444] mt-0.5">
+                        Includes: {bundle.parts.map((p) => `${p.quantity}× ${p.name}`).join(", ")}
+                      </p>
+                    )}
+                    {unavailable && (
+                      <p className="text-xs font-medium text-brand mt-1">{itemName(item)} is currently unavailable. Please remove it to continue.</p>
+                    )}
                     <div className="flex items-center justify-between mt-3">
-                      <div className="flex items-center border border-brand/15 rounded-lg overflow-hidden">
-                        <button onClick={() => updateQuantity(item.cartId, item.quantity - 1)} className="p-1.5 hover:bg-[#FFF8F0] transition-colors">
+                      <div className={`flex items-center border rounded-lg overflow-hidden ${unavailable ? "border-gray-300 opacity-60" : "border-brand/15"}`}>
+                        <button onClick={() => updateQuantity(item.cartId, item.quantity - 1)} disabled={unavailable} className="p-1.5 hover:bg-[#FFF8F0] transition-colors disabled:cursor-not-allowed">
                           <Minus className="h-3.5 w-3.5 text-[#1A1A1A]" />
                         </button>
                         <span className="px-4 text-sm font-medium min-w-[2rem] text-center text-[#1A1A1A]">{item.quantity}</span>
-                        <button onClick={() => updateQuantity(item.cartId, item.quantity + 1)} className="p-1.5 hover:bg-[#FFF8F0] transition-colors">
+                        <button onClick={() => updateQuantity(item.cartId, item.quantity + 1)} disabled={unavailable || (maxQty > 0 && item.quantity >= maxQty)} className="p-1.5 hover:bg-[#FFF8F0] transition-colors disabled:cursor-not-allowed disabled:opacity-40">
                           <Plus className="h-3.5 w-3.5 text-[#1A1A1A]" />
                         </button>
                       </div>
@@ -129,6 +165,9 @@ export default function CartPage() {
                         </button>
                       </div>
                     </div>
+                    {!isBundle && !unavailable && maxQty > 0 && item.quantity >= maxQty && (
+                      <p className="text-[11px] text-[#444444] mt-1">Only {maxQty} {maxQty === 1 ? "unit" : "units"} in stock</p>
+                    )}
                   </div>
                 </motion.div>
               );
@@ -136,11 +175,11 @@ export default function CartPage() {
           </div>
 
           <div>
-            <div className="bg-[#FFF8F0] rounded-2xl p-6 sticky top-24">
+            <div className="bg-[#FFF8F0] rounded-2xl p-6 sticky top-28">
               <h3 className="font-bold text-lg text-[#1A1A1A] mb-4">Order Summary</h3>
               <div className="space-y-3 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-[#444444]">Subtotal</span>
+                  <span className="text-[#444444]">Cart Total</span>
                   <span className="font-medium text-[#1A1A1A]">₹{getSubtotal()}</span>
                 </div>
                 {getDiscount() > 0 && (
@@ -151,15 +190,15 @@ export default function CartPage() {
                 )}
                 <div className="flex justify-between">
                   <span className="text-[#444444]">Shipping</span>
-                  <span className="font-medium text-[#1A1A1A]">{isFree ? "FREE" : `₹${shippingCtx.settings.panIndiaShippingFee}`}</span>
+                  <span className="font-medium text-[#1A1A1A]">{cartShipping === 0 ? "FREE" : `₹${cartShipping}`}</span>
                 </div>
                 {!isFree && (
-                  <p className="text-xs text-[#444444]">Free shipping on orders above ₹{shippingCtx.settings.freeShippingThreshold}</p>
+                  <p className="text-xs text-[#444444]">Free shipping on orders of ₹{shippingCtx.settings.freeShippingThreshold} or more</p>
                 )}
                 <Separator className="bg-brand/8" />
                 <div className="flex justify-between text-lg">
                   <span className="font-bold text-[#1A1A1A]">Total</span>
-                  <span className="font-bold text-brand">₹{getSubtotal() - getDiscount() + (isFree ? 0 : shippingCtx.settings.panIndiaShippingFee)}</span>
+                  <span className="font-bold text-brand">₹{getSubtotal() - getDiscount() + cartShipping}</span>
                 </div>
               </div>
 
@@ -180,11 +219,20 @@ export default function CartPage() {
                 <Button variant="outline" onClick={handleApplyCoupon} className="rounded-xl border-brand/20 text-brand">Apply</Button>
               </div>
 
-              <Link href="/checkout">
-                <Button className="w-full mt-4 bg-brand hover:bg-brand-deep text-white rounded-xl h-12 text-base shadow-lg shadow-brand/20">
-                  Proceed to Checkout — ₹{getSubtotal() - getDiscount() + (isFree ? 0 : shippingCtx.settings.panIndiaShippingFee)}
-                </Button>
-              </Link>
+              {hasUnavailableItems() ? (
+                <div className="mt-4">
+                  <Button className="w-full bg-gray-200 text-[#444444] cursor-not-allowed rounded-xl h-12 text-base">
+                    Some items are out of stock
+                  </Button>
+                  <p className="text-xs text-brand text-center mt-2">Remove out-of-stock items to continue.</p>
+                </div>
+              ) : (
+                <Link href="/checkout">
+                  <Button className="w-full mt-4 bg-brand hover:bg-brand-deep text-white rounded-xl h-12 text-base shadow-lg shadow-brand/20">
+                    Proceed to Checkout — ₹{getSubtotal() - getDiscount() + cartShipping}
+                  </Button>
+                </Link>
+              )}
             </div>
           </div>
         </div>

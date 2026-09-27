@@ -11,8 +11,9 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { useCart } from "@/lib/store";
 import { notFound } from "next/navigation";
-import { toast } from "sonner";
 import { Product, ProductVariant, Review } from "@/lib/types";
+import { optimizeImageUrl, getProductImages, getProductImage } from "@/lib/image";
+import { isBuyable, isOutOfStock, getAvailableQty } from "@/lib/stock";
 
 function safeStr(v: unknown, fallback = ""): string {
   if (typeof v === "string") return v;
@@ -30,6 +31,10 @@ function safeImgSrc(images: unknown): string | null {
   return typeof first === "string" && first.length > 0 ? first : null;
 }
 
+function allImages(product: Product | null): string[] {
+  return getProductImages(product);
+}
+
 export default function ProductDetailPage() {
   const params = useParams();
   const slug = params.slug as string;
@@ -41,30 +46,41 @@ export default function ProductDetailPage() {
   const [selectedSize, setSelectedSize] = useState<string>("");
   const [activeTab, setActiveTab] = useState<"description" | "ingredients" | "nutrition" | "reviews">("description");
   const [added, setAdded] = useState(false);
+  const [activeImage, setActiveImage] = useState(0);
 
   const variants: ProductVariant[] = safeArray(product?.sizes).length > 0
     ? safeArray(product?.sizes)
     : safeArray(product?.variants);
 
   useEffect(() => {
-    fetch("/api/products")
-      .then((r) => r.json())
-      .then((data) => {
-        if (!data?.success) return;
-        const list = safeArray<Product>(data.data);
-        const found = list.find((p) => p.slug === slug);
+    let cancelled = false;
+    Promise.all([
+      fetch("/api/products?slug=" + encodeURIComponent(slug)).then((r) => r.json()),
+      fetch("/api/products").then((r) => r.json()),
+    ])
+      .then(([productRes, allRes]) => {
+        if (cancelled) return;
+        const raw = productRes?.data;
+        const found = productRes?.success
+          ? (Array.isArray(raw) ? (raw[0] as Product) : (raw as Product))
+          : undefined;
         if (found) {
           setProduct(found);
+          setActiveImage(0);
           const v = safeArray<ProductVariant>(found.sizes).length > 0
             ? safeArray<ProductVariant>(found.sizes)
             : safeArray<ProductVariant>(found.variants);
           const defaultVar = v.find((s) => s.isDefault) || v[0];
           setSelectedSize(defaultVar?.label ?? "");
-          setRelated(list.filter((p) => (p.category || "") === (found.category || "") && p.slug !== slug).slice(0, 4));
+          if (allRes?.success) {
+            const list = safeArray<Product>(allRes.data);
+            setRelated(list.filter((p) => (p.category || "") === (found.category || "") && p.slug?.toLowerCase() !== slug?.toLowerCase()).slice(0, 4));
+          }
         }
       })
       .catch(console.error)
-      .finally(() => setLoading(false));
+      .finally(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; };
   }, [slug]);
 
   if (loading) return <div className="min-h-screen pt-10 md:pt-14 bg-white" />;
@@ -80,14 +96,17 @@ export default function ProductDetailPage() {
     : 0;
   const savings = displayOriginal && displayOriginal > displayPrice ? displayOriginal - displayPrice : 0;
 
+  const productOut = isOutOfStock(product);
+  const maxQty = currentVariant ? getAvailableQty(product, currentVariant) : 0;
+  const addDisabled = !currentVariant || !isBuyable(product, currentVariant);
+
   const handleAdd = () => {
     if (!currentVariant) return;
-    const inStock = currentVariant.inStock !== false;
-    if (!inStock) return;
-    addItem(product, currentVariant, quantity);
+    const q = Math.min(quantity, maxQty || quantity);
+    const ok = addItem(product, currentVariant, q);
+    if (!ok) return;
     setAdded(true);
     setQuantity(1);
-    toast.success("Added to Cart ✓");
     setTimeout(() => setAdded(false), 1500);
   };
 
@@ -104,16 +123,51 @@ export default function ProductDetailPage() {
 
         <div className="grid lg:grid-cols-2 gap-12 mb-16">
           <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
-            <div className="relative h-80 sm:h-96 lg:h-[500px] overflow-hidden bg-[#FFF8F0]">
-              {(() => {
-                const src = safeImgSrc(product.images);
-                return src ? (
-                  <Image src={src} alt={safeStr(product.name)} fill className="object-cover" sizes="(max-width: 1024px) 100vw, 50vw" priority />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-[#444444] text-sm">No image</div>
-                );
-              })()}
-            </div>
+            {(() => {
+              const imgs = allImages(product);
+              const current = imgs[activeImage] || imgs[0];
+              return (
+                <div>
+                  <div className="relative h-80 sm:h-96 lg:h-[500px] overflow-hidden bg-[#FFF8F0]">
+                    {current ? (
+                      <Image
+                        key={current}
+                        src={optimizeImageUrl(current, 900) || ""}
+                        alt={safeStr(product.name)}
+                        fill
+                        className="object-cover"
+                        sizes="(max-width: 1024px) 100vw, 50vw"
+                        priority
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-[#444444] text-sm">No image</div>
+                    )}
+                  </div>
+                  {imgs.length > 1 && (
+                    <div className="flex gap-3 mt-3 overflow-x-auto pb-1">
+                      {imgs.map((img, i) => (
+                        <button
+                          key={img + i}
+                          onClick={() => setActiveImage(i)}
+                          aria-label={`View image ${i + 1}`}
+                          className={`relative w-20 h-20 sm:w-24 sm:h-24 overflow-hidden border-2 shrink-0 transition-colors ${
+                            i === activeImage ? "border-brand" : "border-transparent hover:border-brand/40"
+                          }`}
+                        >
+                          <Image
+                            src={optimizeImageUrl(img, 200) || ""}
+                            alt={`${safeStr(product.name)} thumbnail ${i + 1}`}
+                            fill
+                            sizes="96px"
+                            className="object-cover"
+                          />
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
           </motion.div>
 
           <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="flex flex-col">
@@ -124,7 +178,10 @@ export default function ProductDetailPage() {
                   <Star className="h-3 w-3 fill-current" /> Best Seller
                 </Badge>
               )}
-              {currentVariant && (currentVariant.inStock === false) && (
+              {productOut && (
+                <Badge className="bg-red-100 text-red-700 border-0">Out of Stock</Badge>
+              )}
+              {!productOut && currentVariant && (currentVariant.inStock === false) && (
                 <Badge className="bg-red-100 text-red-700 border-0">Out of Stock</Badge>
               )}
             </div>
@@ -184,38 +241,45 @@ export default function ProductDetailPage() {
             <p className="text-sm text-[#444444] mb-6">{currentVariant?.grams ?? 0}g per pack</p>
 
             <div className="flex items-center gap-4 mt-auto">
-              <div className="flex items-center border border-brand/15 overflow-hidden">
-                <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="p-3 hover:bg-[#FFF8F0] transition-colors text-[#1A1A1A]">
+              <div className={`flex items-center border border-brand/15 overflow-hidden ${addDisabled ? "opacity-50" : ""}`}>
+                <button onClick={() => setQuantity(Math.max(1, quantity - 1))} disabled={addDisabled} className="p-3 hover:bg-[#FFF8F0] transition-colors text-[#1A1A1A] disabled:cursor-not-allowed">
                   <Minus className="h-4 w-4" />
                 </button>
                 <span className="px-6 font-medium min-w-[3rem] text-center text-[#1A1A1A]">{quantity}</span>
-                <button onClick={() => setQuantity(quantity + 1)} className="p-3 hover:bg-[#FFF8F0] transition-colors text-[#1A1A1A]">
+                <button onClick={() => setQuantity(Math.min(maxQty || quantity, quantity + 1))} disabled={addDisabled || (maxQty > 0 && quantity >= maxQty)} className="p-3 hover:bg-[#FFF8F0] transition-colors text-[#1A1A1A] disabled:cursor-not-allowed disabled:opacity-40">
                   <Plus className="h-4 w-4" />
                 </button>
               </div>
               <Button
                 size="lg"
-                disabled={!currentVariant || currentVariant.inStock === false}
+                disabled={addDisabled}
                 onClick={handleAdd}
                 className={`flex-1 h-12 text-base rounded-xl transition-all ${
                   added
                     ? "bg-green-600 text-white"
+                    : addDisabled
+                    ? "bg-gray-200 text-[#444444] cursor-not-allowed"
                     : "bg-brand hover:bg-brand-deep text-white"
                 }`}
               >
                 {added ? (
                   <span className="flex items-center gap-2"><Check className="h-5 w-5" /> Added!</span>
+                ) : addDisabled ? (
+                  <span className="flex items-center gap-2">OUT OF STOCK</span>
                 ) : (
                   <span className="flex items-center gap-2"><ShoppingBag className="h-5 w-5" /> Add to Cart</span>
                 )}
               </Button>
             </div>
+            {maxQty > 0 && quantity >= maxQty && (
+              <p className="text-xs text-[#444444] mt-2">Only {maxQty} {maxQty === 1 ? "unit" : "units"} left in stock</p>
+            )}
 
             <div className="grid grid-cols-3 gap-3 mt-8">
               {[
-                { icon: Truck, text: "Free delivery above ₹300" },
+                { icon: Truck, text: "Free delivery on orders of ₹329 or more" },
                 { icon: Shield, text: "Freshness guaranteed" },
-                { icon: RotateCcw, text: "Easy returns" },
+                { icon: RotateCcw, text: "No Cancellation / Returns" },
               ].map(({ icon: Icon, text }) => (
                 <div key={text} className="flex flex-col items-center text-center p-3 bg-[#FFF8F0]">
                   <Icon className="h-5 w-5 text-brand mb-1" />
@@ -341,7 +405,10 @@ export default function ProductDetailPage() {
                   : safeArray(p.variants);
                 const prices = pVariants.map((s) => s.price ?? 0).filter((pr) => typeof pr === "number" && !isNaN(pr));
                 const minPrice = prices.length > 0 ? Math.min(...prices) : (p.price ?? 0);
-                const imgSrc = safeImgSrc(p.images);
+                const imgSrc = getProductImage(p) || safeImgSrc(p.images);
+                const pDefault = pVariants.find((v) => v.isDefault) || pVariants[0] || null;
+                const pBuyable = isBuyable(p, pDefault);
+                const pOut = isOutOfStock(p) || !pBuyable;
                 return (
                   <motion.div
                     key={p.id || p._id || i}
@@ -354,7 +421,7 @@ export default function ProductDetailPage() {
                     <Link href={`/products/${p.slug}`}>
                       <div className="relative h-40 overflow-hidden bg-[#FFF8F0]">
                         {imgSrc ? (
-                          <Image src={imgSrc} alt={safeStr(p.name)} fill className="object-cover group-hover:scale-105 transition-transform duration-500" sizes="(max-width: 640px) 100vw, 25vw" />
+                          <Image src={optimizeImageUrl(imgSrc, 400) || ""} alt={safeStr(p.name)} fill className="object-cover group-hover:scale-105 transition-transform duration-500" sizes="(max-width: 640px) 100vw, 25vw" />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center text-[#444444] text-xs">No image</div>
                         )}
@@ -367,10 +434,11 @@ export default function ProductDetailPage() {
                       <p className="text-brand text-xs italic mt-0.5">{safeStr(p.tagline)}</p>
                       <div className="flex items-center justify-between mt-3 pt-3 border-t border-brand/8">
                         <span className="font-semibold text-sm text-[#1A1A1A]">From ₹{minPrice}</span>
-                        <Button size="sm" className="bg-brand hover:bg-brand-deep text-white h-8 px-3 text-xs" onClick={() => {
-                          const defaultVar = pVariants.find((v) => v.isDefault) || pVariants[0] || null;
-                          addItem(p, defaultVar);
-                        }}>Add</Button>
+                        {pOut ? (
+                          <span className="text-[10px] font-semibold uppercase tracking-wide text-brand bg-red-50 px-2 py-1">Out of Stock</span>
+                        ) : (
+                          <Button size="sm" className="bg-brand hover:bg-brand-deep text-white h-8 px-3 text-xs" onClick={() => addItem(p, pDefault)}>Add</Button>
+                        )}
                       </div>
                     </div>
                   </motion.div>

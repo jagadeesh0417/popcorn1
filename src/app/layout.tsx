@@ -6,7 +6,6 @@ import { ShippingProvider } from "@/lib/shipping-settings";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { WhatsAppButton } from "@/components/layout/WhatsAppButton";
-import { CartDrawer } from "@/components/layout/CartDrawer";
 import { BRAND, BRAND_EMAIL, KITCHEN_ADDRESS, SITE_URL, SOCIAL } from "@/lib/brand";
 import { resolveBrandAssets } from "@/lib/brand-assets.server";
 import "./globals.css";
@@ -76,6 +75,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={`${playfair.variable} ${jost.variable} ${geistMono.variable} h-full antialiased`}>
       <head>
+        <link rel="preconnect" href="https://res.cloudinary.com" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://images.unsplash.com" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://res.cloudinary.com" />
+        <link rel="dns-prefetch" href="https://images.unsplash.com" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -108,7 +111,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <main className="flex-1">{children}</main>
             <Footer logoSrc={brandAssets.footerLogo ?? null} />
             <WhatsAppButton />
-            <CartDrawer />
           </CartProvider>
         </ShippingProvider>
         <Toaster position="top-right" richColors />

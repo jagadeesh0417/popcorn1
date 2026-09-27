@@ -69,7 +69,7 @@ export default function AdminShippingSettings() {
                     className="bg-white border-brand/12" />
                 </div>
                 <p className="text-xs text-[#444444]">
-                  Orders at or above ₹{settings.freeShippingThreshold} qualify for free delivery.
+                  Orders of ₹{settings.freeShippingThreshold} or more qualify for free delivery.
                 </p>
               </div>
             </motion.div>

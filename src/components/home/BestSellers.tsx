@@ -8,6 +8,8 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/lib/store";
 import { Product, ProductVariant } from "@/lib/types";
+import { getProductImage } from "@/lib/image";
+import { isBuyable } from "@/lib/stock";
 
 export function BestSellers() {
   const { addItem } = useCart();
@@ -121,13 +123,17 @@ export function BestSellers() {
                 <div className="bg-white rounded-[24px] overflow-hidden shadow-[0_2px_20px_rgba(31,85,199,0.06)] hover:shadow-[0_8px_40px_rgba(31,85,199,0.12)] transition-all duration-500 border border-brand/8 group h-full">
                   <Link href={`/products/${product.slug}`}>
                     <div className="relative h-56 overflow-hidden bg-[#FFF8F0]">
-                      <Image
-                        src={product.images[0]}
-                        alt={product.name}
-                        fill
-                        className="object-cover group-hover:scale-105 transition-transform duration-700"
-                        sizes="310px"
-                      />
+                      {getProductImage(product) ? (
+                        <Image
+                          src={getProductImage(product) as string}
+                          alt={product.name}
+                          fill
+                          className="object-cover group-hover:scale-105 transition-transform duration-700"
+                          sizes="310px"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-6xl">🍿</div>
+                      )}
                       <div className="absolute top-3 left-3 bg-[#F9D976] text-brand-deep text-xs font-bold px-3 py-1.5 rounded-full flex items-center gap-1 shadow-lg">
                         <Star className="h-3 w-3 fill-current" /> Bestseller
                       </div>
@@ -140,10 +146,14 @@ export function BestSellers() {
                     <p className="text-[#444444] text-xs mt-1.5 line-clamp-2">{product.shortDescription}</p>
                     <div className="flex items-center justify-between mt-4 pt-4 border-t border-brand/8">
                       <span className="text-xl font-bold text-brand">₹{displayPrice}</span>
-                      <Button size="sm" className="bg-brand hover:bg-brand-deep text-white rounded-xl text-xs px-4 h-9" onClick={() => addItem(product, defaultVar)}>
-                        <ShoppingBag className="h-3.5 w-3.5 mr-1.5" />
-                        Add
-                      </Button>
+                      {isBuyable(product, defaultVar) ? (
+                        <Button size="sm" className="bg-brand hover:bg-brand-deep text-white rounded-xl text-xs px-4 h-9" onClick={() => addItem(product, defaultVar)}>
+                          <ShoppingBag className="h-3.5 w-3.5 mr-1.5" />
+                          Add
+                        </Button>
+                      ) : (
+                        <span className="text-[10px] font-semibold uppercase tracking-wide text-brand bg-red-50 px-2.5 py-1.5 rounded-full">Out of Stock</span>
+                      )}
                     </div>
                   </div>
                 </div>

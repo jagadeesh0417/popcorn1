@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Plus, Eye, EyeOff, Star, Pencil, Trash2, Loader2, Home, X } from "lucide-react";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import { ImageUploader } from "@/components/admin/ImageUploader";
+import { optimizeImageUrl, getProductImages, getProductImage } from "@/lib/image";
 import { toast } from "sonner";
 
 interface VariantForm {
@@ -60,7 +61,7 @@ export default function AdminProductsPage() {
 
   useEffect(() => {
     let mounted = true;
-    fetch("/api/products").then((r) => r.json()).then((data) => { if (mounted) { if (data?.success) setProducts(data.data); else setError(data?.error || "Failed to load products"); setLoading(false); } }).catch(() => { if (mounted) { setError("Failed to load products"); setLoading(false); } });
+    fetch("/api/products?admin=1").then((r) => r.json()).then((data) => { if (mounted) { if (data?.success) setProducts(data.data); else setError(data?.error || "Failed to load products"); setLoading(false); } }).catch(() => { if (mounted) { setError("Failed to load products"); setLoading(false); } });
     return () => { mounted = false; };
   }, []);
 
@@ -83,7 +84,7 @@ export default function AdminProductsPage() {
         description: p.description || "", shortDescription: p.shortDescription || "",
         price: p.price || 0, originalPrice: p.originalPrice || 0, category: p.category || "Classic",
         tags: (p.tags || []).join(", "), ingredients: (p.ingredients || []).join(", "),
-        images: p.images || [], weight: p.weight || "200g",
+        images: getProductImages(p), weight: p.weight || "200g",
         stockQuantity: p.stockQuantity ?? 100, inStock: p.inStock ?? true,
         isPublished: p.isPublished ?? true, isBestSeller: p.isBestSeller ?? false, showOnHomepage: p.showOnHomepage ?? false,
         sizes: (p.sizes || []).map((s: Record<string, unknown>) => defaultVariant({
@@ -175,17 +176,19 @@ export default function AdminProductsPage() {
   };
 
   const toggleField = async (id: string, field: string, value: boolean) => {
+    // Optimistic UI: apply immediately, roll back on failure.
+    setProducts((prev) => prev.map((p) => (p._id === id ? { ...p, [field]: value } : p)));
     try {
       const res = await fetch(`/api/products/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ [field]: value }),
       });
-      if (res.ok) {
-        setProducts((prev) => prev.map((p) => (p._id === id ? { ...p, [field]: value } : p)));
+      if (!res.ok) {
+        setProducts((prev) => prev.map((p) => (p._id === id ? { ...p, [field]: !value } : p)));
       }
     } catch {
-      console.error("Failed to update");
+      setProducts((prev) => prev.map((p) => (p._id === id ? { ...p, [field]: !value } : p)));
     }
   };
 
@@ -194,7 +197,13 @@ export default function AdminProductsPage() {
     try {
       const res = await fetch(`/api/products/${id}`, { method: "DELETE" });
       if (res.ok) {
+        // Remove only the deleted product from existing state — no full reload.
         setProducts((prev) => prev.filter((p) => p._id !== id));
+        setSelectedIds((prev) => {
+          const next = new Set(prev);
+          next.delete(id);
+          return next;
+        });
       }
     } catch {
       console.error("Failed to delete");
@@ -209,19 +218,28 @@ export default function AdminProductsPage() {
   const bulkToggleHomepage = async (value: boolean) => {
     if (selectedIds.size === 0) { toast.error("No products selected"); return; }
     setBulkActionLoading(true);
-    let success = 0;
-    for (const id of selectedIds) {
-      try {
-        const res = await fetch(`/api/products/${id}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ showOnHomepage: value }),
-        });
-        if (res.ok) {
-          setProducts((prev) => prev.map((p) => (p._id === id ? { ...p, showOnHomepage: value } : p)));
-          success++;
+    // Optimistic UI: update all selected rows immediately, then confirm via parallel requests.
+    setProducts((prev) => prev.map((p) => (selectedIds.has(p._id) ? { ...p, showOnHomepage: value } : p)));
+    const ids = Array.from(selectedIds);
+    const results = await Promise.all(
+      ids.map(async (id) => {
+        try {
+          const res = await fetch(`/api/products/${id}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ showOnHomepage: value }),
+          });
+          return res.ok;
+        } catch {
+          return false;
         }
-      } catch { /* skip */ }
+      })
+    );
+    const success = results.filter(Boolean).length;
+    // Roll back any that failed.
+    const failed = ids.filter((_, i) => !results[i]);
+    if (failed.length > 0) {
+      setProducts((prev) => prev.map((p) => (failed.includes(p._id) ? { ...p, showOnHomepage: !value } : p)));
     }
     toast.success(`${success} product${success !== 1 ? "s" : ""} updated`);
     setSelectedIds(new Set());
@@ -274,7 +292,7 @@ export default function AdminProductsPage() {
                 </div>
                 <div>
                   <label className={labelClass}>Slug *</label>
-                  <input value={form.slug} onChange={(e) => setForm({ ...form, slug: e.target.value })} className={inputClass} />
+                  <input value={form.slug} onChange={(e) => setForm({ ...form, slug: slugify(e.target.value) })} className={inputClass} />
                 </div>
                 <div>
                   <label className={labelClass}>Tagline</label>
@@ -515,8 +533,8 @@ export default function AdminProductsPage() {
                       </td>
                       <td className="p-4 font-medium text-[#1A1A1A]">
                         <div className="flex items-center gap-2">
-                          {p.images?.[0] && (
-                            <img src={p.images[0]} alt="" className="w-8 h-8 rounded object-cover" />
+                          {getProductImage(p) && (
+                            <img src={optimizeImageUrl(getProductImage(p), 64) || (getProductImage(p) as string)} alt="" className="w-8 h-8 rounded object-cover" />
                           )}
                           {p.name}
                         </div>

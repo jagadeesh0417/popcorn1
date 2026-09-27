@@ -1,57 +1,32 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, ReactNode } from "react";
-
-export interface ShippingSettings {
-  freeShippingEnabled: boolean;
-  freeShippingThreshold: number;
-  flatDeliveryCharge: number;
-  mysuruPickupEnabled: boolean;
-  mysuruPickupFee: number;
-  localMysuruDeliveryEnabled: boolean;
-  localMysuruDeliveryFee: number;
-  panIndiaShippingEnabled: boolean;
-  panIndiaShippingFee: number;
-  expressDeliveryEnabled: boolean;
-  expressDeliveryCharge: number;
-  codEnabled: boolean;
-  codCharge: number;
-}
-
-const defaultSettings: ShippingSettings = {
-  freeShippingEnabled: true,
-  freeShippingThreshold: 399,
-  flatDeliveryCharge: 49,
-  mysuruPickupEnabled: true,
-  mysuruPickupFee: 0,
-  localMysuruDeliveryEnabled: false,
-  localMysuruDeliveryFee: 0,
-  panIndiaShippingEnabled: true,
-  panIndiaShippingFee: 140,
-  expressDeliveryEnabled: false,
-  expressDeliveryCharge: 99,
-  codEnabled: false,
-  codCharge: 20,
-};
+import { createContext, useContext, useState, useEffect, useMemo, useCallback, ReactNode } from "react";
+import {
+  DEFAULT_SHIPPING_SETTINGS,
+  ShippingSettings,
+  qualifiesForFreeShipping,
+  computeShippingCost,
+  remainingToFreeShipping,
+} from "@/lib/shipping";
 
 const STORAGE_KEY = "blue-dino-shipping";
 /** Pre-rebrand key, read once so existing admin shipping config is preserved. */
 const LEGACY_STORAGE_KEY = "poprika-shipping";
 
 function loadInitialSettings(): ShippingSettings {
-  if (typeof window === "undefined") return defaultSettings;
+  if (typeof window === "undefined") return { ...DEFAULT_SHIPPING_SETTINGS };
   try {
     const stored =
       localStorage.getItem(STORAGE_KEY) ?? localStorage.getItem(LEGACY_STORAGE_KEY);
     if (stored) {
-      const parsed = { ...defaultSettings, ...JSON.parse(stored) };
+      const parsed = { ...DEFAULT_SHIPPING_SETTINGS, ...JSON.parse(stored) };
       if (!localStorage.getItem(STORAGE_KEY)) {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed));
       }
       return parsed;
     }
   } catch { /* ignore */ }
-  return defaultSettings;
+  return { ...DEFAULT_SHIPPING_SETTINGS };
 }
 
 interface ShippingContextType {
@@ -72,7 +47,7 @@ export function ShippingProvider({ children }: { children: ReactNode }) {
       .then((r) => r.json())
       .then((data) => {
         if (data?.success && data.data?.value) {
-          const merged = { ...defaultSettings, ...data.data.value };
+          const merged = { ...DEFAULT_SHIPPING_SETTINGS, ...data.data.value };
           setSettings(merged);
           localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
         }
@@ -80,29 +55,33 @@ export function ShippingProvider({ children }: { children: ReactNode }) {
       .catch(() => {});
   }, []);
 
-  const updateSettings = (s: ShippingSettings) => {
+  const updateSettings = useCallback((s: ShippingSettings) => {
     setSettings(s);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(s));
-  };
+  }, []);
 
-  const qualifiesForFree = (subtotal: number) =>
-    settings.freeShippingEnabled && subtotal >= settings.freeShippingThreshold;
+  const qualifiesForFree = useCallback(
+    (subtotal: number) => qualifiesForFreeShipping(subtotal, settings),
+    [settings]
+  );
 
-  const freeShippingRemaining = (subtotal: number) =>
-    Math.max(0, settings.freeShippingThreshold - subtotal);
+  const freeShippingRemaining = useCallback(
+    (subtotal: number) => remainingToFreeShipping(subtotal, settings),
+    [settings]
+  );
 
-  const getShippingCost = (subtotal: number, method?: string) => {
-    if (method === "pickup") return 0;
-    if (qualifiesForFree(subtotal)) return 0;
-    switch (method) {
-      case "local": return settings.localMysuruDeliveryFee;
-      case "express": return settings.expressDeliveryEnabled ? settings.expressDeliveryCharge : settings.panIndiaShippingFee;
-      default: return settings.panIndiaShippingEnabled ? settings.panIndiaShippingFee : settings.flatDeliveryCharge;
-    }
-  };
+  const getShippingCost = useCallback(
+    (subtotal: number, method?: string) => computeShippingCost(subtotal, settings, method),
+    [settings]
+  );
+
+  const value = useMemo(
+    () => ({ settings, updateSettings, getShippingCost, freeShippingRemaining, qualifiesForFree }),
+    [settings, updateSettings, getShippingCost, freeShippingRemaining, qualifiesForFree]
+  );
 
   return (
-    <ShippingContext.Provider value={{ settings, updateSettings, getShippingCost, freeShippingRemaining, qualifiesForFree }}>
+    <ShippingContext.Provider value={value}>
       {children}
     </ShippingContext.Provider>
   );

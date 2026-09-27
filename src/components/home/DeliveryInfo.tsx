@@ -59,7 +59,7 @@ export function DeliveryInfo() {
               {settings.freeShippingEnabled && (
                 <li className="text-[#444444] text-sm leading-relaxed flex items-start gap-2">
                   <span className="text-brand mt-0.5">•</span>
-                  Free shipping on orders above ₹{settings.freeShippingThreshold}
+                  Free shipping on orders of ₹{settings.freeShippingThreshold} or more
                 </li>
               )}
             </ul>

@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Loader2 } from "lucide-react";
+import { Loader2, Printer } from "lucide-react";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import { OrderDetailModal } from "@/components/admin/OrderDetailModal";
+import { PrintLabelModal } from "@/components/admin/PrintLabelModal";
 
 interface OrderItem {
   name: string;
@@ -50,6 +51,7 @@ export default function AdminOrdersPage() {
   const [error, setError] = useState("");
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
+  const [labelOrderId, setLabelOrderId] = useState<string | null>(null);
 
   useEffect(() => {
     let mounted = true;
@@ -153,7 +155,16 @@ export default function AdminOrdersPage() {
                       </td>
                       <td className="py-3 text-[#444444]">{order.paymentId || order.paymentMethod ? "Paid" : "Pending"}</td>
                       <td className="py-3">
-                        <button onClick={() => setSelectedOrderId(order.orderId)} className="text-brand text-xs font-medium hover:underline">View</button>
+                        <div className="flex flex-wrap items-center gap-2">
+                          <button onClick={() => setSelectedOrderId(order.orderId)} className="text-brand text-xs font-medium hover:underline">View</button>
+                          <button
+                            onClick={() => setLabelOrderId(order.orderId)}
+                            className="inline-flex items-center gap-1 text-brand text-xs font-medium border border-brand/25 rounded-md px-2 py-1 hover:bg-[#FFF8F0] transition-colors"
+                            title="Print shipping label"
+                          >
+                            <Printer className="h-3 w-3" /> Print Label
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -164,6 +175,7 @@ export default function AdminOrdersPage() {
         </div>
       </div>
       <OrderDetailModal orderId={selectedOrderId} onClose={() => setSelectedOrderId(null)} />
+      <PrintLabelModal orderId={labelOrderId} onClose={() => setLabelOrderId(null)} />
     </div>
   );
 }

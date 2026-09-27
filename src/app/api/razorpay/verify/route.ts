@@ -3,8 +3,12 @@ import crypto from "crypto";
 import { connectDB } from "@/lib/db";
 import Order from "@/lib/models/Order";
 import OrphanPayment from "@/lib/models/OrphanPayment";
-import Product from "@/lib/models/Product";
 import { errorResponse } from "@/lib/api-utils";
+import { validateCoupon, incrementCouponUsage } from "@/lib/server/coupon";
+import { validateAndResolveItems, reserveStock } from "@/lib/server/stock";
+import { getRazorpayCredentials } from "@/lib/server/razorpay";
+import { loadShippingSettings } from "@/lib/server/shipping";
+import { computeShippingCost } from "@/lib/shipping";
 
 export async function POST(req: Request) {
   let body;
@@ -38,11 +42,12 @@ export async function POST(req: Request) {
     return errorResponse("Missing order data", 400);
   }
 
-  const keySecret = process.env.RAZORPAY_KEY_SECRET;
-  if (!keySecret) {
+  const credentials = await getRazorpayCredentials();
+  if (!credentials) {
     console.error("[PAYMENT] RAZORPAY_KEY_SECRET not configured");
     return errorResponse("Payment gateway not configured", 500);
   }
+  const keySecret = credentials.keySecret;
 
   console.log("[PAYMENT] key secret loaded, length:", keySecret.length);
 
@@ -100,14 +105,69 @@ export async function POST(req: Request) {
   }
 
   let order;
+  // Server-side source of truth: resolve items from the DB and confirm stock
+  // is available. If the product went out of stock after the customer paid, we
+  // must NOT create the order — record an orphan so the money can be refunded.
+  let resolved;
+  try {
+    resolved = await validateAndResolveItems(orderData.items);
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error("[PAYMENT] stock validation failed after payment", { orderId: orderData.orderId, msg });
+    try {
+      await OrphanPayment.create({
+        razorpay_payment_id,
+        razorpay_order_id,
+        amount: orderData.total,
+        email: orderData.customerDetails?.email,
+        status: "needs_review",
+        orderData,
+        error: msg,
+      });
+    } catch { /* non-fatal */ }
+    return NextResponse.json(
+      {
+        success: false,
+        error: msg || "One or more items in your order are no longer available.",
+        payment_id: razorpay_payment_id,
+        needs_refund: true,
+      },
+      { status: 409 }
+    );
+  }
+
+  // Recompute subtotal, discount + total server-side from authoritative item prices.
+  const subtotalForCoupon = resolved.subtotal;
+  // Shipping is recomputed server-side from the resolved subtotal + requested
+  // delivery method. A tampered orderData.shipping is never trusted.
+  const shippingSettings = await loadShippingSettings();
+  const shippingCost = computeShippingCost(
+    subtotalForCoupon,
+    shippingSettings,
+    typeof orderData.shippingMethod === "string" ? orderData.shippingMethod : undefined
+  );
+  console.log("[PAYMENT] server-side shipping", { subtotal: subtotalForCoupon, shippingCost, shippingMethod: orderData.shippingMethod ?? "shipping" });
+  let discount = 0;
+  if (orderData.coupon) {
+    const couponResult = await validateCoupon(orderData.coupon, subtotalForCoupon);
+    if (couponResult.valid) {
+      discount = couponResult.discount ?? 0;
+      await incrementCouponUsage(orderData.coupon);
+    }
+  }
+  const computedTotal = Math.max(0, subtotalForCoupon - discount + shippingCost);
+
+  // Create the order BEFORE reserving stock so the order becomes the
+  // idempotency anchor: a duplicate webhook finds it and returns early,
+  // guaranteeing stock is deducted at most once.
   try {
     order = await Order.create({
       orderId: orderData.orderId,
-      items: orderData.items || [],
-      total: Number(orderData.total) || 0,
-      subtotal: Number(orderData.subtotal) || 0,
-      shipping: Number(orderData.shipping) || 0,
-      discount: Number(orderData.discount) || 0,
+      items: resolved.items,
+      total: computedTotal,
+      subtotal: subtotalForCoupon,
+      shipping: shippingCost,
+      discount,
       coupon: orderData.coupon,
       status: "confirmed",
       paymentMethod: "Razorpay",
@@ -121,6 +181,12 @@ export async function POST(req: Request) {
     });
     console.log("[PAYMENT] order created in DB", { orderId: order.orderId, paymentId: razorpay_payment_id });
   } catch (e: unknown) {
+    // Race: another request created the same order concurrently.
+    const duplicate = await Order.findOne({ orderId: orderData.orderId });
+    if (duplicate) {
+      console.log("[PAYMENT] concurrent duplicate order", { orderId: orderData.orderId });
+      return NextResponse.json({ success: true, data: { order: duplicate } });
+    }
     const msg = e instanceof Error ? e.message : String(e);
     console.error("[PAYMENT] order creation failed:", msg);
     if (e && typeof e === "object" && "errors" in e) {
@@ -155,32 +221,38 @@ export async function POST(req: Request) {
     );
   }
 
-  // Deduct inventory for each item
-  for (const item of orderData.items || []) {
+  // Now reserve/deduct stock. Because the order already exists, any retry
+  // after this point is caught by the duplicate-order check above.
+  try {
+    await reserveStock(resolved.items, order.orderId);
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error("[PAYMENT] stock reserve failed", { orderId: order.orderId, msg });
+    // Mark the order as pending so it is not left in a misleading confirmed
+    // state when stock could not be reserved.
     try {
-      const product = await Product.findOne({
-        $or: [{ slug: item.productId }, { _id: item.productId }],
+      await Order.findByIdAndUpdate(order._id, { $set: { status: "pending" } });
+    } catch { /* non-fatal */ }
+    try {
+      await OrphanPayment.create({
+        razorpay_payment_id,
+        razorpay_order_id,
+        amount: orderData.total,
+        email: orderData.customerDetails?.email,
+        status: "needs_review",
+        orderData,
+        error: msg,
       });
-      if (product) {
-        if (item.variant?.label && product.sizes?.length) {
-          const variant = product.sizes.find(
-            (v: { label: string }) => v.label === item.variant.label
-          );
-          if (variant) {
-            variant.stock = Math.max(0, (variant.stock || 0) - item.quantity);
-          }
-        } else {
-          product.stockQuantity = Math.max(0, (product.stockQuantity || 0) - item.quantity);
-        }
-        product.inStock = (product.stockQuantity || 0) > 0;
-        await product.save();
-        console.log("[INVENTORY] deducted", { productId: item.productId, qty: item.quantity });
-      } else {
-        console.warn("[INVENTORY] product not found for deduction", { productId: item.productId });
-      }
-    } catch (e) {
-      console.error("[INVENTORY] deduction failed for item", { productId: item.productId, error: e });
-    }
+    } catch { /* non-fatal */ }
+    return NextResponse.json(
+      {
+        success: false,
+        error: msg || "Some items in your order are no longer available.",
+        payment_id: razorpay_payment_id,
+        needs_refund: true,
+      },
+      { status: 409 }
+    );
   }
 
   return NextResponse.json({ success: true, data: { order } });
