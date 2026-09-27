@@ -1,18 +1,11 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Wheat, Flame, Shield, MapPin, Award, Check } from "lucide-react";
+import { Award, Check } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { BRAND } from "@/lib/brand";
-
-const values = [
-  { icon: Wheat, title: "100% Natural", description: "No artificial flavours, preservatives, or palm oil. Ever." },
-  { icon: Flame, title: "Small Batch", description: "Handcrafted daily in small batches for quality, not quantity." },
-  { icon: Shield, title: "Premium Quality", description: "Only the finest kernels and freshest ingredients make the cut." },
-  { icon: MapPin, title: "Proudly Mysuru", description: "Handcrafted with love in the cultural capital of Karnataka." },
-  { icon: Award, title: "Customer First", description: "Your happiness is our success. We stand by every batch." },
-];
+import { BRAND_VALUES } from "@/lib/brand-values";
 
 /** Brand story — wording supplied in the requirements. Do not paraphrase. */
 const story = [
@@ -98,7 +91,7 @@ export default function AboutPage() {
             <h2 className="text-3xl md:text-4xl font-bold mt-3 text-[#1A1A1A]">What We Stand For</h2>
           </motion.div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {values.map((v, i) => (
+            {BRAND_VALUES.map((v, i) => (
               <motion.div
                 key={v.title}
                 initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
