@@ -35,7 +35,7 @@ export async function POST() {
     await user.save();
 
     return NextResponse.json({ success: true, message: `Admin updated: ${user.email}` });
-  } catch (err) {
-    return NextResponse.json({ success: false, error: err instanceof Error ? err.message : String(err) }, { status: 500 });
+  } catch {
+    return NextResponse.json({ success: false, error: "Failed to update admin" }, { status: 500 });
   }
 }

@@ -1,24 +1,43 @@
 import mongoose, { Schema, Document } from "mongoose";
 
+export interface IOrderItem {
+  productId: string;
+  name: string;
+  price: number;
+  /** Maximum retail price at the time of purchase. Undefined when the product has no MRP. */
+  mrp?: number;
+  /** Offer discount percentage versus MRP (derived from mrp/price). */
+  offerPercent?: number;
+  quantity: number;
+  image: string;
+  type?: string;
+  bundleId?: string;
+  variant?: { label: string; grams: number };
+  parts?: { productId: string; name: string; variantLabel?: string; quantity: number }[];
+}
+
+/** Payment lifecycle, kept separate from fulfilment (`status`). */
+export type PaymentStatus = "pending" | "paid" | "failed" | "refunded";
+
 export interface IOrder extends Document {
   orderId: string;
-  items: {
-    productId: string;
-    name: string;
-    price: number;
-    quantity: number;
-    image: string;
-    type?: string;
-    bundleId?: string;
-    variant?: { label: string; grams: number };
-    parts?: { productId: string; name: string; variantLabel?: string; quantity: number }[];
-  }[];
+  items: IOrderItem[];
   total: number;
   subtotal: number;
   shipping: number;
   discount: number;
   coupon?: string;
   status: string;
+  /** Verified payment state. `paid` is only ever set by server-side gateway verification. */
+  paymentStatus: PaymentStatus;
+  /** Server-computed charge in paise, stored when the gateway order is created. */
+  amountPaise?: number;
+  paidAt?: Date;
+  paymentStatusUpdatedAt?: Date;
+  /** Admin email when the payment status was changed manually. */
+  paymentStatusUpdatedBy?: string;
+  /** True once stock has been deducted for this order — idempotency guard. */
+  stockAdjusted: boolean;
   trackingId?: string;
   courierPartner?: string;
   estimatedDelivery?: string;
@@ -55,6 +74,8 @@ const OrderSchema = new Schema<IOrder>(
         productId: String,
         name: String,
         price: Number,
+        mrp: { type: Number },
+        offerPercent: { type: Number },
         quantity: Number,
         image: String,
         type: { type: String },
@@ -83,6 +104,16 @@ const OrderSchema = new Schema<IOrder>(
       enum: ["pending", "confirmed", "packed", "shipped", "delivered", "cancelled", "return-requested"],
       default: "pending",
     },
+    paymentStatus: {
+      type: String,
+      enum: ["pending", "paid", "failed", "refunded"],
+      default: "pending",
+    },
+    amountPaise: { type: Number },
+    paidAt: { type: Date },
+    paymentStatusUpdatedAt: { type: Date },
+    paymentStatusUpdatedBy: { type: String },
+    stockAdjusted: { type: Boolean, default: false },
     trackingId: { type: String },
     courierPartner: { type: String },
     estimatedDelivery: { type: String },
@@ -124,5 +155,7 @@ OrderSchema.index({ userId: 1 });
 OrderSchema.index({ status: 1 });
 OrderSchema.index({ createdAt: -1 });
 OrderSchema.index({ "customerDetails.email": 1 });
+OrderSchema.index({ paymentStatus: 1 });
+OrderSchema.index({ razorpayOrderId: 1 });
 
 export default mongoose.models.Order || mongoose.model<IOrder>("Order", OrderSchema);

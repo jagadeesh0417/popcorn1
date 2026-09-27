@@ -114,6 +114,10 @@ export interface OrderItem {
   bundleId?: string;
   variant?: { label: string; grams: number } | null;
   parts?: OrderBundlePart[];
+  /** MRP snapshot at order time (present only when it exceeds the sale price). */
+  mrp?: number;
+  /** Discount percentage versus MRP, rounded. */
+  offerPercent?: number;
 }
 
 export interface Order {
@@ -135,6 +139,11 @@ export interface Order {
   customerDetails: CustomerDetails;
   paymentId?: string;
   paymentMethod?: string;
+  /** Separate from `status`: how the money is doing (pending/paid/failed/refunded). */
+  paymentStatus?: "pending" | "paid" | "failed" | "refunded";
+  paidAt?: string;
+  createdAt?: string;
+  razorpayOrderId?: string;
   orderDate: string;
   statusTimeline: StatusEvent[];
   userId?: string;

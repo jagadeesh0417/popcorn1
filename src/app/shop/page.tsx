@@ -107,6 +107,14 @@ export default function ShopPage() {
             const variants: ProductVariant[] = product.sizes || product.variants || [];
             const defaultVar = getDefaultVariant(product);
             const minPrice = variants.length > 0 ? Math.min(...variants.map((s) => s.price)) : product.price;
+            // Lowest MRP among the same variants — only counts genuine MRP > price.
+            const minMrp =
+              variants.length > 0
+                ? Math.min(...variants.map((s) => (typeof s.originalPrice === "number" && s.originalPrice > s.price ? s.originalPrice : s.price)))
+                : typeof product.originalPrice === "number" && product.originalPrice > product.price
+                  ? product.originalPrice
+                  : product.price;
+            const offerPct = minMrp > minPrice ? Math.round((1 - minPrice / minMrp) * 100) : 0;
             const buyable = isBuyable(product, defaultVar);
             const out = isOutOfStock(product) || !buyable;
             return (
@@ -145,7 +153,13 @@ export default function ShopPage() {
                   )}
 
                   <div className="flex items-center justify-between mt-3 pt-3 border-t border-brand/8">
-                    <span className="text-base font-semibold text-[#1A1A1A]">From ₹{minPrice}</span>
+                    <span className="flex items-baseline gap-2">
+                      <span className="text-base font-semibold text-[#1A1A1A]">From ₹{minPrice}</span>
+                      {minMrp > minPrice && <span className="text-sm text-[#999] line-through">₹{minMrp}</span>}
+                      {offerPct > 0 && (
+                        <span className="text-[10px] font-semibold text-green-700 bg-green-50 border border-green-200 px-1.5 py-0.5 rounded">{offerPct}% OFF</span>
+                      )}
+                    </span>
                     {buyable ? (
                       <Button size="sm" className="bg-brand hover:bg-brand-deep text-white h-9 px-4 text-xs transition-all" onClick={() => addItem(product, defaultVar)}>
                         <ShoppingBag className="h-3.5 w-3.5 mr-1" />

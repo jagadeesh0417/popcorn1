@@ -10,7 +10,12 @@ interface OrderItem {
   name: string;
   quantity: number;
   variant?: { label: string; grams: number } | null;
+  price?: number;
+  mrp?: number;
+  offerPercent?: number;
 }
+
+type PaymentStatusValue = "pending" | "paid" | "failed" | "refunded";
 
 interface AdminOrder {
   _id: string;
@@ -21,6 +26,8 @@ interface AdminOrder {
   status: string;
   paymentMethod?: string;
   paymentId?: string;
+  paymentStatus?: PaymentStatusValue;
+  createdAt?: string;
   fulfillmentMethod?: "pickup" | "delivery";
   deliveryRegion?: "mysore" | "pan_india";
 }
@@ -33,6 +40,21 @@ const statusColors: Record<string, string> = {
 };
 
 const statusOptions = ["pending", "confirmed", "packed", "shipped", "delivered", "cancelled", "return-requested"];
+
+const paymentStatusColors: Record<string, string> = {
+  pending: "bg-amber-100 text-amber-800",
+  paid: "bg-green-100 text-green-800",
+  failed: "bg-red-100 text-red-800",
+  refunded: "bg-blue-100 text-blue-800",
+};
+
+/** Mirrors the server-side transition rules — invalid options are never offered. */
+const paymentTransitions: Record<PaymentStatusValue, PaymentStatusValue[]> = {
+  pending: ["paid", "failed", "refunded"],
+  failed: ["pending", "paid", "refunded"],
+  paid: ["refunded"],
+  refunded: [],
+};
 
 /** Falls back to the legacy address marker for orders placed before fulfilment was stored. */
 function fulfilmentLabel(order: AdminOrder): string {
@@ -73,6 +95,38 @@ export default function AdminOrdersPage() {
       }
     } catch {
       console.error("Failed to update status");
+    }
+  };
+
+  /** Manual payment override — server re-validates the transition and audits it. */
+  const updatePaymentStatus = async (orderId: string, next: PaymentStatusValue) => {
+    try {
+      const res = await fetch(`/api/orders/${orderId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ paymentStatus: next }),
+      });
+      if (res.ok) {
+        const data = await res.json().catch(() => null);
+        const updated = data?.data;
+        setOrderList((prev) =>
+          prev.map((o) =>
+            o.orderId === orderId
+              ? {
+                  ...o,
+                  paymentStatus: next,
+                  // Server moves a manually-paid order out of "pending".
+                  status: updated?.status || o.status,
+                }
+              : o
+          )
+        );
+      } else {
+        const err = await res.json().catch(() => null);
+        alert(err?.error || "Failed to update payment status");
+      }
+    } catch {
+      console.error("Failed to update payment status");
     }
   };
 
@@ -131,6 +185,15 @@ export default function AdminOrdersPage() {
                                 {item.name}
                                 {item.variant?.label ? ` (${item.variant.label})` : ""}
                                 {" — "}x{item.quantity}
+                                {typeof item.price === "number" && (
+                                  <span className="text-[#999]"> @ ₹{item.price}</span>
+                                )}
+                                {typeof item.mrp === "number" && item.mrp > (item.price ?? 0) && (
+                                  <span className="text-[#999] line-through"> (MRP ₹{item.mrp})</span>
+                                )}
+                                {item.offerPercent ? (
+                                  <span className="ml-1 text-green-700 font-medium">-{item.offerPercent}%</span>
+                                ) : null}
                               </div>
                             ))}
                           </div>
@@ -153,7 +216,48 @@ export default function AdminOrdersPage() {
                           ))}
                         </select>
                       </td>
-                      <td className="py-3 text-[#444444]">{order.paymentId || order.paymentMethod ? "Paid" : "Pending"}</td>
+                      <td className="py-3">
+                        <div className="flex flex-col gap-1.5">
+                          <span
+                            className={`px-2.5 py-1 rounded-full text-xs font-medium w-fit ${
+                              paymentStatusColors[order.paymentStatus || "pending"] || "bg-gray-100 text-gray-800"
+                            }`}
+                          >
+                            {order.paymentStatus === "paid"
+                              ? "Paid"
+                              : order.paymentStatus === "failed"
+                                ? "Failed"
+                                : order.paymentStatus === "refunded"
+                                  ? "Refunded"
+                                  : order.paymentMethod === "COD"
+                                    ? "COD pending"
+                                    : "Pending"}
+                          </span>
+                          {(paymentTransitions[order.paymentStatus || "pending"] || []).length > 0 && (
+                            <select
+                              value=""
+                              onChange={(e) => {
+                                const v = e.target.value as PaymentStatusValue;
+                                if (v) updatePaymentStatus(order.orderId, v);
+                              }}
+                              className="px-2 py-1 rounded-md text-xs border border-brand/20 bg-white text-[#444444] cursor-pointer"
+                              title="Change payment status (audited)"
+                            >
+                              <option value="">Set payment…</option>
+                              {paymentTransitions[order.paymentStatus || "pending"].map((s) => (
+                                <option key={s} value={s}>
+                                  {s === "paid" ? "Mark as Paid" : s === "refunded" ? "Mark as Refunded" : s === "failed" ? "Mark as Failed" : "Back to Pending"}
+                                </option>
+                              ))}
+                            </select>
+                          )}
+                          {order.paymentId && (
+                            <span className="text-[10px] text-[#999] font-mono" title={order.paymentId}>
+                              {order.paymentId.length > 16 ? `${order.paymentId.slice(0, 16)}…` : order.paymentId}
+                            </span>
+                          )}
+                        </div>
+                      </td>
                       <td className="py-3">
                         <div className="flex flex-wrap items-center gap-2">
                           <button onClick={() => setSelectedOrderId(order.orderId)} className="text-brand text-xs font-medium hover:underline">View</button>

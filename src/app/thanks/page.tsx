@@ -1,14 +1,15 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
-import { CheckCircle, Package, ArrowRight, MapPin, Truck } from "lucide-react";
+import { CheckCircle, Package, ArrowRight, MapPin, Truck, AlertCircle, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
 import { OrderItem } from "@/lib/types";
 import { FULFILMENT } from "@/lib/brand";
+import { useCart } from "@/lib/store";
 
 interface OrderDetails {
   orderId: string;
@@ -17,9 +18,13 @@ interface OrderDetails {
   subtotal: number;
   shipping: number;
   discount: number;
+  coupon?: string;
   status: string;
   paymentMethod?: string;
   paymentId?: string;
+  paymentStatus?: "pending" | "paid" | "failed" | "refunded";
+  paidAt?: string;
+  createdAt?: string;
   fulfillmentMethod?: "pickup" | "delivery";
   pickupLocation?: string;
   customerDetails: {
@@ -36,53 +41,139 @@ const isPickupOrder = (order: OrderDetails | null) =>
   order?.fulfillmentMethod === "pickup" ||
   (order?.fulfillmentMethod ? false : (order?.customerDetails.address || "").toLowerCase().includes("pickup"));
 
+const PAYMENT_BADGE: Record<string, { label: string; className: string }> = {
+  paid: { label: "Paid", className: "text-green-700 bg-green-50 border-green-200" },
+  pending: { label: "Payment pending", className: "text-amber-700 bg-amber-50 border-amber-200" },
+  failed: { label: "Payment failed", className: "text-red-700 bg-red-50 border-red-200" },
+  refunded: { label: "Refunded", className: "text-blue-700 bg-blue-50 border-blue-200" },
+};
+
 function ThankYouContent() {
   const searchParams = useSearchParams();
   const orderId = searchParams.get("order") || "N/A";
   const [order, setOrder] = useState<OrderDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [reconciling, setReconciling] = useState(false);
+  const [gaveUp, setGaveUp] = useState(false);
+  const { clearCart } = useCart();
+  const cartClearedRef = useRef(false);
+  const reconcileInFlightRef = useRef(false);
 
   const isInvalidId = orderId === "N/A";
 
+  const fetchOrder = async (): Promise<OrderDetails | null> => {
+    const res = await fetch(`/api/orders/${orderId}`);
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data?.success ? (data.data as OrderDetails) : null;
+  };
+
+  // Initial load (with short retries — the order is written before redirect,
+  // but a brand-new order can still be a moment behind on cold starts).
   useEffect(() => {
     if (orderId === "N/A") return;
     let cancelled = false;
     let retries = 0;
     const maxRetries = 5;
-    const fetchOrder = () => {
-      fetch(`/api/orders/${orderId}`)
-        .then((res) => {
-          if (!res.ok) throw new Error("Order not found");
-          return res.json();
-        })
-        .then((data) => {
-          if (cancelled) return;
-          if (data?.success) {
-            setOrder(data.data);
-            setLoading(false);
-          } else if (retries < maxRetries) {
-            retries++;
-            setTimeout(fetchOrder, 800);
-          } else {
-            setError("Could not load order details");
-            setLoading(false);
-          }
-        })
-        .catch(() => {
-          if (cancelled) return;
-          if (retries < maxRetries) {
-            retries++;
-            setTimeout(fetchOrder, 800);
-          } else {
-            setError("Could not load order details");
-            setLoading(false);
-          }
-        });
+    const attempt = async () => {
+      try {
+        const data = await fetchOrder();
+        if (cancelled) return;
+        if (data) {
+          setOrder(data);
+          setLoading(false);
+        } else if (retries < maxRetries) {
+          retries++;
+          setTimeout(attempt, 800);
+        } else {
+          setError("Could not load order details");
+          setLoading(false);
+        }
+      } catch {
+        if (cancelled) return;
+        if (retries < maxRetries) {
+          retries++;
+          setTimeout(attempt, 800);
+        } else {
+          setError("Could not load order details");
+          setLoading(false);
+        }
+      }
     };
-    fetchOrder();
-    return () => { cancelled = true; };
+    attempt();
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [orderId]);
+
+  /**
+   * Ask the server to reconcile a PENDING online payment against Razorpay.
+   * The server only upgrades pending → paid/failed based on real gateway state.
+   */
+  const runReconcile = async (): Promise<"settled" | "pending" | "error"> => {
+    if (reconcileInFlightRef.current) return "pending";
+    reconcileInFlightRef.current = true;
+    setReconciling(true);
+    try {
+      const res = await fetch("/api/razorpay/reconcile", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderId }),
+      });
+      const data = await res.json();
+      const next = data?.data?.paymentStatus as OrderDetails["paymentStatus"] | undefined;
+      if (next && next !== "pending") {
+        setOrder((prev) =>
+          prev ? { ...prev, paymentStatus: next, status: data?.data?.orderStatus || prev.status } : prev
+        );
+        return "settled";
+      }
+      return "pending";
+    } catch {
+      return "error";
+    } finally {
+      reconcileInFlightRef.current = false;
+      setReconciling(false);
+    }
+  };
+
+  // While an online payment is still pending, poll reconcile a handful of times.
+  // Covers delayed webhooks, dropped callbacks and open-tab-later visits.
+  useEffect(() => {
+    if (!order || order.paymentStatus !== "pending" || order.paymentMethod === "COD") return;
+    let cancelled = false;
+    let attempts = 0;
+    const maxAttempts = 6;
+    const tick = async () => {
+      if (cancelled) return;
+      const result = await runReconcile();
+      if (cancelled) return;
+      if (result === "settled") return;
+      attempts++;
+      if (attempts >= maxAttempts) {
+        setGaveUp(true);
+        return;
+      }
+      setTimeout(tick, 4000);
+    };
+    const first = setTimeout(tick, 2000);
+    return () => {
+      cancelled = true;
+      clearTimeout(first);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [order?.paymentStatus, order?.paymentMethod, orderId]);
+
+  // Once the payment is confirmed, the cart must go (checkout only clears it
+  // for immediate success / COD paths).
+  useEffect(() => {
+    if (order?.paymentStatus === "paid" && !cartClearedRef.current) {
+      cartClearedRef.current = true;
+      clearCart();
+    }
+  }, [order?.paymentStatus, clearCart]);
 
   if (isInvalidId) {
     return (
@@ -105,33 +196,116 @@ function ThankYouContent() {
     );
   }
 
+  const paymentStatus = order?.paymentStatus;
+  const isPaid = paymentStatus === "paid";
+  const isFailed = paymentStatus === "failed";
+  const isOnlinePending = !!order && order.paymentMethod !== "COD" && paymentStatus === "pending";
+
+  // MRP maths for the receipt: only counted where an MRP snapshot exists.
+  const totalMrp = (order?.items || []).reduce((sum, item) => {
+    if (typeof item.mrp === "number" && item.mrp > item.price) return sum + item.mrp * item.quantity;
+    return sum + (item.price * item.quantity);
+  }, 0);
+  const mrpSavings = order ? Math.max(0, totalMrp - order.subtotal) : 0;
+
   return (
     <div className="min-h-screen pt-10 md:pt-14 bg-white">
       <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", stiffness: 200, damping: 15 }} className="text-center mb-8">
-          <div className="w-20 h-20 mx-auto rounded-full bg-green-100 flex items-center justify-center mb-4">
-            <CheckCircle className="h-10 w-10 text-green-600" />
-          </div>
-          <h1 className="text-2xl md:text-3xl font-bold text-[#1A1A1A]">Order Confirmed!</h1>
-          <p className="text-[#444444] mt-1">Thank you for your order. It&apos;s being prepared with love.</p>
+          {isFailed ? (
+            <>
+              <div className="w-20 h-20 mx-auto rounded-full bg-red-100 flex items-center justify-center mb-4">
+                <AlertCircle className="h-10 w-10 text-red-600" />
+              </div>
+              <h1 className="text-2xl md:text-3xl font-bold text-[#1A1A1A]">Payment failed</h1>
+              <p className="text-[#444444] mt-1">Your payment didn&apos;t go through. You haven&apos;t been charged for this order.</p>
+            </>
+          ) : isOnlinePending ? (
+            <>
+              <div className="w-20 h-20 mx-auto rounded-full bg-amber-100 flex items-center justify-center mb-4">
+                <span className="animate-spin h-8 w-8 border-[3px] border-amber-600 border-t-transparent rounded-full" />
+              </div>
+              <h1 className="text-2xl md:text-3xl font-bold text-[#1A1A1A]">Confirming your payment…</h1>
+              <p className="text-[#444444] mt-1">We&apos;re checking the payment status with Razorpay. This page updates automatically.</p>
+            </>
+          ) : (
+            <>
+              <div className="w-20 h-20 mx-auto rounded-full bg-green-100 flex items-center justify-center mb-4">
+                <CheckCircle className="h-10 w-10 text-green-600" />
+              </div>
+              <h1 className="text-2xl md:text-3xl font-bold text-[#1A1A1A]">{isPaid ? "Payment successful!" : "Order Confirmed!"}</h1>
+              <p className="text-[#444444] mt-1">
+                {isPaid ? "Thank you for your order. It's being prepared with love." : "Thank you for your order. Pay when you receive it."}
+              </p>
+            </>
+          )}
         </motion.div>
+
+        {isFailed && (
+          <div className="mb-6 border border-red-200 bg-red-50 p-4 flex flex-col sm:flex-row sm:items-center gap-3">
+            <AlertCircle className="h-5 w-5 text-red-600 shrink-0" />
+            <p className="text-sm text-red-800 flex-1">
+              Your cart is still intact — you can head back to checkout and try another payment method.
+            </p>
+            <Link href="/checkout">
+              <Button className="bg-red-600 hover:bg-red-700 text-white shrink-0">Try again</Button>
+            </Link>
+          </div>
+        )}
+
+        {isOnlinePending && reconciling && (
+          <div className="mb-6 border border-amber-200 bg-amber-50 p-4 flex items-center gap-3">
+            <span className="animate-spin h-4 w-4 border-2 border-amber-600 border-t-transparent rounded-full shrink-0" />
+            <p className="text-sm text-amber-800">Checking with the payment gateway… do not close this tab.</p>
+          </div>
+        )}
+
+        {isOnlinePending && gaveUp && !reconciling && (
+          <div className="mb-6 border border-amber-200 bg-amber-50 p-4 flex flex-col sm:flex-row sm:items-center gap-3">
+            <p className="text-sm text-amber-800 flex-1">
+              Your payment is still being confirmed. If you completed the payment, it will be confirmed shortly — please check again in a minute.
+            </p>
+            <Button
+              variant="outline"
+              className="border-amber-300 text-amber-800 shrink-0"
+              onClick={async () => {
+                setGaveUp(false);
+                await runReconcile();
+              }}
+            >
+              <RefreshCw className="h-4 w-4 mr-2" /> Check again
+            </Button>
+          </div>
+        )}
 
         {order && (
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="space-y-4">
-            <div className="bg-[#FFF8F0] p-5 flex items-center gap-3">
+            <div className="bg-[#FFF8F0] p-5 flex items-center gap-3 flex-wrap">
               <Package className="h-5 w-5 text-brand" />
               <div>
                 <p className="text-xs text-[#444444] uppercase tracking-[0.06em]">Order ID</p>
                 <p className="font-semibold text-[#1A1A1A]">{order.orderId}</p>
               </div>
-              {order.paymentMethod && (
-                <div className="ml-auto text-right">
-                  <p className="text-xs text-[#444444] uppercase tracking-[0.06em]">Payment</p>
-                  <span className={`text-xs font-semibold ${order.paymentMethod === "COD" ? "text-brand" : "text-green-600"}`}>
-                    {order.paymentMethod === "COD" ? "Pending (COD)" : "Paid"}
-                  </span>
-                </div>
-              )}
+              <div className="ml-auto text-right">
+                <p className="text-xs text-[#444444] uppercase tracking-[0.06em]">Payment</p>
+                <span
+                  className={`inline-block text-xs font-semibold border px-2 py-0.5 rounded-full ${
+                    (PAYMENT_BADGE[paymentStatus || ""] || PAYMENT_BADGE.pending).className
+                  }`}
+                >
+                  {order.paymentMethod === "COD"
+                    ? "Cash on Delivery"
+                    : (PAYMENT_BADGE[paymentStatus || ""] || PAYMENT_BADGE.pending).label}
+                </span>
+                {order.paymentId && (
+                  <p className="text-[10px] text-[#999] mt-1 font-mono">{order.paymentId}</p>
+                )}
+                {isPaid && order.paidAt && (
+                  <p className="text-[10px] text-green-700 mt-0.5">
+                    Paid {new Date(order.paidAt).toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" })}
+                  </p>
+                )}
+              </div>
             </div>
 
             <div className="border border-brand/10 p-5">
@@ -171,24 +345,45 @@ function ThankYouContent() {
             <div className="border border-brand/8 p-5">
               <h3 className="font-semibold text-sm text-[#1A1A1A] mb-3">Items Ordered</h3>
               <div className="space-y-2">
-                {order.items.map((item, i) => (
-                  <div key={i} className="flex justify-between text-sm">
-                    <span className="text-[#444444]">
-                      {item.name}
-                      {item.variant ? <span className="text-[#999]"> ({item.variant.label})</span> : ""}
-                      <span className="text-[#999]"> x{item.quantity}</span>
-                    </span>
-                    <span className="font-medium text-[#1A1A1A]">₹{item.price * item.quantity}</span>
-                  </div>
-                ))}
+                {order.items.map((item, i) => {
+                  const hasOffer = typeof item.mrp === "number" && item.mrp > item.price;
+                  return (
+                    <div key={i} className="flex justify-between text-sm gap-3">
+                      <span className="text-[#444444]">
+                        {item.name}
+                        {item.variant ? <span className="text-[#999]"> ({item.variant.label})</span> : ""}
+                        {item.offerPercent ? (
+                          <span className="ml-1.5 text-[10px] font-semibold text-green-700 bg-green-50 border border-green-200 px-1.5 py-0.5 rounded align-middle">
+                            {item.offerPercent}% OFF
+                          </span>
+                        ) : null}
+                        <span className="text-[#999]"> x{item.quantity}</span>
+                      </span>
+                      <span className="text-right shrink-0">
+                        {hasOffer && <span className="block text-xs text-[#999] line-through">₹{item.mrp! * item.quantity}</span>}
+                        <span className="font-medium text-[#1A1A1A]">₹{item.price * item.quantity}</span>
+                      </span>
+                    </div>
+                  );
+                })}
               </div>
               <Separator className="my-3 bg-brand/8" />
               <div className="space-y-1 text-sm">
                 <div className="flex justify-between text-[#444444]"><span>Cart Total</span><span>₹{order.subtotal}</span></div>
-                {order.discount > 0 && <div className="flex justify-between text-green-600"><span>Discount</span><span>-₹{order.discount}</span></div>}
+                {mrpSavings > 0 && (
+                  <div className="flex justify-between text-green-700 font-medium"><span>You saved (vs MRP)</span><span>-₹{mrpSavings}</span></div>
+                )}
+                {order.discount > 0 && <div className="flex justify-between text-green-600"><span>Discount{order.coupon ? ` (${order.coupon})` : ""}</span><span>-₹{order.discount}</span></div>}
                 <div className="flex justify-between text-[#444444]"><span>{isPickupOrder(order) ? "Pickup" : "Delivery"}</span><span>{order.shipping === 0 ? "FREE" : `₹${order.shipping}`}</span></div>
                 <Separator className="my-2 bg-brand/8" />
                 <div className="flex justify-between font-bold text-lg"><span className="text-[#1A1A1A]">Total</span><span className="text-brand">₹{order.total}</span></div>
+                <p className="text-xs text-[#666666] pt-1">
+                  {order.paymentMethod === "COD"
+                    ? "Payment due on delivery — cash or UPI accepted."
+                    : isPaid
+                      ? "Payment received. Thank you!"
+                      : "Payment is being confirmed."}
+                </p>
               </div>
             </div>
           </motion.div>

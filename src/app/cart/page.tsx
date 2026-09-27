@@ -22,6 +22,13 @@ export default function CartPage() {
   const remains = shippingCtx.freeShippingRemaining(sub);
   const isFree = shippingCtx.qualifiesForFree(sub);
   const cartShipping = shippingCtx.getShippingCost(sub);
+  // Total you're saving versus MRP across every line (coupon not included).
+  const mrpSavings = state.items.reduce((sum, item) => {
+    const price = itemPrice(item);
+    const rawMrp =
+      item.type === "bundle" ? item.bundle?.originalPrice : (item.variant?.originalPrice ?? item.product?.originalPrice);
+    return typeof rawMrp === "number" && rawMrp > price ? sum + (rawMrp - price) * item.quantity : sum;
+  }, 0);
   const [couponInput, setCouponInput] = useState("");
   const [couponMsg, setCouponMsg] = useState("");
   const [coupons, setCoupons] = useState<Coupon[]>([]);
@@ -113,6 +120,9 @@ export default function CartPage() {
               const itemSummary = isBundle
                 ? (bundle?.sizeLabel || "Bundle")
                 : (item.variant ? `${item.variant.label} · ₹${price}/pack` : (product?.weight || ""));
+              // MRP display: only when the stored MRP is genuinely above the sale price.
+              const rawMrp = isBundle ? bundle?.originalPrice : (item.variant?.originalPrice ?? product?.originalPrice);
+              const mrp = typeof rawMrp === "number" && rawMrp > price ? rawMrp : null;
               return (
                 <motion.div
                   key={item.cartId}
@@ -159,12 +169,20 @@ export default function CartPage() {
                         </button>
                       </div>
                       <div className="flex items-center gap-3">
+                        {mrp && (
+                          <span className="text-sm text-[#999] line-through">₹{mrp * item.quantity}</span>
+                        )}
                         <span className="font-bold text-lg text-brand">₹{price * item.quantity}</span>
                         <button onClick={() => removeItem(item.cartId)} className="text-[#444444] hover:text-brand transition-colors">
                           <Trash2 className="h-4 w-4" />
                         </button>
                       </div>
                     </div>
+                    {mrp && (
+                      <p className="text-[11px] text-green-700 font-medium mt-1">
+                        Save ₹{(mrp - price) * item.quantity} (MRP ₹{mrp * item.quantity})
+                      </p>
+                    )}
                     {!isBundle && !unavailable && maxQty > 0 && item.quantity >= maxQty && (
                       <p className="text-[11px] text-[#444444] mt-1">Only {maxQty} {maxQty === 1 ? "unit" : "units"} in stock</p>
                     )}
@@ -182,6 +200,12 @@ export default function CartPage() {
                   <span className="text-[#444444]">Cart Total</span>
                   <span className="font-medium text-[#1A1A1A]">₹{getSubtotal()}</span>
                 </div>
+                {mrpSavings > 0 && (
+                  <div className="flex justify-between text-green-700">
+                    <span>Saved vs MRP</span>
+                    <span className="font-medium">-₹{mrpSavings}</span>
+                  </div>
+                )}
                 {getDiscount() > 0 && (
                   <div className="flex justify-between text-green-600">
                     <span>Discount</span>

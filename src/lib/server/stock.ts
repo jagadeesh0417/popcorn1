@@ -17,6 +17,10 @@ export interface ResolvedItem {
   productId: string;
   name: string;
   price: number;
+  /** MRP at purchase time (undefined when the product has no MRP). */
+  mrp?: number;
+  /** Offer discount % versus MRP (undefined when no offer applies). */
+  offerPercent?: number;
   quantity: number;
   image: string;
   variant: { label: string; grams: number } | null;
@@ -58,6 +62,7 @@ interface BundlePartDef {
 interface BundleSizeDef {
   label?: string;
   price?: number;
+  savings?: number;
 }
 
 interface BundleConfig {
@@ -88,6 +93,16 @@ function normalizeVariantList(product: Record<string, unknown>): Record<string, 
   if (sizes.length > 0) return sizes;
   const variants = Array.isArray(product.variants) ? (product.variants as Record<string, unknown>[]) : [];
   return variants;
+}
+
+// Derive the MRP snapshot for a line. An MRP is only reported when it is
+// genuinely above the selling price, so products without a real offer never
+// show ₹0 / null MRP anywhere downstream.
+function offerSnapshot(price: number, rawMrp: unknown): Pick<ResolvedItem, "mrp" | "offerPercent"> {
+  const mrp = typeof rawMrp === "number" && Number.isFinite(rawMrp) && rawMrp > price ? rawMrp : undefined;
+  if (!mrp) return {};
+  const offerPercent = Math.round((1 - price / mrp) * 100);
+  return offerPercent > 0 ? { mrp, offerPercent } : {};
 }
 
 function findVariantByGrams(product: Record<string, unknown>, grams: number): Record<string, unknown> | null {
@@ -197,10 +212,12 @@ async function resolveBundleItem(item: RawItem): Promise<{ resolved: ResolvedIte
   }
 
   const name = config.bundleText?.title || "Bundle";
+  const savings = typeof size?.savings === "number" && size.savings > 0 ? size.savings : 0;
   const resolved: ResolvedItem = {
     productId: `bundle:${bundleId}`,
     name,
     price: unitPrice,
+    ...offerSnapshot(unitPrice, unitPrice + savings),
     quantity: lineQty,
     image: typeof item.image === "string" ? item.image : "",
     variant: null,
@@ -251,6 +268,7 @@ export async function validateAndResolveItems(rawItems: RawItem[]): Promise<Stoc
     }
 
     let price: number;
+    let mrpRaw: unknown;
     let variant: ResolvedItem["variant"] = null;
 
     const variantRef = item.variant?.label;
@@ -260,7 +278,7 @@ export async function validateAndResolveItems(rawItems: RawItem[]): Promise<Stoc
       if (!size) {
         throw new StockError(`${p.name || item.name} is currently out of stock.`);
       }
-      const v = size as { stock?: number; inStock?: boolean; price?: number; grams?: number };
+      const v = size as { stock?: number; inStock?: boolean; price?: number; grams?: number; originalPrice?: number };
       const stock = typeof v.stock === "number" ? v.stock : 0;
       if (v.inStock === false || stock <= 0) {
         throw new StockError(`${p.name || item.name} (${variantRef}) is currently out of stock.`);
@@ -270,6 +288,7 @@ export async function validateAndResolveItems(rawItems: RawItem[]): Promise<Stoc
       }
       price = typeof v.price === "number" && v.price > 0 ? v.price : (typeof p.price === "number" ? p.price : 0);
       variant = { label: variantRef, grams: typeof v.grams === "number" ? v.grams : 0 };
+      mrpRaw = typeof v.originalPrice === "number" ? v.originalPrice : p.originalPrice;
     } else {
       const stock = typeof p.stockQuantity === "number" ? p.stockQuantity : 0;
       if (stock <= 0) {
@@ -279,6 +298,7 @@ export async function validateAndResolveItems(rawItems: RawItem[]): Promise<Stoc
         throw new StockError(`Only ${stock} unit${stock === 1 ? "" : "s"} left for ${p.name || item.name}. Please reduce the quantity.`);
       }
       price = typeof p.price === "number" && p.price > 0 ? p.price : 0;
+      mrpRaw = p.originalPrice;
     }
 
     if (!price || price <= 0) {
@@ -289,6 +309,7 @@ export async function validateAndResolveItems(rawItems: RawItem[]): Promise<Stoc
       productId: String(p._id || item.productId),
       name: String(p.name || item.name),
       price,
+      ...offerSnapshot(price, mrpRaw),
       quantity: qty,
       image: normalizeImage(p) || (typeof item.image === "string" ? item.image : ""),
       variant,

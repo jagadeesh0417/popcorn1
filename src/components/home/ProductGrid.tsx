@@ -78,6 +78,8 @@ export function ProductGrid() {
             const selectedSize = selectedSizes[product.id];
             const sizeData = variants.find((s) => s.label === selectedSize);
             const displayPrice = sizeData?.price || product.price;
+            const displayOriginal = sizeData?.originalPrice ?? product.originalPrice;
+            const hasOffer = typeof displayOriginal === "number" && displayOriginal > displayPrice;
 
             return (
               <motion.div
@@ -127,8 +129,14 @@ export function ProductGrid() {
                     })}
                   </div>
 
-                  <div className="mt-3 h-5">
+                  <div className="mt-3 h-5 flex items-baseline gap-2">
                     <p className="text-sm font-semibold text-brand">₹{displayPrice}</p>
+                    {hasOffer && <p className="text-xs text-[#999] line-through">₹{displayOriginal}</p>}
+                    {hasOffer && (
+                      <p className="text-[10px] font-semibold text-green-700 bg-green-50 border border-green-200 px-1.5 py-0.5 rounded">
+                        {Math.round((1 - displayPrice / displayOriginal) * 100)}% OFF
+                      </p>
+                    )}
                   </div>
 
                   <motion.div whileTap={{ scale: 0.97 }}>

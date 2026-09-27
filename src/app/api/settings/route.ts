@@ -5,7 +5,7 @@ import Product from "@/lib/models/Product";
 import { successResponse, errorResponse } from "@/lib/api-utils";
 import { unstable_cache, revalidateTag } from "next/cache";
 import { SETTINGS_CACHE_TAG, PUBLIC_REVALIDATE_SECONDS, publicCacheHeaders } from "@/lib/cache";
-import { requireAdmin } from "@/lib/server/auth";
+import { requireAdmin, getSessionUser } from "@/lib/server/auth";
 
 // Grams encoded in a bundle size label, e.g. "All 80g" -> 80.
 function sizeGrams(label: string): number {
@@ -125,14 +125,57 @@ function parseSettingValue(raw: string): unknown {
   }
 }
 
+/**
+ * The `payment` setting contains the Razorpay KEY SECRET. It must only ever be
+ * readable by an authenticated admin — anonymous callers get the public key id
+ * with the secret stripped. (The checkout gets its key from create-order.)
+ */
+function stripPaymentSecrets(key: string | undefined, value: unknown): unknown {
+  const sanitizeValue = (v: unknown): unknown => {
+    if (v && typeof v === "object" && !Array.isArray(v)) {
+      const obj = { ...(v as Record<string, unknown>) };
+      if ("keySecret" in obj) obj.keySecret = "";
+      return obj;
+    }
+    return v;
+  };
+
+  if (Array.isArray(value)) return value;
+  if (value && typeof value === "object") {
+    const map = value as Record<string, unknown>;
+    if (key === "payment") {
+      // Preserve the { key, value } wrapper shape while blanking the secret.
+      if ("value" in map) return { ...map, value: sanitizeValue(map.value) };
+      return sanitizeValue(map);
+    }
+    // Unscoped lookup returns { settingKey: parsedValue } — sanitize any payment entry.
+    const out: Record<string, unknown> = { ...map };
+    if ("payment" in out) out.payment = sanitizeValue(out.payment);
+    return out;
+  }
+  return value;
+}
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const key = searchParams.get("key") || undefined;
 
+    const user = await getSessionUser();
+    const isAdmin = user?.role === "admin";
+
+    if (isAdmin) {
+      // Admin (settings screens) gets the raw value, never cached/never public.
+      const result = await fetchSettings(key);
+      if (key && result === null) return errorResponse("Setting not found", 404);
+      return successResponse(result, 200, { headers: { "Cache-Control": "no-store" } });
+    }
+
+    // Public path: cacheable, but payment secrets are stripped first so they
+    // can never be served from the shared cache to anonymous callers.
     const cachedFetch = unstable_cache(
-      async () => (await fetchSettings(key)) as unknown,
-      ["settings", key || "all"],
+      async () => stripPaymentSecrets(key, (await fetchSettings(key)) as unknown),
+      ["settings-public", key || "all"],
       { revalidate: PUBLIC_REVALIDATE_SECONDS, tags: [SETTINGS_CACHE_TAG] }
     );
 

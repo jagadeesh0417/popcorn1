@@ -12,6 +12,8 @@ interface OrderItem {
   quantity: number;
   image?: string;
   variant?: { label: string; grams: number } | null;
+  mrp?: number;
+  offerPercent?: number;
 }
 
 interface CustomerDetails {
@@ -45,6 +47,8 @@ interface OrderData {
   paymentId?: string;
   razorpayOrderId?: string;
   paymentMethod?: string;
+  paymentStatus?: "pending" | "paid" | "failed" | "refunded";
+  paidAt?: string;
   customerDetails: CustomerDetails;
   statusTimeline?: StatusEvent[];
   trackingId?: string;
@@ -67,6 +71,28 @@ const statusColors: Record<string, string> = {
   packed: "bg-purple-100 text-purple-800", shipped: "bg-indigo-100 text-indigo-800",
   delivered: "bg-green-100 text-green-800", cancelled: "bg-red-100 text-red-800",
   "return-requested": "bg-orange-100 text-orange-800",
+};
+
+const paymentStatusColors: Record<string, string> = {
+  pending: "bg-amber-100 text-amber-800",
+  paid: "bg-green-100 text-green-800",
+  failed: "bg-red-100 text-red-800",
+  refunded: "bg-blue-100 text-blue-800",
+};
+
+/** Same transition rules the API enforces — invalid options are never offered. */
+const paymentTransitions: Record<string, string[]> = {
+  pending: ["paid", "failed", "refunded"],
+  failed: ["pending", "paid", "refunded"],
+  paid: ["refunded"],
+  refunded: [],
+};
+
+const paymentStatusLabel: Record<string, string> = {
+  pending: "Pending",
+  paid: "Paid",
+  failed: "Failed",
+  refunded: "Refunded",
 };
 
 export function OrderDetailModal({ orderId, onClose }: Props) {
@@ -95,6 +121,27 @@ export function OrderDetailModal({ orderId, onClose }: Props) {
     toast.success("Order ID copied");
   };
 
+  /** Manual payment override — the API validates transitions and audits the actor. */
+  const updatePaymentStatus = async (next: "pending" | "paid" | "failed" | "refunded") => {
+    if (!order) return;
+    try {
+      const res = await fetch(`/api/orders/${order.orderId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ paymentStatus: next }),
+      });
+      const data = await res.json().catch(() => null);
+      if (res.ok && data?.success) {
+        setOrder(data.data);
+        toast.success(`Payment marked ${next}`);
+      } else {
+        toast.error(data?.error || "Failed to update payment status");
+      }
+    } catch {
+      toast.error("Failed to update payment status");
+    }
+  };
+
   const isPickupOrder = () => {
     if (!order) return false;
     if (order.fulfillmentMethod) return order.fulfillmentMethod === "pickup";
@@ -106,6 +153,14 @@ export function OrderDetailModal({ orderId, onClose }: Props) {
     if (isPickupOrder()) return "Pickup (Mysore)";
     return order?.deliveryRegion === "mysore" ? "Delivery (Mysore)" : "Delivery (Pan-India)";
   };
+
+  // Value at MRP versus what was actually charged (excluding coupon/shipping).
+  const totalMrpValue = (order?.items || []).reduce(
+    (sum, item) =>
+      sum + (typeof item.mrp === "number" && item.mrp > item.price ? item.mrp * item.quantity : item.price * item.quantity),
+    0
+  );
+  const mrpSavings = order ? Math.max(0, totalMrpValue - order.subtotal) : 0;
 
   if (!orderId) return null;
 
@@ -181,7 +236,20 @@ export function OrderDetailModal({ orderId, onClose }: Props) {
                   <CreditCard className="h-4 w-4 text-brand" />
                   <h3 className="font-semibold text-sm text-[#1A1A1A]">Payment Information</h3>
                 </div>
-                <div className="grid sm:grid-cols-3 gap-3">
+                <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                  <div className="bg-white p-3 rounded-xl border border-brand/6">
+                    <p className="text-[10px] text-[#888] uppercase tracking-wide mb-0.5">Payment Status</p>
+                    <p className="text-sm font-medium">
+                      <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${paymentStatusColors[order.paymentStatus || "pending"] || "bg-gray-100 text-gray-800"}`}>
+                        {paymentStatusLabel[order.paymentStatus || "pending"] || "Pending"}
+                      </span>
+                      {order.paymentStatus === "paid" && order.paidAt && (
+                        <span className="block text-[10px] text-green-700 mt-1 font-normal">
+                          {new Date(order.paidAt).toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" })}
+                        </span>
+                      )}
+                    </p>
+                  </div>
                   <div className="bg-white p-3 rounded-xl border border-brand/6">
                     <p className="text-[10px] text-[#888] uppercase tracking-wide mb-0.5">Payment ID</p>
                     <p className="text-sm font-medium text-[#1A1A1A] break-all">{order.paymentId || "—"}</p>
@@ -262,28 +330,42 @@ export function OrderDetailModal({ orderId, onClose }: Props) {
                   <h3 className="font-semibold text-sm text-[#1A1A1A]">Products Ordered</h3>
                 </div>
                 <div className="space-y-2">
-                  {order.items.map((item, i) => (
-                    <div key={i} className="flex items-center gap-4 bg-white p-3 rounded-xl border border-brand/6">
-                      <div className="w-14 h-14 bg-[#FFF8F0] rounded-lg flex items-center justify-center text-lg shrink-0">
-                        {item.image ? (
-                          <img src={optimizeImageUrl(item.image, 96) || item.image} alt={item.name} className="w-full h-full object-cover rounded-lg" />
-                        ) : (
-                          <Package className="h-6 w-6 text-brand/40" />
-                        )}
+                  {order.items.map((item, i) => {
+                    const hasOffer = typeof item.mrp === "number" && item.mrp > item.price;
+                    return (
+                      <div key={i} className="flex items-center gap-4 bg-white p-3 rounded-xl border border-brand/6">
+                        <div className="w-14 h-14 bg-[#FFF8F0] rounded-lg flex items-center justify-center text-lg shrink-0">
+                          {item.image ? (
+                            <img src={optimizeImageUrl(item.image, 96) || item.image} alt={item.name} className="w-full h-full object-cover rounded-lg" />
+                          ) : (
+                            <Package className="h-6 w-6 text-brand/40" />
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-[#1A1A1A]">{item.name}</p>
+                          {item.variant?.label && <p className="text-xs text-[#444444]">{item.variant.label}</p>}
+                          {item.offerPercent ? (
+                            <span className="inline-block mt-0.5 text-[10px] font-semibold text-green-700 bg-green-50 border border-green-200 px-1.5 py-0.5 rounded">
+                              {item.offerPercent}% OFF
+                            </span>
+                          ) : null}
+                        </div>
+                        <div className="text-right shrink-0">
+                          <p className="text-sm font-medium text-[#1A1A1A]">x{item.quantity}</p>
+                          <p className="text-xs text-[#444444]">
+                            ₹{item.price} each
+                            {hasOffer && <span className="line-through text-[#999] ml-1">₹{item.mrp}</span>}
+                          </p>
+                        </div>
+                        <div className="text-right shrink-0 min-w-[60px]">
+                          <p className="text-sm font-semibold text-brand">₹{item.price * item.quantity}</p>
+                          {hasOffer && (
+                            <p className="text-[10px] text-[#999] line-through">₹{item.mrp! * item.quantity}</p>
+                          )}
+                        </div>
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-[#1A1A1A]">{item.name}</p>
-                        {item.variant?.label && <p className="text-xs text-[#444444]">{item.variant.label}</p>}
-                      </div>
-                      <div className="text-right shrink-0">
-                        <p className="text-sm font-medium text-[#1A1A1A]">x{item.quantity}</p>
-                        <p className="text-xs text-[#444444]">₹{item.price} each</p>
-                      </div>
-                      <div className="text-right shrink-0 min-w-[60px]">
-                        <p className="text-sm font-semibold text-brand">₹{item.price * item.quantity}</p>
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
 
@@ -295,6 +377,9 @@ export function OrderDetailModal({ orderId, onClose }: Props) {
                 </div>
                 <div className="bg-white p-4 rounded-xl border border-brand/6 space-y-1.5 text-sm">
                   <div className="flex justify-between text-[#444444]"><span>Subtotal</span><span>₹{order.subtotal}</span></div>
+                  {mrpSavings > 0 && (
+                    <div className="flex justify-between text-green-700"><span>Saved vs MRP</span><span>-₹{mrpSavings}</span></div>
+                  )}
                   {order.discount > 0 && (
                     <div className="flex justify-between text-green-600"><span>Discount {order.coupon ? `(${order.coupon})` : ""}</span><span>-₹{order.discount}</span></div>
                   )}
@@ -312,13 +397,31 @@ export function OrderDetailModal({ orderId, onClose }: Props) {
                   <Package className="h-4 w-4 text-brand" />
                   <h3 className="font-semibold text-sm text-[#1A1A1A]">Order Status</h3>
                 </div>
-                <div className="flex items-center gap-2 mb-4">
+                <div className="flex flex-wrap items-center gap-2 mb-4">
                   <span className={`px-3 py-1 rounded-full text-xs font-medium ${statusColors[order.status] || "bg-gray-100 text-gray-800"}`}>
                     {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
                   </span>
-                  <span className={`px-3 py-1 rounded-full text-xs font-medium ${order.paymentId ? "bg-green-100 text-green-800" : "bg-yellow-100 text-yellow-800"}`}>
-                    {order.paymentId ? "Paid" : "Pending"}
+                  <span className={`px-3 py-1 rounded-full text-xs font-medium ${paymentStatusColors[order.paymentStatus || "pending"] || "bg-gray-100 text-gray-800"}`}>
+                    Payment: {paymentStatusLabel[order.paymentStatus || "pending"] || "Pending"}
                   </span>
+                  {(paymentTransitions[order.paymentStatus || "pending"] || []).length > 0 && (
+                    <select
+                      value=""
+                      onChange={(e) => {
+                        const v = e.target.value as "pending" | "paid" | "failed" | "refunded";
+                        if (v) updatePaymentStatus(v);
+                      }}
+                      className="px-2.5 py-1 rounded-lg text-xs border border-brand/20 bg-white text-[#444444] cursor-pointer"
+                      title="Change payment status (audited)"
+                    >
+                      <option value="">Change payment status…</option>
+                      {paymentTransitions[order.paymentStatus || "pending"].map((s) => (
+                        <option key={s} value={s}>
+                          {s === "paid" ? "Mark as Paid" : s === "refunded" ? "Mark as Refunded" : s === "failed" ? "Mark as Failed" : "Back to Pending"}
+                        </option>
+                      ))}
+                    </select>
+                  )}
                 </div>
                 {order.statusTimeline && order.statusTimeline.length > 0 && (
                   <div className="space-y-2">

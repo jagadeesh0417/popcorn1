@@ -35,7 +35,7 @@ export async function GET() {
     const existing = await User.findOne({ email: emailRegex });
     if (existing) {
       steps[steps.length - 1].ok = true;
-      steps[steps.length - 1].detail = `User found: ${existing.email}, role: ${existing.role}, hash starts with: ${existing.password.substring(0, 15)}...`;
+      steps[steps.length - 1].detail = `User found: ${existing.email}, role: ${existing.role}`;
 
       steps.push({ step: "Test password match", ok: false, detail: "Testing bcrypt..." });
       const testMatch = await existing.comparePassword(adminPassword);
@@ -60,7 +60,7 @@ export async function GET() {
       return NextResponse.json({ success: false, steps });
     }
     steps[steps.length - 1].ok = true;
-    steps[steps.length - 1].detail = `Created: ${created.email}, role: ${created.role}, hash: ${created.password.substring(0, 15)}...`;
+    steps[steps.length - 1].detail = `Created: ${created.email}, role: ${created.role}`;
 
     steps.push({ step: "Test password match", ok: false, detail: "Testing bcrypt..." });
     const testMatch = await created.comparePassword(adminPassword);

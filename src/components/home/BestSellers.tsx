@@ -112,6 +112,9 @@ export function BestSellers() {
           {products.map((product, index) => {
             const defaultVar = getDefaultVariant(product);
             const displayPrice = defaultVar?.price ?? product.price;
+            const displayOriginal = defaultVar?.originalPrice ?? product.originalPrice;
+            const hasOffer = typeof displayOriginal === "number" && displayOriginal > displayPrice;
+            const offerPct = hasOffer ? Math.round((1 - displayPrice / displayOriginal) * 100) : 0;
             return (
               <motion.div
                 key={product.id}
@@ -145,7 +148,13 @@ export function BestSellers() {
                     </Link>
                     <p className="text-[#444444] text-xs mt-1.5 line-clamp-2">{product.shortDescription}</p>
                     <div className="flex items-center justify-between mt-4 pt-4 border-t border-brand/8">
-                      <span className="text-xl font-bold text-brand">₹{displayPrice}</span>
+                      <span className="flex items-baseline gap-2">
+                        <span className="text-xl font-bold text-brand">₹{displayPrice}</span>
+                        {hasOffer && <span className="text-sm text-[#999] line-through">₹{displayOriginal}</span>}
+                        {offerPct > 0 && (
+                          <span className="text-[10px] font-semibold text-green-700 bg-green-50 border border-green-200 px-1.5 py-0.5 rounded">{offerPct}% OFF</span>
+                        )}
+                      </span>
                       {isBuyable(product, defaultVar) ? (
                         <Button size="sm" className="bg-brand hover:bg-brand-deep text-white rounded-xl text-xs px-4 h-9" onClick={() => addItem(product, defaultVar)}>
                           <ShoppingBag className="h-3.5 w-3.5 mr-1.5" />

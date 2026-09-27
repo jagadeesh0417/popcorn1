@@ -47,6 +47,7 @@ export default function CheckoutPage() {
   const shippingCtx = useShipping();
   const [orderId] = useState(() => ORDER_ID_PREFIX + Date.now());
   const [loading, setLoading] = useState(false);
+  const [verifying, setVerifying] = useState(false);
   const loadingRef = useRef(false);
   const [shippingMethod, setShippingMethod] = useState<ShippingMethod>("shipping");
   const [addressType, setAddressType] = useState<AddressType>("home");
@@ -113,8 +114,13 @@ export default function CheckoutPage() {
     setCouponMessage(null);
   };
 
-  const buildOrderData = (method: string, pid: string | undefined, oid: string) => ({
-    orderId: oid,
+  /**
+   * The only fields the browser sends to the server: line items, fulfilment
+   * choice, coupon code and customer details. Totals, statuses and payment ids
+   * are computed/owned server-side — this payload deliberately excludes them.
+   */
+  const buildCheckoutPayload = () => ({
+    orderId,
     items: state.items.map((i) => {
       if (i.type === "bundle") {
         const bundle = i.bundle!;
@@ -140,15 +146,8 @@ export default function CheckoutPage() {
         variant: i.variant ? { label: i.variant.label, grams: i.variant.grams } : null,
       };
     }),
-    subtotal: getSubtotal(),
-    shipping,
     shippingMethod,
-    discount: getDiscount(),
     coupon: state.couponCode || undefined,
-    total: getSubtotal() - getDiscount() + shipping,
-    status: method === "COD" ? "pending" : "confirmed",
-    paymentMethod: method,
-    paymentId: pid,
     fulfillmentMethod: isPickup(shippingMethod) ? "pickup" : "delivery",
     ...(isPickup(shippingMethod) ? { pickupLocation: KITCHEN_ADDRESS.singleLine } : {}),
     ...(isDelivery(shippingMethod)
@@ -167,12 +166,24 @@ export default function CheckoutPage() {
       zipCode: isPickup(shippingMethod) ? KITCHEN_ADDRESS.zip : form.pincode,
       deliveryInstructions: form.deliveryInstructions || undefined,
     },
-    statusTimeline: [{
-      status: method === "COD" ? "pending" : "confirmed",
-      date: new Date().toISOString(),
-      note: method === "COD" ? "Order placed (COD)" : "Payment received",
-    }],
   });
+
+  /** Load the Razorpay checkout script once per page, reusing an existing tag. */
+  const loadRazorpayScript = () =>
+    new Promise<void>((resolve, reject) => {
+      if ((window as unknown as Record<string, unknown>).Razorpay) return resolve();
+      const existing = document.querySelector<HTMLScriptElement>('script[src="https://checkout.razorpay.com/v1/checkout.js"]');
+      if (existing) {
+        existing.addEventListener("load", () => resolve());
+        existing.addEventListener("error", () => reject(new Error("Failed to load Razorpay")));
+        return;
+      }
+      const script = document.createElement("script");
+      script.src = "https://checkout.razorpay.com/v1/checkout.js";
+      script.onload = () => resolve();
+      script.onerror = () => reject(new Error("Failed to load Razorpay"));
+      document.head.appendChild(script);
+    });
 
   const handlePayment = async () => {
     if (loadingRef.current) return;
@@ -196,15 +207,15 @@ export default function CheckoutPage() {
     loadingRef.current = true;
     try {
       if (paymentMethod === "cod") {
-        const orderData = buildOrderData("COD", undefined, orderId);
         const res = await fetch("/api/orders", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(orderData),
+          body: JSON.stringify(buildCheckoutPayload()),
         });
-        if (!res.ok) throw new Error("Failed to create order");
-        const result = await res.json();
-        if (!result.success) throw new Error("Failed to create order");
+        const result = await res.json().catch(() => null);
+        if (!res.ok || !result?.success) {
+          throw new Error(result?.error || "Failed to create order");
+        }
         clearCart();
         router.push(`/thanks?order=${result.data.orderId}`);
         return;
@@ -213,32 +224,7 @@ export default function CheckoutPage() {
       const orderRes = await fetch("/api/razorpay/create-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          items: state.items.map((i) =>
-            i.type === "bundle"
-              ? {
-                  type: "bundle",
-                  bundleId: i.bundle?.bundleId,
-                  productId: `bundle:${i.bundle?.bundleId}`,
-                  name: i.bundle?.name,
-                  quantity: i.quantity,
-                  unitPrice: i.bundle?.unitPrice,
-                  sizeLabel: i.bundle?.sizeLabel,
-                  parts: i.bundle?.parts,
-                }
-              : {
-                  type: "product",
-                  productId: i.product?.slug || i.product?._id,
-                  quantity: i.quantity,
-                  variant: i.variant ? { label: i.variant.label } : undefined,
-                }
-          ),
-          subtotal: getSubtotal(),
-          shipping,
-          shippingMethod,
-          coupon: state.couponCode || undefined,
-          currency: "INR",
-        }),
+        body: JSON.stringify({ ...buildCheckoutPayload(), currency: "INR" }),
       });
       if (!orderRes.ok) {
         let errMsg = "Failed to create payment. Please try again.";
@@ -254,16 +240,11 @@ export default function CheckoutPage() {
         return;
       }
       const razorpayOrderId = orderData_.data.razorpayOrderId;
+      const serverOrderId = orderData_.data.orderId as string;
       const serverAmount = orderData_.data.amount;
       const keyId = orderData_.data.keyId || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
 
-      const script = document.createElement("script");
-      script.src = "https://checkout.razorpay.com/v1/checkout.js";
-      await new Promise<void>((resolve, reject) => {
-        script.onload = () => resolve();
-        script.onerror = () => reject(new Error("Failed to load Razorpay"));
-        document.head.appendChild(script);
-      });
+      await loadRazorpayScript();
 
       if (!keyId) {
         toast.error("Payment is not configured. Please contact support.");
@@ -283,37 +264,44 @@ export default function CheckoutPage() {
           contact: form.phone,
         },
         handler: async (response: RazorpayResponse) => {
+          // Show the verification overlay until we know the truth (or hand the
+          // decision over to the confirmation page's reconcile polling).
+          setVerifying(true);
           try {
-            const orderData = buildOrderData("Razorpay", response.razorpay_payment_id, orderId);
-            const verifyRes = await fetch("/api/razorpay/verify", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                razorpay_order_id: response.razorpay_order_id,
-                razorpay_payment_id: response.razorpay_payment_id,
-                razorpay_signature: response.razorpay_signature,
-                orderData,
-              }),
-            });
-            if (!verifyRes.ok) {
-              let errMsg = "Payment verification failed. Please contact support.";
-              try { const e = await verifyRes.json(); if (e.error) errMsg = e.error; } catch {}
-              toast.error(errMsg);
-              setLoading(false);
-              return;
+            let paid = false;
+            try {
+              const verifyRes = await fetch("/api/razorpay/verify", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  razorpay_order_id: response.razorpay_order_id,
+                  razorpay_payment_id: response.razorpay_payment_id,
+                  razorpay_signature: response.razorpay_signature,
+                  orderId: serverOrderId,
+                }),
+              });
+              const verifyResult = await verifyRes.json().catch(() => null);
+              paid = verifyResult?.success === true && verifyResult?.data?.paymentStatus === "paid";
+              if (paid) {
+                clearCart();
+              } else if (verifyResult?.error && !verifyResult?.retryable) {
+                // Transient "retryable" states stay quiet — the confirmation
+                // page polls until the payment settles either way.
+                toast.error(verifyResult.error);
+              }
+            } catch (err) {
+              // Network hiccup during verification: never guess — the
+              // confirmation page reconciles against the gateway instead.
+              console.error("[CHECKOUT] verify request failed:", err);
             }
-            const verifyResult = await verifyRes.json();
-            if (!verifyResult?.success) {
-              toast.error("Payment verification failed. Please contact support.");
-              setLoading(false);
-              return;
-            }
-            clearCart();
-            router.push(`/thanks?order=${orderData.orderId}`);
+            // Paid, pending or failed: always land on the confirmation page,
+            // which polls /api/razorpay/reconcile and shows the real state.
+            router.push(`/thanks?order=${serverOrderId}`);
           } catch (err) {
             console.error("[CHECKOUT] handler error:", err);
             toast.error("Something went wrong after payment. Please note your payment ID and contact support.");
             setLoading(false);
+            setVerifying(false);
           }
         },
         modal: {
@@ -358,6 +346,15 @@ export default function CheckoutPage() {
 
   return (
     <div className="min-h-screen pt-10 md:pt-14 bg-gradient-to-b from-white to-[#FFFDF9]">
+      {verifying && (
+        <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/50 backdrop-blur-sm">
+          <div className="bg-white px-8 py-7 max-w-sm mx-4 text-center border border-brand/10 shadow-2xl">
+            <span className="animate-spin h-8 w-8 border-[3px] border-brand border-t-transparent rounded-full mx-auto block" />
+            <p className="mt-4 text-base font-semibold text-[#1A1A1A]">Verifying your payment…</p>
+            <p className="mt-1.5 text-sm text-[#444444]">Please wait — don&apos;t close or refresh this page.</p>
+          </div>
+        </div>
+      )}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
           <div className="flex justify-start mb-3">
@@ -707,12 +704,12 @@ export default function CheckoutPage() {
                       : "bg-[#072654] hover:bg-[#051d3f] text-white shadow-[#072654]/20 hover:shadow-[#072654]/30"
                   }`}
                   onClick={handlePayment}
-                  disabled={loading}
+                  disabled={loading || verifying}
                 >
-                  {loading ? (
+                  {loading || verifying ? (
                     <span className="flex items-center gap-2">
                       <span className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" />
-                      Processing...
+                      {verifying ? "Verifying your payment..." : "Processing..."}
                     </span>
                   ) : paymentMethod === "cod" ? (
                     <span className="flex items-center gap-2"><Lock className="h-4 w-4" /> Place Order (COD)</span>
