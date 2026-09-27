@@ -42,3 +42,6 @@ yarn-error.log*
 next-env.d.ts
 
 .vercel
+
+# Brand logo source screenshots (processed copies live in public/brand/)
+public/Screenshot*
