@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import nodemailer from "nodemailer";
+import { BRAND, BRAND_EMAIL } from "@/lib/brand";
 
 export async function POST(request: NextRequest) {
   try {
@@ -10,7 +11,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, error: "Missing required fields" }, { status: 400 });
     }
 
-    const recipient = process.env.CONTACT_EMAIL || "poprika.official@gmail.com";
+    const recipient = process.env.CONTACT_EMAIL || BRAND_EMAIL;
 
     const transport = nodemailer.createTransport({
       host: process.env.SMTP_HOST || "smtp.gmail.com",
@@ -26,7 +27,7 @@ export async function POST(request: NextRequest) {
       from: `"${name} ${lname || ""}" <${email}>`,
       replyTo: email,
       to: recipient,
-      subject: `[Poprika Contact] ${subject}`,
+      subject: `[${BRAND.name} Contact] ${subject}`,
       text: `Name: ${name} ${lname || ""}\nEmail: ${email}\nSubject: ${subject}\nMessage: ${message}`,
       html: `<p><strong>Name:</strong> ${name} ${lname || ""}</p><p><strong>Email:</strong> ${email}</p><p><strong>Subject:</strong> ${subject}</p><p><strong>Message:</strong></p><p>${message}</p>`,
     });

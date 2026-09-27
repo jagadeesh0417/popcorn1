@@ -1,11 +1,12 @@
 "use client";
 
 import { MessageCircle } from "lucide-react";
-
-const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "918197175807";
+import { SOCIAL, WHATSAPP_MESSAGES } from "@/lib/brand";
 
 export function WhatsAppButton() {
-  const href = `https://wa.me/${whatsappNumber}?text=Hi%20Poprika%2C%20I%20have%20a%20question.`;
+  const href = `https://wa.me/${SOCIAL.whatsappNumber}?text=${encodeURIComponent(
+    WHATSAPP_MESSAGES.default
+  )}`;
 
   return (
     <a

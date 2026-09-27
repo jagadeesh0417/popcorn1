@@ -7,8 +7,8 @@ import { Input } from "@/components/ui/input";
 
 const faqs = [
   {
-    q: "What makes Poprika popcorn different?",
-    a: "Poprika is handcrafted in small batches in Mysuru using 100% natural ingredients. We use premium kernels, real ghee, and traditional Indian flavours. No palm oil, no artificial preservatives, no shortcuts.",
+    q: "What makes Blue Dino popcorn different?",
+    a: "Blue Dino is handcrafted in small batches in Mysuru using 100% natural ingredients. We use premium kernels, real ghee, and traditional Indian flavours. No palm oil, no artificial preservatives, no shortcuts.",
   },
   {
     q: "How long does delivery take?",
@@ -20,7 +20,7 @@ const faqs = [
   },
   {
     q: "What is your return policy?",
-    a: "We stand by the quality of our popcorn. If you're not satisfied with your order, contact us within 48 hours of delivery and we'll make it right — including a replacement or full refund.",
+    a: "We stand by the quality of our popcorn. If you're not satisfied with your order, contact us within 48 hours of delivery and we'll make it right â€” including a replacement or full refund.",
   },
   {
     q: "How should I store my popcorn?",
@@ -36,11 +36,11 @@ const faqs = [
   },
   {
     q: "Can I order in bulk for events or corporate gifting?",
-    a: "Absolutely! We offer bulk orders and custom corporate gifting solutions. Contact us at poprika.official@gmail.com with your requirements and we'll create a tailored package.",
+    a: "Absolutely! We offer bulk orders and custom corporate gifting solutions. Contact us at bluedino.snacks@gmail.com with your requirements and we'll create a tailored package.",
   },
   {
     q: "Do you ship internationally?",
-    a: "Currently we ship across India. We're working on expanding internationally — stay tuned for updates!",
+    a: "Currently we ship across India. We're working on expanding internationally â€” stay tuned for updates!",
   },
   {
     q: "What payment methods do you accept?",
@@ -57,15 +57,15 @@ export default function FAQPage() {
   );
 
   return (
-    <div className="pt-20">
-      <section className="relative py-24 overflow-hidden bg-gradient-to-br from-[#DC0218] via-[#DC0218] to-[#C70015]">
+    <div className="pt-10 md:pt-14">
+      <section className="relative py-24 overflow-hidden bg-gradient-to-br from-brand via-brand to-brand-deep">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight">
               Frequently Asked <span className="text-[#F9D976]">Questions</span>
             </h1>
             <p className="text-white/70 mt-4 text-lg max-w-lg mx-auto">
-              Everything you need to know about Poprika.
+              Everything you need to know about Blue Dino.
             </p>
           </motion.div>
         </div>
@@ -80,7 +80,7 @@ export default function FAQPage() {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search FAQs..."
-                className="pl-12 rounded-xl border-[rgba(220,2,24,0.12)]"
+                className="pl-12 rounded-xl border-brand/12"
               />
             </div>
           </motion.div>
@@ -91,14 +91,14 @@ export default function FAQPage() {
                 key={i}
                 initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
                 transition={{ delay: i * 0.03 }}
-                className="border border-[rgba(220,2,24,0.1)] rounded-2xl overflow-hidden"
+                className="border border-brand/10 rounded-2xl overflow-hidden"
               >
                 <button
                   onClick={() => setOpenIndex(openIndex === i ? null : i)}
                   className="w-full flex items-center justify-between p-5 text-left bg-white hover:bg-[#FFF8F0] transition-colors"
                 >
                   <span className="font-semibold text-[#1A1A1A] text-sm pr-4">{faq.q}</span>
-                  <ChevronDown className={`h-5 w-5 text-[#DC0218] shrink-0 transition-transform duration-300 ${openIndex === i ? "rotate-180" : ""}`} />
+                  <ChevronDown className={`h-5 w-5 text-brand shrink-0 transition-transform duration-300 ${openIndex === i ? "rotate-180" : ""}`} />
                 </button>
                 {openIndex === i && (
                   <div className="px-5 pb-5">

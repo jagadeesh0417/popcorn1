@@ -65,52 +65,52 @@ export default function AdminCouponsPage() {
   return (
     <div className="min-h-screen bg-[#FFF8F0] flex">
       <AdminSidebar />
-      <div className="flex-1 ml-64 pt-20">
+      <div className="flex-1 ml-64 pt-10">
         <div className="px-8 py-8">
           <div className="flex items-center justify-between mb-8">
             <div>
-              <span className="text-[#DC0218] font-semibold text-sm uppercase tracking-[0.2em]">Admin</span>
+              <span className="text-brand font-semibold text-sm uppercase tracking-[0.2em]">Admin</span>
               <h1 className="text-3xl font-bold text-[#1A1A1A] mt-1">Coupons</h1>
             </div>
-            <Button onClick={() => setShowForm(!showForm)} className="bg-[#DC0218] hover:bg-[#C70015] text-white rounded-xl">
+            <Button onClick={() => setShowForm(!showForm)} className="bg-brand hover:bg-brand-deep text-white rounded-xl">
               <Plus className="h-4 w-4 mr-2" /> Add Coupon
             </Button>
           </div>
 
           {showForm && (
-            <div className="bg-white rounded-2xl p-6 shadow-sm border border-[rgba(220,2,24,0.08)] mb-6">
+            <div className="bg-white rounded-2xl p-6 shadow-sm border border-brand/8 mb-6">
               <h3 className="font-bold text-lg text-[#1A1A1A] mb-4">New Coupon</h3>
               <div className="grid sm:grid-cols-3 gap-4 mb-4">
                 <div>
                   <label className="block text-sm font-medium text-[#1A1A1A] mb-1">Code</label>
-                  <input value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value.toUpperCase() })} placeholder="POPRIKA20" className="w-full px-3 py-2 border border-[rgba(220,2,24,0.12)] text-sm" />
+                  <input value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value.toUpperCase() })} placeholder="BLUEDINO20" className="w-full px-3 py-2 border border-brand/12 text-sm" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-[#1A1A1A] mb-1">Discount</label>
-                  <input type="number" value={form.discount} onChange={(e) => setForm({ ...form, discount: Number(e.target.value) })} className="w-full px-3 py-2 border border-[rgba(220,2,24,0.12)] text-sm" />
+                  <input type="number" value={form.discount} onChange={(e) => setForm({ ...form, discount: Number(e.target.value) })} className="w-full px-3 py-2 border border-brand/12 text-sm" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-[#1A1A1A] mb-1">Type</label>
-                  <select value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value as "percentage" | "fixed" })} className="w-full px-3 py-2 border border-[rgba(220,2,24,0.12)] text-sm">
+                  <select value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value as "percentage" | "fixed" })} className="w-full px-3 py-2 border border-brand/12 text-sm">
                     <option value="percentage">Percentage</option>
                     <option value="fixed">Fixed</option>
                   </select>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-[#1A1A1A] mb-1">Min Amount</label>
-                  <input type="number" value={form.minAmount} onChange={(e) => setForm({ ...form, minAmount: Number(e.target.value) })} className="w-full px-3 py-2 border border-[rgba(220,2,24,0.12)] text-sm" />
+                  <input type="number" value={form.minAmount} onChange={(e) => setForm({ ...form, minAmount: Number(e.target.value) })} className="w-full px-3 py-2 border border-brand/12 text-sm" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-[#1A1A1A] mb-1">Max Uses</label>
-                  <input type="number" value={form.maxUses} onChange={(e) => setForm({ ...form, maxUses: Number(e.target.value) })} className="w-full px-3 py-2 border border-[rgba(220,2,24,0.12)] text-sm" />
+                  <input type="number" value={form.maxUses} onChange={(e) => setForm({ ...form, maxUses: Number(e.target.value) })} className="w-full px-3 py-2 border border-brand/12 text-sm" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-[#1A1A1A] mb-1">Expiry Date</label>
-                  <input type="date" value={form.expiryDate} onChange={(e) => setForm({ ...form, expiryDate: e.target.value })} className="w-full px-3 py-2 border border-[rgba(220,2,24,0.12)] text-sm" />
+                  <input type="date" value={form.expiryDate} onChange={(e) => setForm({ ...form, expiryDate: e.target.value })} className="w-full px-3 py-2 border border-brand/12 text-sm" />
                 </div>
               </div>
               <div className="flex gap-2">
-                <Button onClick={createCoupon} className="bg-[#DC0218] hover:bg-[#C70015] text-white rounded-xl">Save</Button>
+                <Button onClick={createCoupon} className="bg-brand hover:bg-brand-deep text-white rounded-xl">Save</Button>
                 <Button onClick={() => setShowForm(false)} variant="outline" className="rounded-xl">Cancel</Button>
               </div>
             </div>
@@ -119,23 +119,23 @@ export default function AdminCouponsPage() {
           {error && <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 text-sm mb-6">{error}</div>}
           {loading ? (
             <div className="flex items-center justify-center py-20">
-              <Loader2 className="h-8 w-8 animate-spin text-[#DC0218]" />
+              <Loader2 className="h-8 w-8 animate-spin text-brand" />
             </div>
           ) : coupons.length === 0 ? (
-            <div className="bg-white rounded-2xl p-12 shadow-sm border border-[rgba(220,2,24,0.08)] text-center">
+            <div className="bg-white rounded-2xl p-12 shadow-sm border border-brand/8 text-center">
               <p className="text-[#444444]">No coupons yet. Create your first coupon to offer discounts.</p>
             </div>
           ) : (
-            <div className="bg-white rounded-2xl p-6 shadow-sm border border-[rgba(220,2,24,0.08)]">
+            <div className="bg-white rounded-2xl p-6 shadow-sm border border-brand/8">
               <div className="grid gap-4">
                 {coupons.map((c) => (
-                  <div key={c._id} className="flex items-center justify-between p-4 border border-[rgba(220,2,24,0.08)] rounded-xl hover:bg-[#FFF8F0]/50 transition-colors">
+                  <div key={c._id} className="flex items-center justify-between p-4 border border-brand/8 rounded-xl hover:bg-[#FFF8F0]/50 transition-colors">
                     <div className="flex items-center gap-4">
-                      <div className="w-14 h-14 rounded-xl bg-[#DC0218]/5 flex items-center justify-center text-2xl">🎫</div>
+                      <div className="w-14 h-14 rounded-xl bg-brand/5 flex items-center justify-center text-2xl">ðŸŽ«</div>
                       <div>
                         <p className="font-bold text-[#1A1A1A]">{c.code}</p>
                         <p className="text-sm text-[#444444]">
-                          {c.type === "percentage" ? `${c.discount}% off` : `₹${c.discount} off`} · Min. ₹{c.minAmount} · Expires {new Date(c.expiryDate).toLocaleDateString()} · Used {c.currentUses}/{c.maxUses}
+                          {c.type === "percentage" ? `${c.discount}% off` : `â‚¹${c.discount} off`} Â· Min. â‚¹{c.minAmount} Â· Expires {new Date(c.expiryDate).toLocaleDateString()} Â· Used {c.currentUses}/{c.maxUses}
                         </p>
                       </div>
                     </div>

@@ -17,7 +17,7 @@ export async function GET() {
     cloudinary.config({ cloud_name: cloudName, api_key: apiKey, api_secret: apiSecret });
 
     const timestamp = Math.round(Date.now() / 1000);
-    const folder = "poprika";
+    const folder = "blue-dino";
 
     const signature = cloudinary.utils.api_sign_request(
       { timestamp, folder },

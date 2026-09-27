@@ -15,6 +15,7 @@ import { useCart } from "@/lib/store";
 import { useShipping } from "@/lib/shipping-settings";
 import { toast } from "sonner";
 import Link from "next/link";
+import { BRAND, FULFILMENT, KITCHEN_ADDRESS, ORDER_ID_PREFIX } from "@/lib/brand";
 
 interface RazorpayResponse {
   razorpay_order_id: string;
@@ -22,8 +23,12 @@ interface RazorpayResponse {
   razorpay_signature: string;
 }
 
+/** Internal selection. `shipping` is the pan-India/Mysore delivery rate. */
 type ShippingMethod = "shipping" | "pickup" | "local";
 type AddressType = "home" | "office" | "other";
+
+const isPickup = (method: ShippingMethod) => method === "pickup";
+const isDelivery = (method: ShippingMethod) => method === "shipping" || method === "local";
 
 const indianStates = [
   "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh", "Goa",
@@ -39,7 +44,7 @@ export default function CheckoutPage() {
   const router = useRouter();
   const { state, getSubtotal, getDiscount, clearCart } = useCart();
   const shippingCtx = useShipping();
-  const [orderId] = useState(() => "POP" + Date.now());
+  const [orderId] = useState(() => ORDER_ID_PREFIX + Date.now());
   const [loading, setLoading] = useState(false);
   const [shippingMethod, setShippingMethod] = useState<ShippingMethod>("shipping");
   const [addressType, setAddressType] = useState<AddressType>("home");
@@ -73,19 +78,22 @@ export default function CheckoutPage() {
     status: method === "COD" ? "pending" : "confirmed",
     paymentMethod: method,
     paymentId: pid,
+    fulfillmentMethod: isPickup(shippingMethod) ? "pickup" : "delivery",
+    ...(isPickup(shippingMethod) ? { pickupLocation: KITCHEN_ADDRESS.singleLine } : {}),
+    ...(isDelivery(shippingMethod)
+      ? { deliveryRegion: /mysore|mysuru/i.test(form.city) ? "mysore" : "pan_india" }
+      : {}),
     customerDetails: {
       firstName: form.firstName,
       lastName: form.lastName,
       email: form.email,
       phone: form.phone,
-      address: shippingMethod === "shipping"
-        ? `${form.addressLine1}${form.addressLine2 ? ", " + form.addressLine2 : ""}${form.area ? ", " + form.area : ""}${form.landmark ? " (" + form.landmark + ")" : ""}`
-        : shippingMethod === "local"
-        ? `${form.addressLine1}${form.addressLine2 ? ", " + form.addressLine2 : ""}${form.area ? ", " + form.area : ""}${form.landmark ? " (" + form.landmark + ")" : ""}`
-        : "Mysuru Pickup",
-      city: shippingMethod === "shipping" || shippingMethod === "local" ? form.city : "Mysuru",
-      state: shippingMethod === "shipping" || shippingMethod === "local" ? form.state : "Karnataka",
-      zipCode: shippingMethod === "shipping" || shippingMethod === "local" ? form.pincode : "570032",
+      address: isPickup(shippingMethod)
+        ? KITCHEN_ADDRESS.singleLine
+        : `${form.addressLine1}${form.addressLine2 ? ", " + form.addressLine2 : ""}${form.area ? ", " + form.area : ""}${form.landmark ? " (" + form.landmark + ")" : ""}`,
+      city: isPickup(shippingMethod) ? KITCHEN_ADDRESS.city : form.city,
+      state: isPickup(shippingMethod) ? KITCHEN_ADDRESS.region : form.state,
+      zipCode: isPickup(shippingMethod) ? KITCHEN_ADDRESS.zip : form.pincode,
       deliveryInstructions: form.deliveryInstructions || undefined,
     },
     statusTimeline: [{
@@ -100,7 +108,7 @@ export default function CheckoutPage() {
       toast.error("Please fill in your name, phone, and email");
       return;
     }
-    if ((shippingMethod === "shipping" || shippingMethod === "local") && (!form.addressLine1 || !form.city || !form.state || !form.pincode)) {
+    if (isDelivery(shippingMethod) && (!form.addressLine1 || !form.city || !form.state || !form.pincode)) {
       toast.error("Please fill in your delivery address");
       return;
     }
@@ -148,7 +156,7 @@ export default function CheckoutPage() {
         key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
         amount: Math.round(total * 100),
         currency: "INR",
-        name: "Poprika",
+        name: BRAND.name,
         description: "Gourmet Popcorn",
         order_id: razorpayOrderId,
         prefill: {
@@ -214,80 +222,99 @@ export default function CheckoutPage() {
 
   if (state.items.length === 0) {
     return (
-      <div className="min-h-screen pt-20 flex items-center justify-center bg-white">
+      <div className="min-h-screen pt-10 md:pt-14 flex items-center justify-center bg-white">
         <div className="text-center px-4">
           <ShoppingBag className="h-16 w-16 text-[#444444] mx-auto mb-4" />
           <h2 className="text-2xl font-bold text-[#1A1A1A] mb-2">Nothing to checkout</h2>
           <p className="text-[#444444] mb-6">Add some popcorn to your cart first!</p>
-          <Link href="/shop"><Button className="bg-[#DC0218] hover:bg-[#C70015] text-white">Start Shopping</Button></Link>
+          <Link href="/shop"><Button className="bg-brand hover:bg-brand-deep text-white">Start Shopping</Button></Link>
         </div>
       </div>
     );
   }
 
-  const shipping = shippingMethod === "pickup" ? 0 : shippingCtx.getShippingCost(getSubtotal());
+  // Pickup is always free of delivery/shipping charges.
+  const pickupAvailable = shippingCtx.settings.mysuruPickupEnabled;
+  const shipping = isPickup(shippingMethod) ? 0 : shippingCtx.getShippingCost(getSubtotal());
 
   return (
-    <div className="min-h-screen pt-20 bg-gradient-to-b from-white to-[#FFFDF9]">
+    <div className="min-h-screen pt-10 md:pt-14 bg-gradient-to-b from-white to-[#FFFDF9]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
           <div className="flex justify-start mb-3">
             <div className="gold-rule" />
           </div>
-          <span className="text-[#DC0218] font-semibold text-sm uppercase tracking-[0.2em]">Checkout</span>
+          <span className="text-brand font-semibold text-sm uppercase tracking-[0.2em]">Checkout</span>
           <h1 className="text-3xl font-bold text-[#1A1A1A] mt-1" style={{ fontFamily: "var(--font-playfair)" }}>Complete your order</h1>
         </motion.div>
 
         <div className="grid lg:grid-cols-5 gap-10">
           <div className="lg:col-span-3 space-y-6">
-            {/* Delivery Method */}
+            {/* Fulfilment method */}
             <div className="bg-[#FFFDF9] p-6 border border-[rgba(0,0,0,0.05)] shadow-sm">
               <div className="flex items-center gap-2 mb-5">
-                <Store className="h-5 w-5 text-[#DC0218]" />
-                <h2 className="font-bold text-lg text-[#1A1A1A]">Delivery method</h2>
+                <Store className="h-5 w-5 text-brand" />
+                <h2 className="font-bold text-lg text-[#1A1A1A]">How would you like your order?</h2>
               </div>
               <Select value={shippingMethod} onValueChange={(v) => v && setShippingMethod(v as ShippingMethod)}>
-                <SelectTrigger className="w-full bg-white border-[rgba(220,2,24,0.12)]">
-                  <SelectValue placeholder="Select delivery method" />
+                <SelectTrigger className="w-full bg-white border-brand/12">
+                  <SelectValue placeholder="Select delivery or pickup" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="shipping">Shipping — Pan-India (3-7 days)</SelectItem>
-                  <SelectItem value="pickup">Mysuru Pickup — Free</SelectItem>
+                  <SelectItem value="shipping">{FULFILMENT.delivery.label}</SelectItem>
+                  {pickupAvailable && <SelectItem value="pickup">{FULFILMENT.pickup.label}</SelectItem>}
                 </SelectContent>
               </Select>
+
+              <div className="mt-5 bg-brand-mist border border-brand/10 p-4">
+                <p className="text-sm text-[#1A1A1A] font-medium">
+                  {isPickup(shippingMethod) ? FULFILMENT.pickup.label : FULFILMENT.delivery.label}
+                </p>
+                <p className="text-[#444444] text-sm mt-1.5 leading-relaxed">
+                  {isPickup(shippingMethod) ? FULFILMENT.pickup.blurb : FULFILMENT.delivery.blurb}
+                </p>
+                <ul className="mt-3 space-y-1.5">
+                  {(isPickup(shippingMethod) ? FULFILMENT.pickup.steps : FULFILMENT.delivery.steps).map((step) => (
+                    <li key={step} className="text-[#444444] text-xs leading-relaxed flex items-start gap-2">
+                      <span className="text-brand mt-0.5">•</span>
+                      {step}
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </div>
 
             {/* Customer Details */}
             <div className="bg-[#FFFDF9] p-6 border border-[rgba(0,0,0,0.05)] shadow-sm">
               <div className="flex items-center gap-2 mb-5">
-                <User className="h-5 w-5 text-[#DC0218]" />
+                <User className="h-5 w-5 text-brand" />
                 <h2 className="font-bold text-lg text-[#1A1A1A]">Contact information</h2>
               </div>
               <div className="grid sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="firstName" className="text-[#1A1A1A]">First name *</Label>
-                  <Input id="firstName" value={form.firstName} onChange={(e) => updateField("firstName", e.target.value)} placeholder="John" className="bg-white border-[rgba(220,2,24,0.12)]" />
+                  <Input id="firstName" value={form.firstName} onChange={(e) => updateField("firstName", e.target.value)} placeholder="John" className="bg-white border-brand/12" />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="lastName" className="text-[#1A1A1A]">Last name</Label>
-                  <Input id="lastName" value={form.lastName} onChange={(e) => updateField("lastName", e.target.value)} placeholder="Doe" className="bg-white border-[rgba(220,2,24,0.12)]" />
+                  <Input id="lastName" value={form.lastName} onChange={(e) => updateField("lastName", e.target.value)} placeholder="Doe" className="bg-white border-brand/12" />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="phone" className="text-[#1A1A1A]">Phone number *</Label>
-                  <Input id="phone" type="tel" value={form.phone} onChange={(e) => updateField("phone", e.target.value)} placeholder="+91 8197175807" className="bg-white border-[rgba(220,2,24,0.12)]" />
+                  <Input id="phone" type="tel" value={form.phone} onChange={(e) => updateField("phone", e.target.value)} placeholder="+91 8197175807" className="bg-white border-brand/12" />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="email" className="text-[#1A1A1A]">Email *</Label>
-                  <Input id="email" type="email" value={form.email} onChange={(e) => updateField("email", e.target.value)} placeholder="john@example.com" className="bg-white border-[rgba(220,2,24,0.12)]" />
+                  <Input id="email" type="email" value={form.email} onChange={(e) => updateField("email", e.target.value)} placeholder="john@example.com" className="bg-white border-brand/12" />
                 </div>
               </div>
             </div>
 
             {/* Shipping Address */}
-            {(shippingMethod === "shipping" || shippingMethod === "local") && (
+            {isDelivery(shippingMethod) && (
               <div className="bg-[#FFFDF9] p-6 border border-[rgba(0,0,0,0.05)] shadow-sm">
                 <div className="flex items-center gap-2 mb-5">
-                  <MapPin className="h-5 w-5 text-[#DC0218]" />
+                  <MapPin className="h-5 w-5 text-brand" />
                   <h2 className="font-bold text-lg text-[#1A1A1A]">{shippingMethod === "local" ? "Local delivery address" : "Delivery address"}</h2>
                 </div>
 
@@ -295,34 +322,34 @@ export default function CheckoutPage() {
                   <div className="grid sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="addressLine1" className="text-[#1A1A1A]">Address line 1 *</Label>
-                      <Input id="addressLine1" value={form.addressLine1} onChange={(e) => updateField("addressLine1", e.target.value)} placeholder="Street number, building" className="bg-white border-[rgba(220,2,24,0.12)]" />
+                      <Input id="addressLine1" value={form.addressLine1} onChange={(e) => updateField("addressLine1", e.target.value)} placeholder="Street number, building" className="bg-white border-brand/12" />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="addressLine2" className="text-[#1A1A1A]">Address line 2</Label>
-                      <Input id="addressLine2" value={form.addressLine2} onChange={(e) => updateField("addressLine2", e.target.value)} placeholder="Apartment / unit" className="bg-white border-[rgba(220,2,24,0.12)]" />
+                      <Input id="addressLine2" value={form.addressLine2} onChange={(e) => updateField("addressLine2", e.target.value)} placeholder="Apartment / unit" className="bg-white border-brand/12" />
                     </div>
                   </div>
 
                   <div className="grid sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="area" className="text-[#1A1A1A]">Area / Locality</Label>
-                      <Input id="area" value={form.area} onChange={(e) => updateField("area", e.target.value)} placeholder="e.g. Indiranagar" className="bg-white border-[rgba(220,2,24,0.12)]" />
+                      <Input id="area" value={form.area} onChange={(e) => updateField("area", e.target.value)} placeholder="e.g. Indiranagar" className="bg-white border-brand/12" />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="landmark" className="text-[#1A1A1A]">Landmark</Label>
-                      <Input id="landmark" value={form.landmark} onChange={(e) => updateField("landmark", e.target.value)} placeholder="Near..." className="bg-white border-[rgba(220,2,24,0.12)]" />
+                      <Input id="landmark" value={form.landmark} onChange={(e) => updateField("landmark", e.target.value)} placeholder="Near..." className="bg-white border-brand/12" />
                     </div>
                   </div>
 
                   <div className="grid sm:grid-cols-3 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="city" className="text-[#1A1A1A]">City *</Label>
-                      <Input id="city" value={form.city} onChange={(e) => updateField("city", e.target.value)} placeholder="Mumbai" className="bg-white border-[rgba(220,2,24,0.12)]" />
+                      <Input id="city" value={form.city} onChange={(e) => updateField("city", e.target.value)} placeholder="Mumbai" className="bg-white border-brand/12" />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="state" className="text-[#1A1A1A]">State *</Label>
                       <Select value={form.state} onValueChange={(v) => v && updateField("state", v)}>
-                        <SelectTrigger className="w-full bg-white border-[rgba(220,2,24,0.12)]">
+                        <SelectTrigger className="w-full bg-white border-brand/12">
                           <SelectValue placeholder="Select state" />
                         </SelectTrigger>
                         <SelectContent>
@@ -334,7 +361,7 @@ export default function CheckoutPage() {
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="pincode" className="text-[#1A1A1A]">Pincode *</Label>
-                      <Input id="pincode" value={form.pincode} onChange={(e) => updateField("pincode", e.target.value)} placeholder="400001" className="bg-white border-[rgba(220,2,24,0.12)]" />
+                      <Input id="pincode" value={form.pincode} onChange={(e) => updateField("pincode", e.target.value)} placeholder="400001" className="bg-white border-brand/12" />
                     </div>
                   </div>
 
@@ -351,8 +378,8 @@ export default function CheckoutPage() {
                           onClick={() => setAddressType(value)}
                           className={`flex items-center gap-2 px-4 py-2.5 text-xs font-medium border transition-all ${
                             addressType === value
-                              ? "bg-[#DC0218] text-white border-[#DC0218]"
-                              : "bg-white text-[#444444] border-[rgba(220,2,24,0.15)] hover:border-[#DC0218]"
+                              ? "bg-brand text-white border-brand"
+                              : "bg-white text-[#444444] border-brand/15 hover:border-brand"
                           }`}
                         >
                           <Icon className="h-3.5 w-3.5" /> {label}
@@ -366,20 +393,25 @@ export default function CheckoutPage() {
             )}
 
             {/* Pickup info */}
-            {shippingMethod === "pickup" && (
+            {isPickup(shippingMethod) && (
               <div className="bg-[#FFFDF9] p-6 border border-[rgba(0,0,0,0.05)] shadow-sm">
                 <div className="flex items-center gap-2 mb-5">
-                  <MapPin className="h-5 w-5 text-[#DC0218]" />
+                  <MapPin className="h-5 w-5 text-brand" />
                   <h2 className="font-bold text-lg text-[#1A1A1A]">Pickup location</h2>
                 </div>
-                <div className="bg-[#FFF8F0] p-5 border border-[rgba(220,2,24,0.08)]">
-                  <p className="text-sm font-medium text-[#1A1A1A]">#30, Sri Nivasa, RCE Layout</p>
-                  <p className="text-xs text-[#444444] mt-1">
-                    Vijayanagar 4th Stage<br />
-                    Mysore – 570032, Karnataka
-                  </p>
-                  <p className="text-xs text-[#444444] mt-3">
-                    We&apos;ll confirm your pickup time via WhatsApp after the order is placed.
+                <div className="bg-brand-mist p-5 border border-brand/10">
+                  <p className="text-[10px] uppercase tracking-[0.12em] text-[#666666] mb-1">Pickup Address</p>
+                  <p className="text-sm font-medium text-[#1A1A1A]">{KITCHEN_ADDRESS.singleLine}</p>
+                  <ul className="mt-4 space-y-1.5">
+                    {FULFILMENT.pickup.steps.map((step) => (
+                      <li key={step} className="text-[#444444] text-xs leading-relaxed flex items-start gap-2">
+                        <span className="text-brand mt-0.5">•</span>
+                        {step}
+                      </li>
+                    ))}
+                  </ul>
+                  <p className="text-xs text-[#444444] mt-4 pt-3 border-t border-brand/10">
+                    No delivery charge applies to pickup orders.
                   </p>
                 </div>
               </div>
@@ -388,16 +420,16 @@ export default function CheckoutPage() {
             {/* Order notes */}
             <div className="bg-[#FFFDF9] p-6 border border-[rgba(0,0,0,0.05)] shadow-sm">
               <div className="flex items-center gap-2 mb-5">
-                <ShoppingBag className="h-5 w-5 text-[#DC0218]" />
+                <ShoppingBag className="h-5 w-5 text-brand" />
                 <h2 className="font-bold text-lg text-[#1A1A1A]">Order notes</h2>
               </div>
-              <Textarea value={form.deliveryInstructions} onChange={(e) => updateField("deliveryInstructions", e.target.value)} placeholder={shippingMethod === "pickup" ? "Preferred pickup time, anything we should know..." : shippingMethod === "local" ? "Delivery instructions, landmark..." : "Gate code, landmark, delivery instructions..."} className="bg-white border-[rgba(220,2,24,0.12)] min-h-[80px]" />
+              <Textarea value={form.deliveryInstructions} onChange={(e) => updateField("deliveryInstructions", e.target.value)} placeholder={isPickup(shippingMethod) ? "Preferred pickup time, anything we should know..." : shippingMethod === "local" ? "Delivery instructions, landmark..." : "Gate code, landmark, delivery instructions..."} className="bg-white border-brand/12 min-h-[80px]" />
             </div>
 
             {/* Payment method */}
             <div className="bg-[#FFFDF9] p-6 border border-[rgba(0,0,0,0.05)] shadow-sm">
               <div className="flex items-center gap-2 mb-5">
-                <CreditCard className="h-5 w-5 text-[#DC0218]" />
+                <CreditCard className="h-5 w-5 text-brand" />
                 <h2 className="font-bold text-lg text-[#1A1A1A]">Payment method</h2>
               </div>
               <div className="space-y-3">
@@ -431,19 +463,19 @@ export default function CheckoutPage() {
                     onClick={() => setPaymentMethod("cod")}
                     className={`w-full flex items-center gap-4 p-4 border text-left transition-all ${
                       paymentMethod === "cod"
-                        ? "border-[#DC0218] bg-[#FFF8F0]"
+                        ? "border-brand bg-[#FFF8F0]"
                         : "border-[rgba(0,0,0,0.08)] bg-white"
                     }`}
                   >
                     <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${
-                      paymentMethod === "cod" ? "border-[#DC0218]" : "border-[#999]"
+                      paymentMethod === "cod" ? "border-brand" : "border-[#999]"
                     }`}>
-                      {paymentMethod === "cod" && <div className="w-2.5 h-2.5 rounded-full bg-[#DC0218]" />}
+                      {paymentMethod === "cod" && <div className="w-2.5 h-2.5 rounded-full bg-brand" />}
                     </div>
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
                         <span className="font-bold text-sm text-[#1A1A1A]">Cash on Delivery</span>
-                        <span className="bg-[#DC0218]/10 text-[#DC0218] text-[10px] px-2 py-0.5 font-semibold uppercase">Pay Later</span>
+                        <span className="bg-brand/10 text-brand text-[10px] px-2 py-0.5 font-semibold uppercase">Pay Later</span>
                       </div>
                       <p className="text-xs text-[#444444]">Pay when you receive your order · No extra charges</p>
                     </div>
@@ -464,13 +496,13 @@ export default function CheckoutPage() {
 
           {/* Order Summary */}
           <div className="lg:col-span-2">
-            <div className="bg-[#FFFDF9] p-6 border border-[rgba(0,0,0,0.05)] shadow-sm sticky top-28">
+            <div className="bg-[#FFFDF9] p-6 border border-[rgba(0,0,0,0.05)] shadow-sm sticky top-24">
               <h3 className="font-bold text-lg text-[#1A1A1A] mb-4">Order summary</h3>
               <div className="space-y-3 max-h-60 overflow-y-auto mb-4">
                 {state.items.map((item) => {
                   const price = getPrice(item);
                   return (
-                    <div key={item.cartId} className="flex items-center gap-3 bg-white p-3 border border-[rgba(220,2,24,0.06)]">
+                    <div key={item.cartId} className="flex items-center gap-3 bg-white p-3 border border-brand/6">
                       <div className="w-12 h-12 bg-[#FFF8F0] shrink-0 flex items-center justify-center text-xs font-bold text-[#444444]">x{item.quantity}</div>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-[#1A1A1A] truncate">{item.product.name}</p>
@@ -484,23 +516,23 @@ export default function CheckoutPage() {
                 })}
               </div>
 
-              <Separator className="mb-4 bg-[rgba(220,2,24,0.08)]" />
+              <Separator className="mb-4 bg-brand/8" />
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between text-[#444444]"><span>Subtotal</span><span>₹{getSubtotal()}</span></div>
                 {getDiscount() > 0 && <div className="flex justify-between text-green-600"><span>Discount</span><span>-₹{getDiscount()}</span></div>}
                 <div className="flex justify-between text-[#444444]">
-                  <span>Shipping</span>
+                  <span>{isPickup(shippingMethod) ? "Pickup" : "Delivery"}</span>
                   <span>{shipping === 0 ? "FREE" : `₹${shipping}`}</span>
                 </div>
-                <Separator className="bg-[rgba(220,2,24,0.08)]" />
-                <div className="flex justify-between text-lg font-bold"><span className="text-[#1A1A1A]">Total</span><span className="text-[#DC0218]">₹{getSubtotal() - getDiscount() + shipping}</span></div>
+                <Separator className="bg-brand/8" />
+                <div className="flex justify-between text-lg font-bold"><span className="text-[#1A1A1A]">Total</span><span className="text-brand">₹{getSubtotal() - getDiscount() + shipping}</span></div>
               </div>
 
               <motion.div whileTap={{ scale: 0.97 }}>
                 <Button
                   className={`w-full mt-6 h-12 text-base shadow-lg ${
                     paymentMethod === "cod"
-                      ? "bg-[#DC0218] hover:bg-[#C70015] text-white shadow-[#DC0218]/20 hover:shadow-[#DC0218]/30"
+                      ? "bg-brand hover:bg-brand-deep text-white shadow-brand/20 hover:shadow-brand/30"
                       : "bg-[#072654] hover:bg-[#051d3f] text-white shadow-[#072654]/20 hover:shadow-[#072654]/30"
                   }`}
                   onClick={handlePayment}

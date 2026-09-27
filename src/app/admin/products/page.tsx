@@ -244,20 +244,20 @@ export default function AdminProductsPage() {
     });
   };
 
-  const inputClass = "w-full px-3 py-2 border border-[rgba(220,2,24,0.12)] text-sm";
+  const inputClass = "w-full px-3 py-2 border border-brand/12 text-sm";
   const labelClass = "block text-xs font-medium text-[#1A1A1A] mb-1";
 
   return (
     <div className="min-h-screen bg-[#FFF8F0] flex">
       <AdminSidebar />
-      <div className="flex-1 ml-64 pt-20">
+      <div className="flex-1 ml-64 pt-10">
         <div className="px-8 py-8">
           <div className="flex items-center justify-between mb-8">
             <div>
-              <span className="text-[#DC0218] font-semibold text-sm uppercase tracking-[0.2em]">Admin</span>
+              <span className="text-brand font-semibold text-sm uppercase tracking-[0.2em]">Admin</span>
               <h1 className="text-3xl font-bold text-[#1A1A1A] mt-1">Products</h1>
             </div>
-            <Button onClick={() => { setShowForm(!showForm); if (!showForm) resetForm(); }} className="bg-[#DC0218] hover:bg-[#C70015] text-white rounded-xl shadow-lg shadow-[#DC0218]/20">
+            <Button onClick={() => { setShowForm(!showForm); if (!showForm) resetForm(); }} className="bg-brand hover:bg-brand-deep text-white rounded-xl shadow-lg shadow-brand/20">
               <Plus className="h-4 w-4 mr-2" /> {showForm ? "Cancel" : "Add Product"}
             </Button>
           </div>
@@ -265,7 +265,7 @@ export default function AdminProductsPage() {
           {error && <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 text-sm mb-6">{error}</div>}
 
           {showForm && (
-            <div className="bg-white rounded-2xl p-6 shadow-sm border border-[rgba(220,2,24,0.08)] mb-8">
+            <div className="bg-white rounded-2xl p-6 shadow-sm border border-brand/8 mb-8">
               <h3 className="font-bold text-lg text-[#1A1A1A] mb-5">{editingId ? "Edit Product" : "New Product"}</h3>
               <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
                 <div>
@@ -346,7 +346,7 @@ export default function AdminProductsPage() {
                   <label className="text-sm font-medium text-[#1A1A1A]">Variants (Weights & Pricing)</label>
                   <div className="flex gap-2">
                     <span className="text-xs text-[#444444]">{form.sizes.length} variant{form.sizes.length !== 1 ? "s" : ""}</span>
-                    <Button type="button" onClick={addVariant} size="sm" variant="outline" className="h-7 text-xs border-[rgba(220,2,24,0.2)]">
+                    <Button type="button" onClick={addVariant} size="sm" variant="outline" className="h-7 text-xs border-brand/20">
                       <Plus className="h-3 w-3 mr-1" /> Add Variant
                     </Button>
                   </div>
@@ -354,10 +354,10 @@ export default function AdminProductsPage() {
                 {form.sizes.map((v, i) => {
                   const dp = variantDisplayPrice(v);
                   return (
-                    <div key={i} className="border border-[rgba(220,2,24,0.1)] bg-[#FFF8F0] mb-3 p-4">
+                    <div key={i} className="border border-brand/10 bg-[#FFF8F0] mb-3 p-4">
                       <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center gap-2">
-                          <span className="text-xs font-semibold text-[#DC0218] bg-white px-2 py-0.5 border border-[rgba(220,2,24,0.15)]">Variant #{i + 1}</span>
+                          <span className="text-xs font-semibold text-brand bg-white px-2 py-0.5 border border-brand/15">Variant #{i + 1}</span>
                           {dp.original > dp.price && (
                             <span className="text-xs text-green-600 font-medium">
                               {dp.discount}% off — ₹{dp.price} <span className="line-through text-[#444444]">₹{dp.original}</span>
@@ -365,8 +365,8 @@ export default function AdminProductsPage() {
                           )}
                         </div>
                         <div className="flex items-center gap-1">
-                          <button onClick={() => moveVariant(i, -1)} disabled={i === 0} className="p-1 text-[#444444] hover:text-[#DC0218] disabled:opacity-30"><span className="text-sm">▲</span></button>
-                          <button onClick={() => moveVariant(i, 1)} disabled={i === form.sizes.length - 1} className="p-1 text-[#444444] hover:text-[#DC0218] disabled:opacity-30"><span className="text-sm">▼</span></button>
+                          <button onClick={() => moveVariant(i, -1)} disabled={i === 0} className="p-1 text-[#444444] hover:text-brand disabled:opacity-30"><span className="text-sm">▲</span></button>
+                          <button onClick={() => moveVariant(i, 1)} disabled={i === form.sizes.length - 1} className="p-1 text-[#444444] hover:text-brand disabled:opacity-30"><span className="text-sm">▼</span></button>
                           <button onClick={() => removeVariant(i)} disabled={form.sizes.length <= 1} className="p-1 text-red-500 hover:bg-red-50 disabled:opacity-30"><Trash2 className="h-3.5 w-3.5" /></button>
                         </div>
                       </div>
@@ -460,14 +460,14 @@ export default function AdminProductsPage() {
                 </div>
               </details>
               <div className="flex gap-2">
-                <Button onClick={saveProduct} disabled={saving} className="bg-[#DC0218] hover:bg-[#C70015] text-white rounded-xl">{saving ? "Saving..." : editingId ? "Update Product" : "Save Product"}</Button>
+                <Button onClick={saveProduct} disabled={saving} className="bg-brand hover:bg-brand-deep text-white rounded-xl">{saving ? "Saving..." : editingId ? "Update Product" : "Save Product"}</Button>
                 <Button onClick={handleCancel} variant="outline" className="rounded-xl">Cancel</Button>
               </div>
             </div>
           )}
 
           {selectedIds.size > 0 && (
-            <div className="flex items-center gap-2 mb-4 p-3 bg-[#FFF8F0] border border-[rgba(220,2,24,0.12)] rounded-xl">
+            <div className="flex items-center gap-2 mb-4 p-3 bg-[#FFF8F0] border border-brand/12 rounded-xl">
               <span className="text-sm text-[#1A1A1A] font-medium mr-2">{selectedIds.size} selected</span>
               <Button size="sm" onClick={() => bulkToggleHomepage(true)} disabled={bulkActionLoading} className="bg-green-600 hover:bg-green-700 text-white text-xs h-8">
                 <Home className="h-3.5 w-3.5 mr-1" /> Show on Homepage
@@ -475,7 +475,7 @@ export default function AdminProductsPage() {
               <Button size="sm" onClick={() => bulkToggleHomepage(false)} disabled={bulkActionLoading} className="bg-[#444444] hover:bg-[#333] text-white text-xs h-8">
                 <X className="h-3.5 w-3.5 mr-1" /> Remove from Homepage
               </Button>
-              <Button size="sm" variant="outline" onClick={() => setSelectedIds(new Set())} className="text-xs h-8 ml-auto border-[rgba(220,2,24,0.2)]">
+              <Button size="sm" variant="outline" onClick={() => setSelectedIds(new Set())} className="text-xs h-8 ml-auto border-brand/20">
                 Clear
               </Button>
             </div>
@@ -483,19 +483,19 @@ export default function AdminProductsPage() {
 
           {loading ? (
             <div className="flex items-center justify-center py-20">
-              <Loader2 className="h-8 w-8 animate-spin text-[#DC0218]" />
+              <Loader2 className="h-8 w-8 animate-spin text-brand" />
             </div>
           ) : products.length === 0 ? (
-            <div className="bg-white rounded-2xl shadow-sm border border-[rgba(220,2,24,0.08)] p-12 text-center">
+            <div className="bg-white rounded-2xl shadow-sm border border-brand/8 p-12 text-center">
               <p className="text-[#444444]">No products found. Add your first product to get started.</p>
             </div>
           ) : (
-            <div className="bg-white rounded-2xl shadow-sm border border-[rgba(220,2,24,0.08)] overflow-x-auto">
+            <div className="bg-white rounded-2xl shadow-sm border border-brand/8 overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-[rgba(220,2,24,0.08)] text-left text-[#444444]">
+                  <tr className="border-b border-brand/8 text-left text-[#444444]">
                     <th className="p-4 w-10">
-                      <input type="checkbox" checked={selectedIds.size === products.length} onChange={toggleAll} className="accent-[#DC0218]" />
+                      <input type="checkbox" checked={selectedIds.size === products.length} onChange={toggleAll} className="accent-brand" />
                     </th>
                     <th className="p-4 font-medium">Name</th>
                     <th className="p-4 font-medium">Category</th>
@@ -509,9 +509,9 @@ export default function AdminProductsPage() {
                 </thead>
                 <tbody>
                   {products.map((p) => (
-                    <tr key={p._id} className="border-b border-[rgba(220,2,24,0.06)] last:border-0 hover:bg-[#FFF8F0]/50 transition-colors">
+                    <tr key={p._id} className="border-b border-brand/6 last:border-0 hover:bg-[#FFF8F0]/50 transition-colors">
                       <td className="p-4">
-                        <input type="checkbox" checked={selectedIds.has(p._id)} onChange={() => toggleSelected(p._id)} className="accent-[#DC0218]" />
+                        <input type="checkbox" checked={selectedIds.has(p._id)} onChange={() => toggleSelected(p._id)} className="accent-brand" />
                       </td>
                       <td className="p-4 font-medium text-[#1A1A1A]">
                         <div className="flex items-center gap-2">
@@ -522,7 +522,7 @@ export default function AdminProductsPage() {
                         </div>
                       </td>
                       <td className="p-4"><span className="bg-[#FFF8F0] text-[#444444] px-2.5 py-1 rounded-full text-xs">{p.category}</span></td>
-                      <td className="p-4 font-medium text-[#DC0218]">₹{p.price}</td>
+                      <td className="p-4 font-medium text-brand">₹{p.price}</td>
                       <td className="p-4">
                         <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${p.inStock ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>
                           {p.inStock ? `${p.stockQuantity} units` : "Out of Stock"}

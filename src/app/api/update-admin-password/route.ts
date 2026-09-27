@@ -9,8 +9,21 @@ export async function POST() {
 
   try {
     await connectDB();
-    const email = "Poprikaofficial@gmail.com";
-    const password = "Newbusinesspop@098";
+    const email = process.env.ADMIN_EMAIL;
+    if (!email) {
+      return NextResponse.json(
+        { success: false, error: "ADMIN_EMAIL is not configured" },
+        { status: 500 }
+      );
+    }
+    const password = process.env.ADMIN_PASSWORD;
+
+    if (!password) {
+      return NextResponse.json(
+        { success: false, error: "ADMIN_PASSWORD is not configured" },
+        { status: 500 }
+      );
+    }
 
     const user = await User.findOne({ role: "admin" });
     if (!user) {

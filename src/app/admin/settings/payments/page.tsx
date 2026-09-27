@@ -75,10 +75,10 @@ export default function AdminPaymentSettings() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-[#FFFDF9] flex">
       <AdminSidebar />
-      <div className="flex-1 ml-64 pt-20">
+      <div className="flex-1 ml-64 pt-10">
         <div className="px-8 py-8">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-            <span className="text-[#DC0218] font-semibold text-sm uppercase tracking-[0.2em]">Admin / Settings</span>
+            <span className="text-brand font-semibold text-sm uppercase tracking-[0.2em]">Admin / Settings</span>
             <h1 className="text-3xl font-bold text-[#1A1A1A] mt-1">Payment Settings</h1>
           </motion.div>
 
@@ -101,8 +101,8 @@ export default function AdminPaymentSettings() {
                 whileHover={{ y: -2 }}
                 className="bg-[#FFFDF9] p-4 border border-[rgba(0,0,0,0.05)] shadow-sm">
                 <div className="flex items-center justify-between mb-2">
-                  <div className="w-8 h-8 bg-[#DC0218]/5 flex items-center justify-center">
-                    <stat.icon className="h-4 w-4 text-[#DC0218]" />
+                  <div className="w-8 h-8 bg-brand/5 flex items-center justify-center">
+                    <stat.icon className="h-4 w-4 text-brand" />
                   </div>
                   <span className={`text-[10px] font-medium ${stat.up ? "text-green-600" : "text-red-600"}`}>{stat.change}</span>
                 </div>
@@ -117,30 +117,30 @@ export default function AdminPaymentSettings() {
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}
               className="bg-[#FFFDF9] p-6 border border-[rgba(0,0,0,0.05)] shadow-sm">
               <div className="flex items-center gap-2 mb-5">
-                <CreditCard className="h-5 w-5 text-[#DC0218]" />
+                <CreditCard className="h-5 w-5 text-brand" />
                 <h3 className="font-bold text-lg text-[#1A1A1A]">Razorpay Configuration</h3>
               </div>
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-medium text-[#1A1A1A]">Enable Razorpay</span>
                   <button onClick={() => toggle("enabled")}
-                    className={`relative w-10 h-5 transition-colors ${config.enabled ? "bg-[#DC0218]" : "bg-[#E0E0E0]"}`}>
+                    className={`relative w-10 h-5 transition-colors ${config.enabled ? "bg-brand" : "bg-[#E0E0E0]"}`}>
                     <span className={`absolute top-0.5 w-4 h-4 bg-white shadow-sm transition-all ${config.enabled ? "left-5" : "left-0.5"}`} />
                   </button>
                 </div>
                 <div className="space-y-1.5">
                   <Label className="text-[#1A1A1A] text-xs">Key ID</Label>
                   <Input value={config.keyId} onChange={(e) => setConfig({ ...config, keyId: e.target.value })}
-                    className="bg-white border-[rgba(220,2,24,0.12)] font-mono text-xs" />
+                    className="bg-white border-brand/12 font-mono text-xs" />
                 </div>
                 <div className="space-y-1.5">
                   <Label className="text-[#1A1A1A] text-xs">Key Secret</Label>
                   <div className="flex gap-2">
                     <Input type={showSecret ? "text" : "password"} value={config.keySecret}
                       onChange={(e) => setConfig({ ...config, keySecret: e.target.value })}
-                      className="bg-white border-[rgba(220,2,24,0.12)] font-mono text-xs flex-1" />
+                      className="bg-white border-brand/12 font-mono text-xs flex-1" />
                     <button onClick={() => setShowSecret(!showSecret)}
-                      className="text-[10px] text-[#DC0218] underline whitespace-nowrap">
+                      className="text-[10px] text-brand underline whitespace-nowrap">
                       {showSecret ? "Hide" : "Show"}
                     </button>
                   </div>
@@ -167,7 +167,7 @@ export default function AdminPaymentSettings() {
                       <p className="text-[10px] text-[#444444]">{pm.desc}</p>
                     </div>
                     <button onClick={() => toggle(pm.key)}
-                      className={`relative w-10 h-5 transition-colors ${config[pm.key] ? "bg-[#DC0218]" : "bg-[#E0E0E0]"}`}>
+                      className={`relative w-10 h-5 transition-colors ${config[pm.key] ? "bg-brand" : "bg-[#E0E0E0]"}`}>
                       <span className={`absolute top-0.5 w-4 h-4 bg-white shadow-sm transition-all ${config[pm.key] ? "left-5" : "left-0.5"}`} />
                     </button>
                   </div>
@@ -177,7 +177,7 @@ export default function AdminPaymentSettings() {
                     <Label className="text-[#1A1A1A] text-xs">COD charge (₹)</Label>
                     <Input type="number" value={config.codCharge}
                       onChange={(e) => setConfig({ ...config, codCharge: Number(e.target.value) })}
-                      className="bg-white border-[rgba(220,2,24,0.12)] w-28" />
+                      className="bg-white border-brand/12 w-28" />
                   </div>
                 )}
               </div>
@@ -198,7 +198,7 @@ export default function AdminPaymentSettings() {
                   else toast.error("Failed to save payment settings");
                 } catch { toast.error("Failed to save payment settings"); }
                 finally { setSaving(false); }
-              }} disabled={saving} className="bg-[#DC0218] hover:bg-[#C70015] text-white px-8 h-12 shadow-lg shadow-[#DC0218]/20">
+              }} disabled={saving} className="bg-brand hover:bg-brand-deep text-white px-8 h-12 shadow-lg shadow-brand/20">
                 {saving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />} {saving ? "Saving..." : "Save Changes"}
               </Button>
             </motion.div>

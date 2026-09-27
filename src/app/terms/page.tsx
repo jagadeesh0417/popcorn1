@@ -7,29 +7,29 @@ const sections = [
   {
     icon: ShoppingBag,
     title: "Orders & Acceptance",
-    content: "By placing an order on Poprika, you agree to purchase our products in accordance with these terms. We reserve the right to cancel any order due to stock unavailability, pricing errors, or suspected fraudulent activity. You will be notified and fully refunded in such cases.",
+    content: "By placing an order on Blue Dino, you agree to purchase our products in accordance with these terms. We reserve the right to cancel any order due to stock unavailability, pricing errors, or suspected fraudulent activity. You will be notified and fully refunded in such cases.",
   },
   {
     icon: CreditCard,
     title: "Payments & Pricing",
-    content: "All prices are in Indian Rupees (₹) and inclusive of applicable taxes. We accept payments via Razorpay gateway. Prices are subject to change without prior notice. Promotional discounts cannot be combined unless explicitly stated.",
+    content: "All prices are in Indian Rupees (â‚¹) and inclusive of applicable taxes. We accept payments via Razorpay gateway. Prices are subject to change without prior notice. Promotional discounts cannot be combined unless explicitly stated.",
   },
   {
     icon: AlertTriangle,
     title: "Intellectual Property",
-    content: "All content on this website — including text, images, logos, and product descriptions — is the property of Poprika and is protected by applicable copyright and trademark laws. Unauthorized use or reproduction is strictly prohibited.",
+    content: "All content on this website â€” including text, images, logos, and product descriptions â€” is the property of Blue Dino and is protected by applicable copyright and trademark laws. Unauthorized use or reproduction is strictly prohibited.",
   },
   {
     icon: FileText,
     title: "Limitation of Liability",
-    content: "Poprika shall not be liable for any indirect, incidental, or consequential damages arising from the use of our products or website. Our total liability is limited to the purchase value of the product in question.",
+    content: "Blue Dino shall not be liable for any indirect, incidental, or consequential damages arising from the use of our products or website. Our total liability is limited to the purchase value of the product in question.",
   },
 ];
 
 export default function TermsPage() {
   return (
-    <div className="pt-20">
-      <section className="relative py-24 overflow-hidden bg-gradient-to-br from-[#DC0218] via-[#DC0218] to-[#C70015]">
+    <div className="pt-10 md:pt-14">
+      <section className="relative py-24 overflow-hidden bg-gradient-to-br from-brand via-brand to-brand-deep">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight">
@@ -49,7 +49,7 @@ export default function TermsPage() {
             className="mb-16"
           >
             <p className="text-[#444444] leading-relaxed">
-              Last updated: July 2026. By accessing or using the Poprika website, you agree to be bound by these Terms of Service.
+              Last updated: July 2026. By accessing or using the Blue Dino website, you agree to be bound by these Terms of Service.
               If you do not agree with any part of these terms, please do not use our services.
             </p>
           </motion.div>
@@ -60,11 +60,11 @@ export default function TermsPage() {
                 key={s.title}
                 initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
                 transition={{ delay: i * 0.08 }}
-                className="bg-[#FFF8F0] p-8 rounded-2xl border border-[rgba(220,2,24,0.08)]"
+                className="bg-[#FFF8F0] p-8 rounded-2xl border border-brand/8"
               >
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-[#DC0218]/5 flex items-center justify-center shrink-0">
-                    <s.icon className="h-6 w-6 text-[#DC0218]" />
+                  <div className="w-12 h-12 rounded-xl bg-brand/5 flex items-center justify-center shrink-0">
+                    <s.icon className="h-6 w-6 text-brand" />
                   </div>
                   <div>
                     <h3 className="text-xl font-bold text-[#1A1A1A] mb-2">{s.title}</h3>
@@ -77,10 +77,10 @@ export default function TermsPage() {
 
           <motion.div
             initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
-            className="mt-12 p-6 rounded-2xl border border-[rgba(220,2,24,0.08)] text-center"
+            className="mt-12 p-6 rounded-2xl border border-brand/8 text-center"
           >
             <p className="text-[#444444] text-sm">
-              For any questions regarding these terms, contact us at <strong className="text-[#DC0218]">poprika.official@gmail.com</strong>
+              For any questions regarding these terms, contact us at <strong className="text-brand">bluedino.snacks@gmail.com</strong>
             </p>
           </motion.div>
         </div>

@@ -1,97 +1,62 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { Check } from "lucide-react";
 
+/** Points are specified in the Blue Dino requirements — wording is intentional. */
 const points = [
-  {
-    title: "No Palm Oil. Ever.",
-    description: "We use real butter, cow ghee, and refined sunflower oil—nothing hydrogenated. No palm oil, no vanaspati, no cheap substitutes.",
-    svg: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
-        <path d="M12 2a8 8 0 0 0-8 8c0 4 8 10 8 10s8-6 8-10a8 8 0 0 0-8-8z" />
-        <line x1="4" y1="12" x2="20" y2="12" />
-        <line x1="10" y1="3" x2="8" y2="8" />
-      </svg>
-    ),
-  },
-  {
-    title: "Real Spices. Nothing Artificial.",
-    description: "Every flavour is made from real spices and quality ingredients. No MSG, no artificial flavours, no artificial colours, and no unnecessary additives.",
-    svg: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
-        <path d="M12 2L2 7l10 5 10-5-10-5z" />
-        <path d="M2 17l10 5 10-5" />
-        <path d="M2 12l10 5 10-5" />
-      </svg>
-    ),
-  },
-  {
-    title: "Popped in small batches",
-    description: "Every batch is handmade in small batches in our Mysuru kitchen. What you get was made this week, not last quarter.",
-    svg: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
-        <circle cx="12" cy="12" r="10" />
-        <path d="M8 14s1.5 2 4 2 4-2 4-2" />
-        <line x1="9" y1="9" x2="9.01" y2="9" />
-        <line x1="15" y1="9" x2="15.01" y2="9" />
-      </svg>
-    ),
-  },
-  {
-    title: "Made in Mysuru",
-    description: "Founder-led, one kitchen, one team. When you order, you're ordering from us — not a factory.",
-    svg: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
-        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-        <circle cx="12" cy="10" r="3" />
-      </svg>
-    ),
-  },
+  "Taste comes first, always.",
+  "Real ghee, butter and coconut oil. No palm oil.",
+  "No artificial flavours or colours.",
+  "Short, clean labels.",
+  "Unique Indian flavours and classics, done right.",
 ];
 
 export function WhyChooseUs() {
   return (
-    <section className="py-24 bg-[#FFF5EC] relative overflow-hidden">
-      <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{
-        backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23B71C1C' fill-opacity='0.4'%3E%3Ccircle cx='30' cy='30' r='1.5'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-        backgroundSize: "60px 60px",
-      }} />
+    <section className="py-24 bg-brand-mist relative overflow-hidden">
+      <div
+        className="absolute inset-0 opacity-[0.04] pointer-events-none"
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%231F55C7' fill-opacity='0.4'%3E%3Ccircle cx='30' cy='30' r='1.5'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+          backgroundSize: "60px 60px",
+        }}
+      />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-100px" }}
-          className="text-center mb-16"
+          className="text-center mb-14"
         >
           <div className="flex justify-center mb-4">
-            <div className="gold-rule" />
+            <div className="brand-rule" />
           </div>
           <h2 className="text-3xl md:text-4xl lg:text-5xl text-[#1A1A1A]" style={{ fontFamily: "var(--font-playfair)" }}>
-            Why Poprika
+            Made with purpose
           </h2>
           <p className="text-[#444444] mt-3 text-sm uppercase tracking-[0.08em]">
-            Most popcorn brands cut corners. We don&apos;t.
+            Taste comes first. Everything else follows.
           </p>
         </motion.div>
 
-        <div className="grid sm:grid-cols-2 gap-8 max-w-4xl mx-auto">
+        <div className="grid sm:grid-cols-2 gap-6 max-w-4xl mx-auto">
           {points.map((point, i) => (
             <motion.div
-              key={point.title}
+              key={point}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: i * 0.08 }}
-              whileHover={{ y: -6 }}
-              className="flex gap-5 p-6 bg-[#FFF8F0] border border-[#E8C56A] shadow-[0_4px_16px_rgba(0,0,0,0.04)] hover:shadow-[0_12px_32px_rgba(0,0,0,0.08)] transition-all duration-300 rounded-[18px] group"
+              transition={{ delay: i * 0.07 }}
+              whileHover={{ y: -4 }}
+              className="flex gap-4 p-6 bg-white border border-brand/10 shadow-[0_4px_16px_rgba(22,63,150,0.06)] hover:shadow-[0_12px_32px_rgba(22,63,150,0.12)] hover:border-brand/30 transition-all duration-300 rounded-[18px] group"
             >
-              <div className="w-9 h-9 flex items-center justify-center shrink-0 text-[#DC0218] bg-[#FFF5EC] border border-[#F9D976] shadow-[0_4px_12px_rgba(249,217,118,0.2)] rounded-full transition-all duration-300 group-hover:scale-110 group-hover:shadow-[0_6px_20px_rgba(249,217,118,0.35)]">
-                {point.svg}
+              <div className="w-8 h-8 flex items-center justify-center shrink-0 text-white bg-brand shadow-[0_4px_12px_rgba(31,85,199,0.25)] rounded-full transition-all duration-300 group-hover:scale-110 group-hover:bg-brand-deep">
+                <Check className="w-4 h-4" strokeWidth={3} />
               </div>
-              <div className="flex-1">
-                <h3 className="font-bold text-sm text-[#1A1A1A] uppercase tracking-[0.06em]">{point.title}</h3>
-                <p className="text-[#555555] text-xs mt-2 leading-relaxed">{point.description}</p>
-              </div>
+              <p className="flex-1 text-[#1A1A1A] text-sm md:text-base font-medium leading-relaxed self-center">
+                {point}
+              </p>
             </motion.div>
           ))}
         </div>

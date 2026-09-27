@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
 import { motion } from "framer-motion";
 import { Package, ShoppingBag, Users, Percent, Box, TrendingUp, LayoutDashboard, Gift, Truck, CreditCard, LogOut } from "lucide-react";
+import { BrandLogo } from "@/components/brand/BrandLogo";
 
 const navItems = [
   { icon: LayoutDashboard, label: "Dashboard", href: "/admin" },
@@ -22,11 +23,11 @@ export function AdminSidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="fixed left-0 top-0 h-full w-64 bg-[#C70015] z-40 flex flex-col shadow-2xl">
+    <aside className="fixed left-0 top-0 h-full w-64 bg-brand-deep z-40 flex flex-col shadow-2xl">
       <div className="p-6 border-b border-white/10">
         <Link href="/admin" className="flex items-center gap-3">
-          <img src="/logo.png?v=2" alt="Poprika" className="h-10 md:h-12 w-auto brightness-0 invert" />
-          <span className="text-[#F9D976] text-[10px] uppercase tracking-widest font-medium">Admin</span>
+          <BrandLogo tone="dark" heightClassName="h-9 md:h-11" />
+          <span className="text-gold text-[10px] uppercase tracking-widest font-medium">Admin</span>
         </Link>
       </div>
 

@@ -3,11 +3,12 @@ import { Playfair_Display, Jost, Geist_Mono } from "next/font/google";
 import { Toaster } from "sonner";
 import { CartProvider } from "@/lib/store";
 import { ShippingProvider } from "@/lib/shipping-settings";
-import { AnnouncementBar } from "@/components/layout/AnnouncementBar";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { WhatsAppButton } from "@/components/layout/WhatsAppButton";
 import { CartDrawer } from "@/components/layout/CartDrawer";
+import { BRAND, BRAND_EMAIL, KITCHEN_ADDRESS, SITE_URL, SOCIAL } from "@/lib/brand";
+import { resolveBrandAssets } from "@/lib/brand-assets.server";
 import "./globals.css";
 
 const playfair = Playfair_Display({
@@ -29,27 +30,49 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+// Resolved at build time. Missing files are simply omitted, so we never emit a
+// link to a missing icon. See public/brand/README.md.
+const brandAssets = resolveBrandAssets();
+
+const title = `${BRAND.name} — ${BRAND.tagline}`;
+
 export const metadata: Metadata = {
-  title: "Poprika — Small-Batch Gourmet Popcorn from Mysuru, India",
-  description: "Handcrafted gourmet popcorn made in small batches in Mysuru. No palm oil, no preservatives, no artificial anything. Just real spices, real ghee, and popcorn done properly.",
-  keywords: "premium popcorn, gourmet popcorn, Mysuru popcorn, artisanal popcorn, ghee popcorn, small batch popcorn, Indian gourmet snacks",
+  title,
+  description: BRAND.description,
+  keywords: BRAND.keywords,
+  applicationName: BRAND.name,
+  authors: [{ name: BRAND.name }],
+  creator: BRAND.name,
+  publisher: BRAND.name,
+  alternates: { canonical: "/" },
   openGraph: {
-  title: "Poprika — Small-Batch Gourmet Popcorn from Mysuru, India",
-    description: "Handcrafted gourmet popcorn made in small batches in Mysuru. No palm oil, no preservatives, no artificial anything.",
+    title,
+    description: BRAND.description,
     type: "website",
-    siteName: "Poprika",
+    siteName: BRAND.name,
     locale: "en_IN",
+    url: SITE_URL,
+    ...(brandAssets.ogImage ? { images: [{ url: brandAssets.ogImage, width: 1200, height: 630, alt: BRAND.name }] } : {}),
   },
   twitter: {
-    card: "summary_large_image",
-    title: "Poprika — Small-Batch Gourmet Popcorn",
-    description: "Handcrafted gourmet popcorn made in small batches in Mysuru.",
+    card: brandAssets.ogImage ? "summary_large_image" : "summary",
+    title: `${BRAND.name} — Small-Batch Gourmet Popcorn`,
+    description: BRAND.description,
+    ...(brandAssets.ogImage ? { images: [brandAssets.ogImage] } : {}),
+  },
+  icons: {
+    ...(brandAssets.favicon ? { icon: [{ url: brandAssets.favicon, type: "image/png" }] } : {}),
+    ...(brandAssets.appleTouchIcon ? { apple: [{ url: brandAssets.appleTouchIcon, sizes: "180x180" }] } : {}),
   },
   robots: "index, follow",
-  metadataBase: new URL("https://poprika.in"),
+  metadataBase: new URL(SITE_URL),
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  const sameAs = [SOCIAL.instagram, SOCIAL.youtube].filter(
+    (url): url is string => Boolean(url)
+  );
+
   return (
     <html lang="en" className={`${playfair.variable} ${jost.variable} ${geistMono.variable} h-full antialiased`}>
       <head>
@@ -59,12 +82,21 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": "FoodService",
-              name: "Poprika",
-              description: "Small-batch gourmet popcorn brand from Mysuru",
-              url: "https://poprika.in",
+              name: BRAND.name,
+              alternateName: BRAND.previousName,
+              description: BRAND.description,
+              url: SITE_URL,
+              email: BRAND_EMAIL,
               servesCuisine: "Popcorn",
-              address: { "@type": "PostalAddress", streetAddress: "#30, Sri Nivasa, RCE Layout, Vijayanagar 4th Stage", addressLocality: "Mysore", postalCode: "570032", addressRegion: "Karnataka", addressCountry: "IN" },
-              aggregateRating: { "@type": "AggregateRating", ratingValue: "4.9", reviewCount: "10000" },
+              address: {
+                "@type": "PostalAddress",
+                streetAddress: `${KITCHEN_ADDRESS.line1}, ${KITCHEN_ADDRESS.line2}`,
+                addressLocality: KITCHEN_ADDRESS.city,
+                postalCode: KITCHEN_ADDRESS.zip,
+                addressRegion: KITCHEN_ADDRESS.region,
+                addressCountry: KITCHEN_ADDRESS.country,
+              },
+              ...(sameAs.length ? { sameAs } : {}),
             }),
           }}
         />
@@ -72,10 +104,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="min-h-full flex flex-col">
         <ShippingProvider>
           <CartProvider>
-            <AnnouncementBar />
-            <Header />
+            <Header logoSrc={brandAssets.headerLogo ?? null} />
             <main className="flex-1">{children}</main>
-            <Footer />
+            <Footer logoSrc={brandAssets.footerLogo ?? null} />
             <WhatsAppButton />
             <CartDrawer />
           </CartProvider>

@@ -34,11 +34,22 @@ const defaultSettings: ShippingSettings = {
   codCharge: 20,
 };
 
+const STORAGE_KEY = "blue-dino-shipping";
+/** Pre-rebrand key, read once so existing admin shipping config is preserved. */
+const LEGACY_STORAGE_KEY = "poprika-shipping";
+
 function loadInitialSettings(): ShippingSettings {
   if (typeof window === "undefined") return defaultSettings;
   try {
-    const stored = localStorage.getItem("poprika-shipping");
-    if (stored) return { ...defaultSettings, ...JSON.parse(stored) };
+    const stored =
+      localStorage.getItem(STORAGE_KEY) ?? localStorage.getItem(LEGACY_STORAGE_KEY);
+    if (stored) {
+      const parsed = { ...defaultSettings, ...JSON.parse(stored) };
+      if (!localStorage.getItem(STORAGE_KEY)) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed));
+      }
+      return parsed;
+    }
   } catch { /* ignore */ }
   return defaultSettings;
 }
@@ -63,7 +74,7 @@ export function ShippingProvider({ children }: { children: ReactNode }) {
         if (data?.success && data.data?.value) {
           const merged = { ...defaultSettings, ...data.data.value };
           setSettings(merged);
-          localStorage.setItem("poprika-shipping", JSON.stringify(merged));
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
         }
       })
       .catch(() => {});
@@ -71,7 +82,7 @@ export function ShippingProvider({ children }: { children: ReactNode }) {
 
   const updateSettings = (s: ShippingSettings) => {
     setSettings(s);
-    localStorage.setItem("poprika-shipping", JSON.stringify(s));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(s));
   };
 
   const qualifiesForFree = (subtotal: number) =>
@@ -81,9 +92,9 @@ export function ShippingProvider({ children }: { children: ReactNode }) {
     Math.max(0, settings.freeShippingThreshold - subtotal);
 
   const getShippingCost = (subtotal: number, method?: string) => {
+    if (method === "pickup") return 0;
     if (qualifiesForFree(subtotal)) return 0;
     switch (method) {
-      case "pickup": return settings.mysuruPickupFee;
       case "local": return settings.localMysuruDeliveryFee;
       case "express": return settings.expressDeliveryEnabled ? settings.expressDeliveryCharge : settings.panIndiaShippingFee;
       default: return settings.panIndiaShippingEnabled ? settings.panIndiaShippingFee : settings.flatDeliveryCharge;

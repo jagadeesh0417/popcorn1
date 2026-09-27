@@ -13,12 +13,12 @@ const menuItems = [
 
 export default function AccountPage() {
   return (
-    <div className="min-h-screen pt-20 bg-white">
+    <div className="min-h-screen pt-10 md:pt-14 bg-white">
       <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
           <div className="flex items-center gap-4 mb-8">
-            <div className="w-16 h-16 rounded-2xl bg-[#DC0218]/10 flex items-center justify-center">
-              <User className="h-8 w-8 text-[#DC0218]" />
+            <div className="w-16 h-16 rounded-2xl bg-brand/10 flex items-center justify-center">
+              <User className="h-8 w-8 text-brand" />
             </div>
             <div>
               <h1 className="text-2xl font-bold text-[#1A1A1A]">My Account</h1>
@@ -32,14 +32,14 @@ export default function AccountPage() {
                 <div className="flex items-center justify-between p-4 bg-[#FFF8F0] rounded-xl hover:shadow-sm transition-all group">
                   <div className="flex items-center gap-4">
                     <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center">
-                      <item.icon className="h-5 w-5 text-[#DC0218]" />
+                      <item.icon className="h-5 w-5 text-brand" />
                     </div>
                     <div>
                       <p className="font-medium text-sm text-[#1A1A1A]">{item.label}</p>
                       <p className="text-xs text-[#444444]">{item.desc}</p>
                     </div>
                   </div>
-                  <ChevronRight className="h-5 w-5 text-[#444444] group-hover:text-[#DC0218] transition-colors" />
+                  <ChevronRight className="h-5 w-5 text-[#444444] group-hover:text-brand transition-colors" />
                 </div>
               </Link>
             ))}
@@ -62,7 +62,7 @@ export default function AccountPage() {
             </div>
           </div>
 
-          <Button variant="outline" className="w-full mt-6 rounded-xl border-[rgba(220,2,24,0.2)] text-[#444444]">
+          <Button variant="outline" className="w-full mt-6 rounded-xl border-brand/20 text-[#444444]">
             <LogOut className="h-4 w-4 mr-2" /> Sign Out
           </Button>
         </motion.div>

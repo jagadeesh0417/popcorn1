@@ -10,6 +10,16 @@
   --font-sans: var(--font-jost);
   --font-heading: var(--font-playfair);
   --font-mono: var(--font-geist-mono);
+
+  /* Blue Dino brand ramp */
+  --color-brand: var(--brand);
+  --color-brand-deep: var(--brand-deep);
+  --color-brand-ink: var(--brand-ink);
+  --color-brand-soft: var(--brand-soft);
+  --color-brand-mist: var(--brand-mist);
+  --color-gold: var(--gold);
+  --color-gold-soft: var(--gold-soft);
+
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -49,38 +59,53 @@
 }
 
 :root {
+  /* ---- Blue Dino brand tokens -------------------------------------------
+     Single source of truth for the brand palette. Component code should use
+     `brand` / `brand-deep` utilities (bg-brand, text-brand, border-brand/10)
+     rather than raw hex values. ------------------------------------------ */
+  --brand: #1f55c7;
+  --brand-deep: #163f96;
+  --brand-ink: #122f6e;
+  --brand-soft: #e8f0fe;
+  --brand-mist: #f4f7ff;
+  --gold: #f9d976;
+  --gold-soft: #fbf0cd;
+
   --background: #FFFDF9;
   --foreground: #1a1a1a;
   --card: #ffffff;
   --card-foreground: #1a1a1a;
   --popover: #ffffff;
   --popover-foreground: #1a1a1a;
-  --primary: #dc0218;
+  --primary: var(--brand);
   --primary-foreground: #ffffff;
   --secondary: #fff8f0;
   --secondary-foreground: #1a1a1a;
   --muted: #fff8f0;
   --muted-foreground: #444444;
-  --accent: #f9d976;
-  --accent-foreground: #c70015;
-  --destructive: #dc0218;
-  --border: rgba(220,2,24,0.10);
-  --input: rgba(220,2,24,0.10);
-  --ring: #dc0218;
-  --chart-1: #dc0218;
-  --chart-2: #dc0218;
-  --chart-3: #c70015;
+  --accent: var(--gold);
+  --accent-foreground: var(--brand-ink);
+
+  /* Functional danger colour — intentionally NOT the brand colour so errors
+     stay readable as errors. */
+  --destructive: #b42318;
+  --border: rgba(31, 85, 199, 0.10);
+  --input: rgba(31, 85, 199, 0.12);
+  --ring: var(--brand);
+  --chart-1: #1f55c7;
+  --chart-2: #5b8def;
+  --chart-3: #163f96;
   --chart-4: #f9d976;
-  --chart-5: #fff8f0;
+  --chart-5: #e8f0fe;
   --radius: 0;
   --sidebar: #fff8f0;
   --sidebar-foreground: #1a1a1a;
-  --sidebar-primary: #dc0218;
+  --sidebar-primary: var(--brand);
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #dc0218;
+  --sidebar-accent: var(--brand);
   --sidebar-accent-foreground: #ffffff;
-  --sidebar-border: rgba(220,2,24,0.10);
-  --sidebar-ring: #dc0218;
+  --sidebar-border: rgba(31, 85, 199, 0.10);
+  --sidebar-ring: var(--brand);
 }
 
 @layer base {
@@ -112,9 +137,16 @@
     @apply uppercase tracking-[0.12em] text-xs font-medium;
   }
   .gold-rule {
-    @apply w-8 h-0.5 bg-[#F9D976];
+    @apply w-8 h-0.5 bg-gold;
   }
   .gold-rule-long {
-    @apply w-16 h-0.5 bg-[#F9D976];
+    @apply w-16 h-0.5 bg-gold;
+  }
+  .brand-rule {
+    @apply w-8 h-0.5 bg-brand;
+  }
+  /* Consistent brand focus treatment across interactive elements. */
+  .focus-brand {
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-[#FFFDF9];
   }
 }

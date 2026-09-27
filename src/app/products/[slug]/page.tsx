@@ -67,7 +67,7 @@ export default function ProductDetailPage() {
       .finally(() => setLoading(false));
   }, [slug]);
 
-  if (loading) return <div className="min-h-screen pt-20 bg-white" />;
+  if (loading) return <div className="min-h-screen pt-10 md:pt-14 bg-white" />;
   if (!product) notFound();
 
   const currentVariant = variants.find((s) => s.label === selectedSize);
@@ -92,12 +92,12 @@ export default function ProductDetailPage() {
   };
 
   return (
-    <div className="min-h-screen pt-20 bg-white">
+    <div className="min-h-screen pt-10 md:pt-14 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <nav className="text-sm text-[#444444] mb-8">
-          <Link href="/" className="hover:text-[#DC0218] transition-colors">Home</Link>
+          <Link href="/" className="hover:text-brand transition-colors">Home</Link>
           <span className="mx-2">/</span>
-          <Link href="/shop" className="hover:text-[#DC0218] transition-colors">Shop</Link>
+          <Link href="/shop" className="hover:text-brand transition-colors">Shop</Link>
           <span className="mx-2">/</span>
           <span className="text-[#1A1A1A]">{safeStr(product.name, "Product")}</span>
         </nav>
@@ -120,7 +120,7 @@ export default function ProductDetailPage() {
             <div className="flex items-center gap-2 mb-3">
               <Badge variant="secondary" className="bg-[#FFF8F0] text-[#1A1A1A] border-0">{safeStr(product.category, "Category")}</Badge>
               {product.isBestSeller && (
-                <Badge className="bg-[#F9D976] text-[#C70015] flex items-center gap-1 border-0">
+                <Badge className="bg-[#F9D976] text-brand-deep flex items-center gap-1 border-0">
                   <Star className="h-3 w-3 fill-current" /> Best Seller
                 </Badge>
               )}
@@ -134,10 +134,10 @@ export default function ProductDetailPage() {
             </div>
 
             <h1 className="text-2xl sm:text-3xl lg:text-4xl text-[#1A1A1A]" style={{ fontFamily: "var(--font-playfair)" }}>{safeStr(product.name)}</h1>
-            <p className="text-[#DC0218] text-sm italic mt-1">{safeStr(product.tagline)}</p>
+            <p className="text-brand text-sm italic mt-1">{safeStr(product.tagline)}</p>
             <p className="text-[#444444] mt-4 leading-relaxed">{safeStr(product.description, "No description available.")}</p>
 
-            <Separator className="my-6 bg-[rgba(220,2,24,0.08)]" />
+            <Separator className="my-6 bg-brand/8" />
 
             {variants.length > 0 && (
               <div className="mb-6">
@@ -155,8 +155,8 @@ export default function ProductDetailPage() {
                           !sizeInStock
                             ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed line-through"
                             : isSelected
-                            ? "bg-[#DC0218] text-white border-[#DC0218]"
-                            : "bg-white text-[#1A1A1A] border-[rgba(220,2,24,0.2)] hover:border-[#DC0218]"
+                            ? "bg-brand text-white border-brand"
+                            : "bg-white text-[#1A1A1A] border-brand/20 hover:border-brand"
                         }`}
                       >
                         {safeStr(size.label)} <span className="opacity-70">— ₹{size.price ?? 0}</span>
@@ -184,7 +184,7 @@ export default function ProductDetailPage() {
             <p className="text-sm text-[#444444] mb-6">{currentVariant?.grams ?? 0}g per pack</p>
 
             <div className="flex items-center gap-4 mt-auto">
-              <div className="flex items-center border border-[rgba(220,2,24,0.15)] overflow-hidden">
+              <div className="flex items-center border border-brand/15 overflow-hidden">
                 <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="p-3 hover:bg-[#FFF8F0] transition-colors text-[#1A1A1A]">
                   <Minus className="h-4 w-4" />
                 </button>
@@ -200,7 +200,7 @@ export default function ProductDetailPage() {
                 className={`flex-1 h-12 text-base rounded-xl transition-all ${
                   added
                     ? "bg-green-600 text-white"
-                    : "bg-[#DC0218] hover:bg-[#C70015] text-white"
+                    : "bg-brand hover:bg-brand-deep text-white"
                 }`}
               >
                 {added ? (
@@ -218,7 +218,7 @@ export default function ProductDetailPage() {
                 { icon: RotateCcw, text: "Easy returns" },
               ].map(({ icon: Icon, text }) => (
                 <div key={text} className="flex flex-col items-center text-center p-3 bg-[#FFF8F0]">
-                  <Icon className="h-5 w-5 text-[#DC0218] mb-1" />
+                  <Icon className="h-5 w-5 text-brand mb-1" />
                   <span className="text-xs text-[#444444]">{text}</span>
                 </div>
               ))}
@@ -227,7 +227,7 @@ export default function ProductDetailPage() {
         </div>
 
         <div className="mb-16">
-          <div className="flex gap-1 border-b border-[rgba(220,2,24,0.08)] mb-8">
+          <div className="flex gap-1 border-b border-brand/8 mb-8">
             {[
               { id: "description" as const, label: "Description" },
               { id: "ingredients" as const, label: "Ingredients" },
@@ -238,7 +238,7 @@ export default function ProductDetailPage() {
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
                 className={`px-5 py-3 text-sm font-medium transition-colors border-b-2 -mb-[1px] ${
-                  activeTab === tab.id ? "border-[#DC0218] text-[#DC0218]" : "border-transparent text-[#444444] hover:text-[#1A1A1A]"
+                  activeTab === tab.id ? "border-brand text-brand" : "border-transparent text-[#444444] hover:text-[#1A1A1A]"
                 }`}
               >
                 {tab.label}
@@ -260,7 +260,7 @@ export default function ProductDetailPage() {
                   <ul className="space-y-2">
                     {ings.map((ing, i) => (
                       <li key={i} className="flex items-center gap-3 text-[#444444]">
-                        <Check className="h-4 w-4 text-[#DC0218] shrink-0" />
+                        <Check className="h-4 w-4 text-brand shrink-0" />
                         {safeStr(ing)}
                       </li>
                     ))}
@@ -273,7 +273,7 @@ export default function ProductDetailPage() {
             {activeTab === "nutrition" && (
               <div className="max-w-md">
                 <p className="text-sm text-[#444444] mb-4">Serving Size: {safeStr(product.nutritionInfo?.servingSize, "28g (1 cup)")}</p>
-                <div className="border border-[rgba(220,2,24,0.08)] overflow-hidden">
+                <div className="border border-brand/8 overflow-hidden">
                   <div className="bg-[#FFF8F0] px-4 py-2 flex justify-between font-semibold text-sm text-[#1A1A1A]">
                     <span>Nutrient</span>
                     <span>Amount per serving</span>
@@ -308,7 +308,7 @@ export default function ProductDetailPage() {
                     revs.map((review) => (
                       <div key={review.id || review._id} className="p-5 bg-[#FFF8F0]">
                         <div className="flex items-center gap-3 mb-2">
-                          <div className="w-10 h-10 bg-[#DC0218]/10 flex items-center justify-center text-[#DC0218] font-bold text-sm">
+                          <div className="w-10 h-10 bg-brand/10 flex items-center justify-center text-brand font-bold text-sm">
                             {safeStr(review.name, "A").split(" ").map((n) => n[0]).join("").slice(0, 2)}
                           </div>
                           <div>
@@ -349,7 +349,7 @@ export default function ProductDetailPage() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ delay: i * 0.1 }}
-                    className="group border border-[rgba(220,2,24,0.08)] bg-white overflow-hidden hover:border-[rgba(220,2,24,0.2)] transition-colors"
+                    className="group border border-brand/8 bg-white overflow-hidden hover:border-brand/20 transition-colors"
                   >
                     <Link href={`/products/${p.slug}`}>
                       <div className="relative h-40 overflow-hidden bg-[#FFF8F0]">
@@ -364,10 +364,10 @@ export default function ProductDetailPage() {
                       <Link href={`/products/${p.slug}`}>
                         <h3 className="font-semibold text-lg text-[#1A1A1A]" style={{ fontFamily: "var(--font-playfair)" }}>{safeStr(p.name)}</h3>
                       </Link>
-                      <p className="text-[#DC0218] text-xs italic mt-0.5">{safeStr(p.tagline)}</p>
-                      <div className="flex items-center justify-between mt-3 pt-3 border-t border-[rgba(220,2,24,0.08)]">
+                      <p className="text-brand text-xs italic mt-0.5">{safeStr(p.tagline)}</p>
+                      <div className="flex items-center justify-between mt-3 pt-3 border-t border-brand/8">
                         <span className="font-semibold text-sm text-[#1A1A1A]">From ₹{minPrice}</span>
-                        <Button size="sm" className="bg-[#DC0218] hover:bg-[#C70015] text-white h-8 px-3 text-xs" onClick={() => {
+                        <Button size="sm" className="bg-brand hover:bg-brand-deep text-white h-8 px-3 text-xs" onClick={() => {
                           const defaultVar = pVariants.find((v) => v.isDefault) || pVariants[0] || null;
                           addItem(p, defaultVar);
                         }}>Add</Button>

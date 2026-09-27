@@ -5,6 +5,8 @@ import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, ShoppingBag } from "lucide-react";
 import { useCart } from "@/lib/store";
+import { BrandLogo } from "@/components/brand/BrandLogo";
+import { BRAND } from "@/lib/brand";
 
 const navLinks = [
   { name: "Shop", href: "/shop" },
@@ -12,7 +14,7 @@ const navLinks = [
   { name: "Contact", href: "/contact" },
 ];
 
-export function Header() {
+export function Header({ logoSrc }: { logoSrc?: string | null }) {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const { getItemCount } = useCart();
@@ -35,8 +37,8 @@ export function Header() {
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 md:h-20">
-          <Link href="/" className="flex items-center">
-            <img src="/logonavbar.png?v=2" alt="Poprika" className="h-11 md:h-14 w-auto" />
+          <Link href="/" className="flex items-center focus-brand rounded-sm" aria-label={`${BRAND.name} home`}>
+            <BrandLogo src={logoSrc} tone="light" heightClassName="h-10 md:h-14" />
           </Link>
 
           <nav className="hidden md:flex items-center gap-10">
@@ -44,7 +46,7 @@ export function Header() {
               <Link
                 key={link.href}
                 href={link.href}
-                className="text-sm font-medium uppercase tracking-[0.08em] text-[#1A1A1A] transition-colors duration-200 hover:text-[#DC0218]"
+                className="text-sm font-medium uppercase tracking-[0.08em] text-[#1A1A1A] transition-colors duration-200 hover:text-brand focus-brand rounded-sm"
               >
                 {link.name}
               </Link>
@@ -54,20 +56,21 @@ export function Header() {
           <div className="flex items-center gap-3">
             <button
               onClick={openCart}
-              className="relative p-2 text-[#1A1A1A] transition-colors hover:text-[#DC0218]"
+              className="relative p-2 text-[#1A1A1A] transition-colors hover:text-brand focus-brand rounded-sm"
               aria-label="Open cart"
             >
               <ShoppingBag className="h-5 w-5" />
               {getItemCount() > 0 && (
-                <span className="absolute -top-1 -right-1 bg-[#F9D976] text-[#C70015] text-[9px] font-bold rounded-full h-4 w-4 flex items-center justify-center shadow-sm">
+                <span className="absolute -top-1 -right-1 bg-gold text-brand-deep text-[9px] font-bold rounded-full h-4 w-4 flex items-center justify-center shadow-sm">
                   {getItemCount()}
                 </span>
               )}
             </button>
             <button
-              className="p-2 text-[#1A1A1A] transition-colors md:hidden"
+              className="p-2 text-[#1A1A1A] transition-colors md:hover:text-brand focus-brand rounded-sm md:hidden"
               onClick={() => setIsOpen(!isOpen)}
               aria-label="Toggle menu"
+              aria-expanded={isOpen}
             >
               {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>
@@ -81,7 +84,7 @@ export function Header() {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            className="md:hidden bg-white border-t border-[rgba(220,2,24,0.08)]"
+            className="md:hidden bg-white border-t border-brand/10"
           >
             <div className="px-4 py-4 space-y-1">
               {navLinks.map((link) => (
@@ -89,7 +92,7 @@ export function Header() {
                   key={link.href}
                   href={link.href}
                   onClick={() => setIsOpen(false)}
-                  className="block py-3 text-[#1A1A1A] font-medium hover:text-[#DC0218] transition-colors text-sm uppercase tracking-[0.08em]"
+                  className="block py-3 text-[#1A1A1A] font-medium hover:text-brand transition-colors text-sm uppercase tracking-[0.08em] focus-brand rounded-sm"
                 >
                   {link.name}
                 </Link>

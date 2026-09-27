@@ -28,8 +28,8 @@ const refundPolicies = [
 
 export default function RefundPage() {
   return (
-    <div className="pt-20">
-      <section className="relative py-24 overflow-hidden bg-gradient-to-br from-[#DC0218] via-[#DC0218] to-[#C70015]">
+    <div className="pt-10 md:pt-14">
+      <section className="relative py-24 overflow-hidden bg-gradient-to-br from-brand via-brand to-brand-deep">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight">
@@ -50,10 +50,10 @@ export default function RefundPage() {
                 key={p.title}
                 initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
                 transition={{ delay: i * 0.08 }}
-                className="bg-[#FFF8F0] p-8 rounded-2xl border border-[rgba(220,2,24,0.08)]"
+                className="bg-[#FFF8F0] p-8 rounded-2xl border border-brand/8"
               >
-                <div className="w-12 h-12 rounded-xl bg-[#DC0218]/5 flex items-center justify-center mb-5">
-                  <p.icon className="h-6 w-6 text-[#DC0218]" />
+                <div className="w-12 h-12 rounded-xl bg-brand/5 flex items-center justify-center mb-5">
+                  <p.icon className="h-6 w-6 text-brand" />
                 </div>
                 <h3 className="text-xl font-bold text-[#1A1A1A] mb-3">{p.title}</h3>
                 <p className="text-[#444444] text-sm leading-relaxed">{p.description}</p>
@@ -63,18 +63,18 @@ export default function RefundPage() {
 
           <motion.div
             initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
-            className="mt-12 p-8 rounded-2xl border border-[rgba(220,2,24,0.08)]"
+            className="mt-12 p-8 rounded-2xl border border-brand/8"
           >
             <h3 className="font-bold text-lg text-[#1A1A1A] mb-4">Important Notes</h3>
             <ul className="space-y-2">
               {[
-                "Refunds are only applicable for products purchased directly from the Poprika website.",
+                "Refunds are only applicable for products purchased directly from the Blue Dino website.",
                 "We reserve the right to refuse a refund if the product has been consumed beyond a reasonable amount.",
                 "Promotional or discounted items may be subject to different refund terms.",
                 "Shipping charges are non-refundable for change-of-mind cancellations.",
               ].map((note, i) => (
                 <li key={i} className="text-[#444444] text-sm flex items-start gap-2">
-                  <span className="text-[#DC0218] mt-0.5">•</span>
+                  <span className="text-brand mt-0.5">â€¢</span>
                   {note}
                 </li>
               ))}

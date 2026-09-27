@@ -169,7 +169,7 @@ export function ImageUploader({ images, onChange }: ImageUploaderProps) {
       {images.length > 0 && (
         <div className="flex flex-wrap gap-3 mb-3">
           {images.map((url, i) => (
-            <div key={url} className="relative group w-24 h-24 rounded-lg overflow-hidden border border-[rgba(220,2,24,0.12)]">
+            <div key={url} className="relative group w-24 h-24 rounded-lg overflow-hidden border border-brand/12">
               <img src={url} alt={`Product ${i + 1}`} className="w-full h-full object-cover" />
               <button
                 type="button"
@@ -187,7 +187,7 @@ export function ImageUploader({ images, onChange }: ImageUploaderProps) {
       {uploading.length > 0 && (
         <div className="flex flex-wrap gap-3 mb-3">
           {uploading.map((item, i) => (
-            <div key={i} className="relative w-24 h-24 rounded-lg overflow-hidden border border-[rgba(220,2,24,0.12)] bg-[#FFF8F0]">
+            <div key={i} className="relative w-24 h-24 rounded-lg overflow-hidden border border-brand/12 bg-[#FFF8F0]">
               <img src={item.preview} alt="Preview" className="w-full h-full object-cover" />
               {item.error ? (
                 <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
@@ -235,8 +235,8 @@ export function ImageUploader({ images, onChange }: ImageUploaderProps) {
         onClick={handleBrowse}
         className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-colors ${
           dragOver
-            ? "border-[#DC0218] bg-[#DC0218]/5"
-            : "border-[rgba(220,2,24,0.2)] hover:border-[#DC0218] hover:bg-[#FFF8F0]"
+            ? "border-brand bg-brand/5"
+            : "border-brand/20 hover:border-brand hover:bg-[#FFF8F0]"
         }`}
       >
         <input
@@ -249,7 +249,7 @@ export function ImageUploader({ images, onChange }: ImageUploaderProps) {
         />
         <Upload className="h-8 w-8 mx-auto mb-2 text-[#444444]" />
         <p className="text-sm text-[#444444] font-medium">
-          Drop images here or <span className="text-[#DC0218]">browse</span>
+          Drop images here or <span className="text-brand">browse</span>
         </p>
         <p className="text-xs text-[#666666] mt-1">JPG, PNG, WEBP — up to 10MB each</p>
       </div>

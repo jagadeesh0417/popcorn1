@@ -53,7 +53,7 @@ export default function ShopPage() {
   };
 
   return (
-    <div className="min-h-screen pt-20 bg-white">
+    <div className="min-h-screen pt-10 md:pt-14 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
           <div className="text-center mb-2">
@@ -74,7 +74,7 @@ export default function ShopPage() {
             placeholder="Search flavours..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 text-sm bg-[#FFF8F0] border border-[rgba(220,2,24,0.12)] focus:outline-none focus:border-[#DC0218] transition-colors placeholder:text-[#999999]"
+            className="w-full pl-10 pr-4 py-2.5 text-sm bg-[#FFF8F0] border border-brand/12 focus:outline-none focus:border-brand transition-colors placeholder:text-[#999999]"
           />
         </div>
 
@@ -91,8 +91,8 @@ export default function ShopPage() {
               onClick={() => setActiveCategory(cat.id)}
               className={`px-5 py-2.5 text-xs uppercase tracking-[0.08em] font-medium border transition-all ${
                 activeCategory === cat.id
-                  ? "bg-[#DC0218] text-white border-[#DC0218]"
-                  : "bg-white text-[#444444] border-[rgba(220,2,24,0.15)] hover:border-[#DC0218] hover:text-[#DC0218]"
+                  ? "bg-brand text-white border-brand"
+                  : "bg-white text-[#444444] border-brand/15 hover:border-brand hover:text-brand"
               }`}
             >
               {cat.name}
@@ -111,7 +111,7 @@ export default function ShopPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.05 }}
-                className="group border border-[rgba(220,2,24,0.08)] bg-white overflow-hidden hover:border-[rgba(220,2,24,0.2)] transition-colors"
+                className="group border border-brand/8 bg-white overflow-hidden hover:border-brand/20 transition-colors"
               >
                 <Link href={`/products/${product.slug}`}>
                   <div className="relative h-48 bg-[#FFF8F0]">
@@ -119,7 +119,7 @@ export default function ShopPage() {
                   </div>
                 </Link>
                 <div className="p-5">
-                  <p className="text-[#DC0218] text-xs italic">{product.tagline}</p>
+                  <p className="text-brand text-xs italic">{product.tagline}</p>
                   <Link href={`/products/${product.slug}`}>
                     <h3 className="font-semibold text-lg text-[#1A1A1A]" style={{ fontFamily: "var(--font-playfair)" }}>{product.name}</h3>
                   </Link>
@@ -131,9 +131,9 @@ export default function ShopPage() {
                     </p>
                   )}
 
-                  <div className="flex items-center justify-between mt-3 pt-3 border-t border-[rgba(220,2,24,0.08)]">
+                  <div className="flex items-center justify-between mt-3 pt-3 border-t border-brand/8">
                     <span className="text-base font-semibold text-[#1A1A1A]">From ₹{minPrice}</span>
-                    <Button size="sm" className="bg-[#DC0218] hover:bg-[#C70015] text-white h-9 px-4 text-xs transition-all" onClick={() => addItem(product, defaultVar)}>
+                    <Button size="sm" className="bg-brand hover:bg-brand-deep text-white h-9 px-4 text-xs transition-all" onClick={() => addItem(product, defaultVar)}>
                       <ShoppingBag className="h-3.5 w-3.5 mr-1" />
                       Add
                     </Button>

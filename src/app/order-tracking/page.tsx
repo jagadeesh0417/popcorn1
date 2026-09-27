@@ -58,10 +58,10 @@ export default function OrderTrackingPage() {
   };
 
   return (
-    <div className="min-h-screen pt-20 bg-white">
+    <div className="min-h-screen pt-10 md:pt-14 bg-white">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-10">
-          <span className="text-[#DC0218] font-semibold text-sm uppercase tracking-[0.2em]">Track Your Order</span>
+          <span className="text-brand font-semibold text-sm uppercase tracking-[0.2em]">Track Your Order</span>
           <h1 className="text-3xl md:text-4xl font-bold text-[#1A1A1A] mt-2">Order Tracking</h1>
           <p className="text-[#444444] mt-3">Enter your order ID to track your delivery status</p>
         </motion.div>
@@ -71,10 +71,10 @@ export default function OrderTrackingPage() {
             value={orderId}
             onChange={(e) => setOrderId(e.target.value)}
             placeholder="Enter Order ID (e.g., ORD-001)"
-            className="rounded-xl border-[rgba(220,2,24,0.12)] flex-1"
+            className="rounded-xl border-brand/12 flex-1"
             onKeyDown={(e) => e.key === "Enter" && handleSearch()}
           />
-          <Button onClick={handleSearch} className="bg-[#DC0218] hover:bg-[#C70015] text-white rounded-xl shadow-lg shadow-[#DC0218]/20">
+          <Button onClick={handleSearch} className="bg-brand hover:bg-brand-deep text-white rounded-xl shadow-lg shadow-brand/20">
             <Search className="h-4 w-4 mr-2" /> Track
           </Button>
         </div>
@@ -103,7 +103,7 @@ export default function OrderTrackingPage() {
               </div>
 
               {trackedOrder.trackingId && (
-                <div className="grid grid-cols-2 gap-4 mb-6 p-4 bg-white rounded-xl border border-[rgba(220,2,24,0.08)]">
+                <div className="grid grid-cols-2 gap-4 mb-6 p-4 bg-white rounded-xl border border-brand/8">
                   <div>
                     <p className="text-xs text-[#444444] mb-1">Tracking ID</p>
                     <p className="font-medium text-sm text-[#1A1A1A]">{trackedOrder.trackingId}</p>
@@ -129,10 +129,10 @@ export default function OrderTrackingPage() {
                   return (
                     <div key={index} className="flex gap-4 pb-6 last:pb-0 relative">
                       {!isLast && (
-                        <div className="absolute left-[17px] top-10 bottom-0 w-[2px] bg-[rgba(220,2,24,0.15)]" />
+                        <div className="absolute left-[17px] top-10 bottom-0 w-[2px] bg-brand/15" />
                       )}
                       <div className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 ${
-                        isActive ? "bg-[#DC0218] text-white" : "bg-gray-200 text-gray-400"
+                        isActive ? "bg-brand text-white" : "bg-gray-200 text-gray-400"
                       }`}>
                         <Icon className="h-4 w-4" />
                       </div>
@@ -147,24 +147,24 @@ export default function OrderTrackingPage() {
               </div>
             </div>
 
-            <div className="bg-white rounded-2xl p-6 border border-[rgba(220,2,24,0.08)]">
+            <div className="bg-white rounded-2xl p-6 border border-brand/8">
               <h4 className="font-bold text-base text-[#1A1A1A] mb-4">Order Items</h4>
               <div className="space-y-3">
                 {trackedOrder.items.map((item, i) => (
-                  <div key={i} className="flex items-center justify-between py-2 border-b border-[rgba(220,2,24,0.06)] last:border-0">
+                  <div key={i} className="flex items-center justify-between py-2 border-b border-brand/6 last:border-0">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-lg bg-[#FFF8F0] flex items-center justify-center text-sm font-bold text-[#DC0218]">
+                      <div className="w-10 h-10 rounded-lg bg-[#FFF8F0] flex items-center justify-center text-sm font-bold text-brand">
                         x{item.quantity}
                       </div>
                       <span className="font-medium text-sm text-[#1A1A1A]">{item.name}{item.variant?.label ? ` (${item.variant.label})` : ""}</span>
                     </div>
-                    <span className="font-medium text-sm text-[#DC0218]">₹{item.price * item.quantity}</span>
+                    <span className="font-medium text-sm text-brand">₹{item.price * item.quantity}</span>
                   </div>
                 ))}
               </div>
-              <div className="flex justify-between mt-4 pt-3 border-t border-[rgba(220,2,24,0.08)]">
+              <div className="flex justify-between mt-4 pt-3 border-t border-brand/8">
                 <span className="font-bold text-[#1A1A1A]">Total</span>
-                <span className="font-bold text-[#DC0218]">₹{trackedOrder.total}</span>
+                <span className="font-bold text-brand">₹{trackedOrder.total}</span>
               </div>
             </div>
           </motion.div>
@@ -172,7 +172,7 @@ export default function OrderTrackingPage() {
 
         <div className="text-center mt-8">
           <Link href="/shop">
-            <Button variant="outline" className="rounded-xl border-[rgba(220,2,24,0.2)]">
+            <Button variant="outline" className="rounded-xl border-brand/20">
               <ArrowLeft className="mr-2 h-4 w-4" /> Back to Shop
             </Button>
           </Link>

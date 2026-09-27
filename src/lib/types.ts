@@ -86,6 +86,9 @@ export interface Order {
   trackingId?: string;
   courierPartner?: string;
   estimatedDelivery?: string;
+  fulfillmentMethod?: 'pickup' | 'delivery';
+  pickupLocation?: string;
+  deliveryRegion?: 'mysore' | 'pan_india';
   customerDetails: CustomerDetails;
   paymentId?: string;
   paymentMethod?: string;

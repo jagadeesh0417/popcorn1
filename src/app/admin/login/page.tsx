@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 
 export default function AdminLoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState("Poprikaofficial@gmail.com");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -51,19 +51,19 @@ export default function AdminLoginPage() {
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.4 }}
-          className="bg-white p-8 shadow-xl border border-[rgba(220,2,24,0.08)]"
+          className="bg-white p-8 shadow-xl border border-brand/8"
         >
           <div className="text-center mb-8">
             <motion.div
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ type: "spring", damping: 15, delay: 0.1 }}
-              className="w-16 h-16 mx-auto bg-[#DC0218] flex items-center justify-center mb-4 shadow-lg shadow-[#DC0218]/20"
+              className="w-16 h-16 mx-auto bg-brand flex items-center justify-center mb-4 shadow-lg shadow-brand/20"
             >
               <span className="text-white font-bold text-2xl">P</span>
             </motion.div>
             <h1 className="text-2xl font-bold text-[#1A1A1A]">Admin Login</h1>
-            <p className="text-[#444444] text-sm mt-1">Sign in to manage your Poprika store</p>
+            <p className="text-[#444444] text-sm mt-1">Sign in to manage your Blue Dino store</p>
           </div>
 
           {error && (
@@ -75,14 +75,14 @@ export default function AdminLoginPage() {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="email" className="text-[#1A1A1A]">Email</Label>
-              <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} disabled={loading} className="border-[rgba(220,2,24,0.12)]" />
+              <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} disabled={loading} className="border-brand/12" />
             </div>
             <div className="space-y-2">
               <Label htmlFor="password" className="text-[#1A1A1A]">Password</Label>
-              <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} disabled={loading} className="border-[rgba(220,2,24,0.12)]" />
+              <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} disabled={loading} className="border-brand/12" />
             </div>
             <motion.div whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.97 }}>
-              <Button type="submit" disabled={loading} className="w-full bg-[#DC0218] hover:bg-[#C70015] text-white h-12 shadow-lg shadow-[#DC0218]/20">
+              <Button type="submit" disabled={loading} className="w-full bg-brand hover:bg-brand-deep text-white h-12 shadow-lg shadow-brand/20">
                 {loading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <LogIn className="h-4 w-4 mr-2" />}
                 {loading ? "Signing in..." : "Sign In"}
               </Button>

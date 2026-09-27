@@ -133,7 +133,7 @@ export function BundleCard() {
 
             {/* Content side */}
             <div className="md:w-1/2 p-8 md:p-10 flex flex-col justify-center">
-              <span className="inline-block bg-[#DC0218] text-white text-[10px] uppercase tracking-[0.15em] font-semibold px-3 py-1 mb-4 w-fit">
+              <span className="inline-block bg-brand text-white text-[10px] uppercase tracking-[0.15em] font-semibold px-3 py-1 mb-4 w-fit">
                 Best Value
               </span>
 
@@ -143,7 +143,7 @@ export function BundleCard() {
               <p className="text-[#444444] text-sm mt-2 leading-relaxed">
                 One of each. The best way to find your favourite.
               </p>
-              <p className="text-[#DC0218] text-xs mt-4 font-medium tracking-wide">
+              <p className="text-brand text-xs mt-4 font-medium tracking-wide">
                 Ghee &amp; Black Pepper <span className="text-[#444444]">·</span> Ghee &amp; Curry Leaf <span className="text-[#444444]">·</span> Coffee Chikki
               </p>
 
@@ -156,8 +156,8 @@ export function BundleCard() {
                       onClick={() => setSelectedBundle(size)}
                       className={`px-5 py-2.5 text-xs uppercase tracking-[0.06em] font-medium border transition-all duration-200 ${
                         isSelected
-                          ? "bg-[#DC0218] text-white border-[#DC0218]"
-                          : "bg-white text-[#1A1A1A] border-[rgba(220,2,24,0.2)] hover:border-[#DC0218]"
+                          ? "bg-brand text-white border-brand"
+                          : "bg-white text-[#1A1A1A] border-brand/20 hover:border-brand"
                       }`}
                     >
                       {size}
@@ -182,7 +182,7 @@ export function BundleCard() {
               <motion.div whileTap={{ scale: 0.97 }} className="mt-6">
                 <Button
                   onClick={handleAddBundle}
-                  className={`w-full md:w-auto btn-small-caps px-10 h-12 rounded-xl transition-all duration-200 bg-[#DC0218] hover:bg-[#C70015] text-white shadow-lg shadow-[#DC0218]/20 hover:shadow-[#DC0218]/30`}
+                  className={`w-full md:w-auto btn-small-caps px-10 h-12 rounded-xl transition-all duration-200 bg-brand hover:bg-brand-deep text-white shadow-lg shadow-brand/20 hover:shadow-brand/30`}
                 >
                   <ShoppingBag className="h-3.5 w-3.5 mr-2" /> Add Bundle to Cart
                 </Button>

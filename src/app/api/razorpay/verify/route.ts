@@ -113,6 +113,9 @@ export async function POST(req: Request) {
       paymentMethod: "Razorpay",
       paymentId: razorpay_payment_id,
       razorpayOrderId: razorpay_order_id,
+      fulfillmentMethod: orderData.fulfillmentMethod === "pickup" ? "pickup" : "delivery",
+      ...(orderData.fulfillmentMethod === "pickup" ? { pickupLocation: orderData.pickupLocation } : {}),
+      ...(orderData.deliveryRegion ? { deliveryRegion: orderData.deliveryRegion } : {}),
       customerDetails: orderData.customerDetails,
       statusTimeline: [{ status: "confirmed", date: new Date(), note: "Payment verified" }],
     });

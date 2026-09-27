@@ -1,7 +1,16 @@
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 
-const MONGODB_URI = "mongodb+srv://popcorn:poprika123@cluster0.6lswpmy.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
+const MONGODB_URI = process.env.MONGODB_URI;
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL;
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+
+if (!MONGODB_URI || !ADMIN_EMAIL || !ADMIN_PASSWORD) {
+  console.error(
+    "Missing env vars. Set MONGODB_URI, ADMIN_EMAIL and ADMIN_PASSWORD before running this script."
+  );
+  process.exit(1);
+}
 
 const UserSchema = new mongoose.Schema({
   name: String,
@@ -22,8 +31,8 @@ async function seed() {
   await mongoose.connect(MONGODB_URI);
   console.log("Connected to MongoDB");
 
-  const email = "Poprikaofficial@gmail.com";
-  const rawPassword = "Newbusinesspop@098";
+  const email = ADMIN_EMAIL;
+  const rawPassword = ADMIN_PASSWORD;
 
   const existing = await User.findOne({ email: new RegExp(`^${email.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`, "i") });
   if (existing) {

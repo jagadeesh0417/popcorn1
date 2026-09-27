@@ -51,6 +51,9 @@ interface OrderData {
   estimatedDelivery?: string;
   createdAt: string;
   deliveryInstructions?: string;
+  fulfillmentMethod?: "pickup" | "delivery";
+  pickupLocation?: string;
+  deliveryRegion?: "mysore" | "pan_india";
 }
 
 interface Props {
@@ -91,11 +94,16 @@ export function OrderDetailModal({ orderId, onClose }: Props) {
     toast.success("Order ID copied");
   };
 
+  const isPickupOrder = () => {
+    if (!order) return false;
+    if (order.fulfillmentMethod) return order.fulfillmentMethod === "pickup";
+    // Orders placed before fulfilment was stored used an address marker.
+    return (order.customerDetails.address || "").toLowerCase().includes("pickup");
+  };
+
   const getDeliveryMethod = () => {
-    if (!order) return "";
-    const addr = order.customerDetails.address;
-    if (addr?.toLowerCase().includes("pickup")) return "Mysuru Pickup";
-    return "Home Delivery";
+    if (isPickupOrder()) return "Pickup (Mysore)";
+    return order?.deliveryRegion === "mysore" ? "Delivery (Mysore)" : "Delivery (Pan-India)";
   };
 
   if (!orderId) return null;
@@ -117,7 +125,7 @@ export function OrderDetailModal({ orderId, onClose }: Props) {
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b border-[rgba(220,2,24,0.08)]">
+          <div className="flex items-center justify-between p-6 border-b border-brand/8">
             <div>
               <h2 className="text-xl font-bold text-[#1A1A1A]">Order Details</h2>
               <p className="text-xs text-[#444444] mt-0.5">Complete order information</p>
@@ -129,37 +137,37 @@ export function OrderDetailModal({ orderId, onClose }: Props) {
 
           {loading ? (
             <div className="flex items-center justify-center py-20">
-              <Loader2 className="h-8 w-8 animate-spin text-[#DC0218]" />
+              <Loader2 className="h-8 w-8 animate-spin text-brand" />
             </div>
           ) : error ? (
             <div className="p-8 text-center">
-              <p className="text-[#DC0218] text-sm mb-2">{error}</p>
-              <button onClick={onClose} className="text-[#DC0218] text-sm underline">Close</button>
+              <p className="text-brand text-sm mb-2">{error}</p>
+              <button onClick={onClose} className="text-brand text-sm underline">Close</button>
             </div>
           ) : order ? (
             <div className="p-6 space-y-6">
               {/* Action Buttons */}
               <div className="flex flex-wrap gap-2">
-                <button onClick={copyOrderId} className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium border border-[rgba(220,2,24,0.15)] text-[#1A1A1A] rounded-lg hover:bg-[#FFF8F0] transition-colors">
+                <button onClick={copyOrderId} className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium border border-brand/15 text-[#1A1A1A] rounded-lg hover:bg-[#FFF8F0] transition-colors">
                   <Copy className="h-3.5 w-3.5" /> Copy Order ID
                 </button>
-                <button onClick={() => window.print()} className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium border border-[rgba(220,2,24,0.15)] text-[#1A1A1A] rounded-lg hover:bg-[#FFF8F0] transition-colors">
+                <button onClick={() => window.print()} className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium border border-brand/15 text-[#1A1A1A] rounded-lg hover:bg-[#FFF8F0] transition-colors">
                   <Printer className="h-3.5 w-3.5" /> Print Invoice
                 </button>
               </div>
 
               {/* Order IDs */}
               <div className="grid sm:grid-cols-2 gap-4">
-                <div className="bg-[#FFF8F0] p-4 rounded-xl border border-[rgba(220,2,24,0.06)]">
+                <div className="bg-[#FFF8F0] p-4 rounded-xl border border-brand/6">
                   <div className="flex items-center gap-2 mb-1">
-                    <Hash className="h-4 w-4 text-[#DC0218]" />
+                    <Hash className="h-4 w-4 text-brand" />
                     <span className="text-xs text-[#444444] uppercase tracking-wide">Order ID</span>
                   </div>
                   <p className="font-semibold text-[#1A1A1A] text-sm break-all">{order.orderId}</p>
                 </div>
-                <div className="bg-[#FFF8F0] p-4 rounded-xl border border-[rgba(220,2,24,0.06)]">
+                <div className="bg-[#FFF8F0] p-4 rounded-xl border border-brand/6">
                   <div className="flex items-center gap-2 mb-1">
-                    <Calendar className="h-4 w-4 text-[#DC0218]" />
+                    <Calendar className="h-4 w-4 text-brand" />
                     <span className="text-xs text-[#444444] uppercase tracking-wide">Order Date</span>
                   </div>
                   <p className="font-semibold text-[#1A1A1A] text-sm">{new Date(order.createdAt).toLocaleDateString("en-IN", { year: "numeric", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit" })}</p>
@@ -169,19 +177,19 @@ export function OrderDetailModal({ orderId, onClose }: Props) {
               {/* Payment Info */}
               <div>
                 <div className="flex items-center gap-2 mb-3">
-                  <CreditCard className="h-4 w-4 text-[#DC0218]" />
+                  <CreditCard className="h-4 w-4 text-brand" />
                   <h3 className="font-semibold text-sm text-[#1A1A1A]">Payment Information</h3>
                 </div>
                 <div className="grid sm:grid-cols-3 gap-3">
-                  <div className="bg-white p-3 rounded-xl border border-[rgba(220,2,24,0.06)]">
+                  <div className="bg-white p-3 rounded-xl border border-brand/6">
                     <p className="text-[10px] text-[#888] uppercase tracking-wide mb-0.5">Payment ID</p>
                     <p className="text-sm font-medium text-[#1A1A1A] break-all">{order.paymentId || "—"}</p>
                   </div>
-                  <div className="bg-white p-3 rounded-xl border border-[rgba(220,2,24,0.06)]">
+                  <div className="bg-white p-3 rounded-xl border border-brand/6">
                     <p className="text-[10px] text-[#888] uppercase tracking-wide mb-0.5">Razorpay Order ID</p>
                     <p className="text-sm font-medium text-[#1A1A1A] break-all">{order.razorpayOrderId || "—"}</p>
                   </div>
-                  <div className="bg-white p-3 rounded-xl border border-[rgba(220,2,24,0.06)]">
+                  <div className="bg-white p-3 rounded-xl border border-brand/6">
                     <p className="text-[10px] text-[#888] uppercase tracking-wide mb-0.5">Payment Method</p>
                     <p className="text-sm font-medium text-[#1A1A1A]">{order.paymentMethod || "—"}</p>
                   </div>
@@ -191,10 +199,10 @@ export function OrderDetailModal({ orderId, onClose }: Props) {
               {/* Customer */}
               <div>
                 <div className="flex items-center gap-2 mb-3">
-                  <User className="h-4 w-4 text-[#DC0218]" />
+                  <User className="h-4 w-4 text-brand" />
                   <h3 className="font-semibold text-sm text-[#1A1A1A]">Customer Details</h3>
                 </div>
-                <div className="bg-white p-4 rounded-xl border border-[rgba(220,2,24,0.06)] space-y-2">
+                <div className="bg-white p-4 rounded-xl border border-brand/6 space-y-2">
                   <p className="text-sm text-[#1A1A1A] font-medium">{order.customerDetails.firstName} {order.customerDetails.lastName}</p>
                   <div className="flex items-center gap-1.5 text-xs text-[#444444]">
                     <Mail className="h-3.5 w-3.5" /> {order.customerDetails.email}
@@ -205,19 +213,39 @@ export function OrderDetailModal({ orderId, onClose }: Props) {
                 </div>
               </div>
 
-              {/* Delivery Address */}
+              {/* Fulfilment */}
               <div>
                 <div className="flex items-center gap-2 mb-3">
-                  <MapPin className="h-4 w-4 text-[#DC0218]" />
-                  <h3 className="font-semibold text-sm text-[#1A1A1A]">Delivery Address</h3>
+                  {isPickupOrder() ? (
+                    <MapPin className="h-4 w-4 text-brand" />
+                  ) : (
+                    <Truck className="h-4 w-4 text-brand" />
+                  )}
+                  <h3 className="font-semibold text-sm text-[#1A1A1A]">
+                    {isPickupOrder() ? "Pickup Details" : "Delivery Address"}
+                  </h3>
                 </div>
-                <div className="bg-white p-4 rounded-xl border border-[rgba(220,2,24,0.06)]">
-                  <p className="text-sm text-[#1A1A1A]">{order.customerDetails.address}</p>
+                <div className="bg-white p-4 rounded-xl border border-brand/6">
+                  {isPickupOrder() && (
+                    <p className="mb-3 inline-flex items-center gap-2 px-3 py-1.5 bg-brand/10 text-brand text-xs font-semibold rounded-full">
+                      <MapPin className="h-3.5 w-3.5" /> {getDeliveryMethod()}
+                    </p>
+                  )}
+                  <p className="text-sm text-[#1A1A1A]">
+                    {isPickupOrder() ? order.pickupLocation || order.customerDetails.address : order.customerDetails.address}
+                  </p>
                   <p className="text-xs text-[#444444] mt-1">{order.customerDetails.city}, {order.customerDetails.state} — {order.customerDetails.zipCode}</p>
-                  <div className="flex items-center gap-1.5 mt-2">
-                    <Truck className="h-3.5 w-3.5 text-[#DC0218]" />
-                    <span className="text-xs font-medium text-[#DC0218]">{getDeliveryMethod()}</span>
-                  </div>
+                  {!isPickupOrder() && (
+                    <div className="flex items-center gap-1.5 mt-2">
+                      <Truck className="h-3.5 w-3.5 text-brand" />
+                      <span className="text-xs font-medium text-brand">{getDeliveryMethod()}</span>
+                    </div>
+                  )}
+                  {isPickupOrder() && (
+                    <div className="mt-3 p-3 bg-brand-mist border border-brand/10 rounded-lg text-xs text-[#444444] leading-relaxed">
+                      Ready within 2 working days. Message us on WhatsApp for order updates.
+                    </div>
+                  )}
                   {order.customerDetails.deliveryInstructions && (
                     <div className="mt-2 p-2 bg-[#FFF8F0] rounded-lg text-xs text-[#444444]">
                       <span className="font-medium">Notes:</span> {order.customerDetails.deliveryInstructions}
@@ -229,17 +257,17 @@ export function OrderDetailModal({ orderId, onClose }: Props) {
               {/* Products */}
               <div>
                 <div className="flex items-center gap-2 mb-3">
-                  <ShoppingBag className="h-4 w-4 text-[#DC0218]" />
+                  <ShoppingBag className="h-4 w-4 text-brand" />
                   <h3 className="font-semibold text-sm text-[#1A1A1A]">Products Ordered</h3>
                 </div>
                 <div className="space-y-2">
                   {order.items.map((item, i) => (
-                    <div key={i} className="flex items-center gap-4 bg-white p-3 rounded-xl border border-[rgba(220,2,24,0.06)]">
+                    <div key={i} className="flex items-center gap-4 bg-white p-3 rounded-xl border border-brand/6">
                       <div className="w-14 h-14 bg-[#FFF8F0] rounded-lg flex items-center justify-center text-lg shrink-0">
                         {item.image ? (
                           <img src={item.image} alt={item.name} className="w-full h-full object-cover rounded-lg" />
                         ) : (
-                          <Package className="h-6 w-6 text-[#DC0218]/40" />
+                          <Package className="h-6 w-6 text-brand/40" />
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
@@ -251,7 +279,7 @@ export function OrderDetailModal({ orderId, onClose }: Props) {
                         <p className="text-xs text-[#444444]">₹{item.price} each</p>
                       </div>
                       <div className="text-right shrink-0 min-w-[60px]">
-                        <p className="text-sm font-semibold text-[#DC0218]">₹{item.price * item.quantity}</p>
+                        <p className="text-sm font-semibold text-brand">₹{item.price * item.quantity}</p>
                       </div>
                     </div>
                   ))}
@@ -261,18 +289,18 @@ export function OrderDetailModal({ orderId, onClose }: Props) {
               {/* Order Summary */}
               <div>
                 <div className="flex items-center gap-2 mb-3">
-                  <IndianRupee className="h-4 w-4 text-[#DC0218]" />
+                  <IndianRupee className="h-4 w-4 text-brand" />
                   <h3 className="font-semibold text-sm text-[#1A1A1A]">Order Summary</h3>
                 </div>
-                <div className="bg-white p-4 rounded-xl border border-[rgba(220,2,24,0.06)] space-y-1.5 text-sm">
+                <div className="bg-white p-4 rounded-xl border border-brand/6 space-y-1.5 text-sm">
                   <div className="flex justify-between text-[#444444]"><span>Subtotal</span><span>₹{order.subtotal}</span></div>
                   {order.discount > 0 && (
                     <div className="flex justify-between text-green-600"><span>Discount {order.coupon ? `(${order.coupon})` : ""}</span><span>-₹{order.discount}</span></div>
                   )}
                   <div className="flex justify-between text-[#444444]"><span>Shipping</span><span>{order.shipping === 0 ? "FREE" : `₹${order.shipping}`}</span></div>
-                  <div className="border-t border-[rgba(220,2,24,0.06)] pt-1.5 flex justify-between font-bold text-[#1A1A1A]">
+                  <div className="border-t border-brand/6 pt-1.5 flex justify-between font-bold text-[#1A1A1A]">
                     <span>Grand Total</span>
-                    <span className="text-[#DC0218]">₹{order.total}</span>
+                    <span className="text-brand">₹{order.total}</span>
                   </div>
                 </div>
               </div>
@@ -280,7 +308,7 @@ export function OrderDetailModal({ orderId, onClose }: Props) {
               {/* Status & Timeline */}
               <div>
                 <div className="flex items-center gap-2 mb-3">
-                  <Package className="h-4 w-4 text-[#DC0218]" />
+                  <Package className="h-4 w-4 text-brand" />
                   <h3 className="font-semibold text-sm text-[#1A1A1A]">Order Status</h3>
                 </div>
                 <div className="flex items-center gap-2 mb-4">
@@ -295,7 +323,7 @@ export function OrderDetailModal({ orderId, onClose }: Props) {
                   <div className="space-y-2">
                     {order.statusTimeline.map((event, i) => (
                       <div key={i} className="flex items-start gap-3">
-                        <div className="w-2 h-2 mt-1.5 rounded-full bg-[#DC0218] shrink-0" />
+                        <div className="w-2 h-2 mt-1.5 rounded-full bg-brand shrink-0" />
                         <div>
                           <p className="text-sm font-medium text-[#1A1A1A] capitalize">{event.status}</p>
                           <p className="text-xs text-[#444444]">{new Date(event.date).toLocaleString("en-IN")}{event.note ? ` — ${event.note}` : ""}</p>

@@ -12,6 +12,12 @@ export interface IOrder extends Document {
   trackingId?: string;
   courierPartner?: string;
   estimatedDelivery?: string;
+  /** How the customer wants the order fulfilled. Defaults to delivery. */
+  fulfillmentMethod?: "pickup" | "delivery";
+  /** Human-readable pickup point, set on pickup orders. */
+  pickupLocation?: string;
+  /** Which delivery region a delivery order ships to. */
+  deliveryRegion?: "mysore" | "pan_india";
   customerDetails: {
     firstName: string;
     lastName?: string;
@@ -60,6 +66,13 @@ const OrderSchema = new Schema<IOrder>(
     trackingId: { type: String },
     courierPartner: { type: String },
     estimatedDelivery: { type: String },
+    fulfillmentMethod: {
+      type: String,
+      enum: ["pickup", "delivery"],
+      default: "delivery",
+    },
+    pickupLocation: { type: String },
+    deliveryRegion: { type: String, enum: ["mysore", "pan_india"] },
     customerDetails: {
       firstName: { type: String, required: true },
       lastName: { type: String, default: '', trim: true },

@@ -40,10 +40,10 @@ export default function AdminShippingSettings() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-[#FFFDF9] flex">
       <AdminSidebar />
-      <div className="flex-1 ml-64 pt-20">
+      <div className="flex-1 ml-64 pt-10">
         <div className="px-8 py-8">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-            <span className="text-[#DC0218] font-semibold text-sm uppercase tracking-[0.2em]">Admin / Settings</span>
+            <span className="text-brand font-semibold text-sm uppercase tracking-[0.2em]">Admin / Settings</span>
             <h1 className="text-3xl font-bold text-[#1A1A1A] mt-1">Shipping Settings</h1>
           </motion.div>
 
@@ -53,11 +53,11 @@ export default function AdminShippingSettings() {
               className="bg-[#FFFDF9] p-6 border border-[rgba(0,0,0,0.05)] shadow-sm">
               <div className="flex items-center justify-between mb-5">
                 <div className="flex items-center gap-2">
-                  <Truck className="h-5 w-5 text-[#DC0218]" />
+                  <Truck className="h-5 w-5 text-brand" />
                   <h3 className="font-bold text-lg text-[#1A1A1A]">Free Shipping</h3>
                 </div>
                 <button onClick={() => toggle("freeShippingEnabled")}
-                  className={`relative w-10 h-5 transition-colors ${settings.freeShippingEnabled ? "bg-[#DC0218]" : "bg-[#E0E0E0]"}`}>
+                  className={`relative w-10 h-5 transition-colors ${settings.freeShippingEnabled ? "bg-brand" : "bg-[#E0E0E0]"}`}>
                   <span className={`absolute top-0.5 w-4 h-4 bg-white shadow-sm transition-all ${settings.freeShippingEnabled ? "left-5" : "left-0.5"}`} />
                 </button>
               </div>
@@ -66,7 +66,7 @@ export default function AdminShippingSettings() {
                   <Label className="text-[#1A1A1A] text-xs">Free shipping threshold (₹)</Label>
                   <Input type="number" value={settings.freeShippingThreshold}
                     onChange={(e) => set("freeShippingThreshold", Number(e.target.value))}
-                    className="bg-white border-[rgba(220,2,24,0.12)]" />
+                    className="bg-white border-brand/12" />
                 </div>
                 <p className="text-xs text-[#444444]">
                   Orders at or above ₹{settings.freeShippingThreshold} qualify for free delivery.
@@ -79,11 +79,11 @@ export default function AdminShippingSettings() {
               className="bg-[#FFFDF9] p-6 border border-[rgba(0,0,0,0.05)] shadow-sm">
               <div className="flex items-center justify-between mb-5">
                 <div className="flex items-center gap-2">
-                  <IndianRupee className="h-5 w-5 text-[#DC0218]" />
+                  <IndianRupee className="h-5 w-5 text-brand" />
                   <h3 className="font-bold text-lg text-[#1A1A1A]">Delivery Charges</h3>
                 </div>
                 <button onClick={() => toggle("panIndiaShippingEnabled")}
-                  className={`relative w-10 h-5 transition-colors ${settings.panIndiaShippingEnabled ? "bg-[#DC0218]" : "bg-[#E0E0E0]"}`}>
+                  className={`relative w-10 h-5 transition-colors ${settings.panIndiaShippingEnabled ? "bg-brand" : "bg-[#E0E0E0]"}`}>
                   <span className={`absolute top-0.5 w-4 h-4 bg-white shadow-sm transition-all ${settings.panIndiaShippingEnabled ? "left-5" : "left-0.5"}`} />
                 </button>
               </div>
@@ -92,13 +92,13 @@ export default function AdminShippingSettings() {
                   <Label className="text-[#1A1A1A] text-xs">Pan-India shipping fee (₹)</Label>
                   <Input type="number" value={settings.panIndiaShippingFee}
                     onChange={(e) => set("panIndiaShippingFee", Number(e.target.value))}
-                    className="bg-white border-[rgba(220,2,24,0.12)]" />
+                    className="bg-white border-brand/12" />
                 </div>
                 <div className="space-y-1.5">
                   <Label className="text-[#1A1A1A] text-xs">Flat delivery charge (₹)</Label>
                   <Input type="number" value={settings.flatDeliveryCharge}
                     onChange={(e) => set("flatDeliveryCharge", Number(e.target.value))}
-                    className="bg-white border-[rgba(220,2,24,0.12)]" />
+                    className="bg-white border-brand/12" />
                 </div>
               </div>
             </motion.div>
@@ -108,7 +108,7 @@ export default function AdminShippingSettings() {
               className="bg-[#FFFDF9] p-6 border border-[rgba(0,0,0,0.05)] shadow-sm">
               <div className="flex items-center justify-between mb-5">
                 <div className="flex items-center gap-2">
-                  <Store className="h-5 w-5 text-[#DC0218]" />
+                  <Store className="h-5 w-5 text-brand" />
                   <h3 className="font-bold text-lg text-[#1A1A1A]">Mysuru Options</h3>
                 </div>
               </div>
@@ -116,7 +116,7 @@ export default function AdminShippingSettings() {
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-medium text-[#1A1A1A]">Mysuru pickup</span>
                   <button onClick={() => toggle("mysuruPickupEnabled")}
-                    className={`relative w-10 h-5 transition-colors ${settings.mysuruPickupEnabled ? "bg-[#DC0218]" : "bg-[#E0E0E0]"}`}>
+                    className={`relative w-10 h-5 transition-colors ${settings.mysuruPickupEnabled ? "bg-brand" : "bg-[#E0E0E0]"}`}>
                     <span className={`absolute top-0.5 w-4 h-4 bg-white shadow-sm transition-all ${settings.mysuruPickupEnabled ? "left-5" : "left-0.5"}`} />
                   </button>
                 </div>
@@ -125,13 +125,13 @@ export default function AdminShippingSettings() {
                     <Label className="text-[#1A1A1A] text-xs">Pickup fee (₹) — default 0</Label>
                     <Input type="number" value={settings.mysuruPickupFee}
                       onChange={(e) => set("mysuruPickupFee", Number(e.target.value))}
-                      className="bg-white border-[rgba(220,2,24,0.12)]" />
+                      className="bg-white border-brand/12" />
                   </div>
                 )}
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-medium text-[#1A1A1A]">Local Mysuru delivery</span>
                   <button onClick={() => toggle("localMysuruDeliveryEnabled")}
-                    className={`relative w-10 h-5 transition-colors ${settings.localMysuruDeliveryEnabled ? "bg-[#DC0218]" : "bg-[#E0E0E0]"}`}>
+                    className={`relative w-10 h-5 transition-colors ${settings.localMysuruDeliveryEnabled ? "bg-brand" : "bg-[#E0E0E0]"}`}>
                     <span className={`absolute top-0.5 w-4 h-4 bg-white shadow-sm transition-all ${settings.localMysuruDeliveryEnabled ? "left-5" : "left-0.5"}`} />
                   </button>
                 </div>
@@ -140,7 +140,7 @@ export default function AdminShippingSettings() {
                     <Label className="text-[#1A1A1A] text-xs">Local delivery fee (₹)</Label>
                     <Input type="number" value={settings.localMysuruDeliveryFee}
                       onChange={(e) => set("localMysuruDeliveryFee", Number(e.target.value))}
-                      className="bg-white border-[rgba(220,2,24,0.12)]" />
+                      className="bg-white border-brand/12" />
                   </div>
                 )}
               </div>
@@ -151,7 +151,7 @@ export default function AdminShippingSettings() {
               className="bg-[#FFFDF9] p-6 border border-[rgba(0,0,0,0.05)] shadow-sm">
               <div className="flex items-center justify-between mb-5">
                 <div className="flex items-center gap-2">
-                  <Zap className="h-5 w-5 text-[#DC0218]" />
+                  <Zap className="h-5 w-5 text-brand" />
                   <h3 className="font-bold text-lg text-[#1A1A1A]">Additional</h3>
                 </div>
               </div>
@@ -159,7 +159,7 @@ export default function AdminShippingSettings() {
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-medium text-[#1A1A1A]">Express delivery</span>
                   <button onClick={() => toggle("expressDeliveryEnabled")}
-                    className={`relative w-10 h-5 transition-colors ${settings.expressDeliveryEnabled ? "bg-[#DC0218]" : "bg-[#E0E0E0]"}`}>
+                    className={`relative w-10 h-5 transition-colors ${settings.expressDeliveryEnabled ? "bg-brand" : "bg-[#E0E0E0]"}`}>
                     <span className={`absolute top-0.5 w-4 h-4 bg-white shadow-sm transition-all ${settings.expressDeliveryEnabled ? "left-5" : "left-0.5"}`} />
                   </button>
                 </div>
@@ -168,13 +168,13 @@ export default function AdminShippingSettings() {
                     <Label className="text-[#1A1A1A] text-xs">Express charge (₹)</Label>
                     <Input type="number" value={settings.expressDeliveryCharge}
                       onChange={(e) => set("expressDeliveryCharge", Number(e.target.value))}
-                      className="bg-white border-[rgba(220,2,24,0.12)]" />
+                      className="bg-white border-brand/12" />
                   </div>
                 )}
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-medium text-[#1A1A1A]">Cash on delivery</span>
                   <button onClick={() => toggle("codEnabled")}
-                    className={`relative w-10 h-5 transition-colors ${settings.codEnabled ? "bg-[#DC0218]" : "bg-[#E0E0E0]"}`}>
+                    className={`relative w-10 h-5 transition-colors ${settings.codEnabled ? "bg-brand" : "bg-[#E0E0E0]"}`}>
                     <span className={`absolute top-0.5 w-4 h-4 bg-white shadow-sm transition-all ${settings.codEnabled ? "left-5" : "left-0.5"}`} />
                   </button>
                 </div>
@@ -183,7 +183,7 @@ export default function AdminShippingSettings() {
                     <Label className="text-[#1A1A1A] text-xs">COD charge (₹)</Label>
                     <Input type="number" value={settings.codCharge}
                       onChange={(e) => set("codCharge", Number(e.target.value))}
-                      className="bg-white border-[rgba(220,2,24,0.12)]" />
+                      className="bg-white border-brand/12" />
                   </div>
                 )}
               </div>
@@ -204,7 +204,7 @@ export default function AdminShippingSettings() {
                   else toast.error("Failed to save shipping settings");
                 } catch { toast.error("Failed to save shipping settings"); }
                 finally { setSaving(false); }
-              }} disabled={saving} className="bg-[#DC0218] hover:bg-[#C70015] text-white px-8 h-12 shadow-lg shadow-[#DC0218]/20">
+              }} disabled={saving} className="bg-brand hover:bg-brand-deep text-white px-8 h-12 shadow-lg shadow-brand/20">
                 {saving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />} {saving ? "Saving..." : "Save Changes"}
               </Button>
             </motion.div>

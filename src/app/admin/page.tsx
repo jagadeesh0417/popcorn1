@@ -57,8 +57,8 @@ export default function AdminDashboard() {
       );
 
       setQuickStats([
-        { label: "Pending Orders", value: `${pendingOrders}`, color: pendingOrders > 0 ? "bg-[#F9D976] text-[#C70015]" : "bg-green-100 text-green-700" },
-        { label: "Low Stock Items", value: `${lowStock}`, color: lowStock > 0 ? "bg-[#DC0218] text-white" : "bg-green-100 text-green-700" },
+        { label: "Pending Orders", value: `${pendingOrders}`, color: pendingOrders > 0 ? "bg-[#F9D976] text-brand-deep" : "bg-green-100 text-green-700" },
+        { label: "Low Stock Items", value: `${lowStock}`, color: lowStock > 0 ? "bg-brand text-white" : "bg-green-100 text-green-700" },
         { label: "Total Customers", value: `${uniqueCustomers} customers`, color: "text-[#444444]" },
       ]);
     }).catch((e) => console.error("Failed to load dashboard data", e));
@@ -67,10 +67,10 @@ export default function AdminDashboard() {
   return (
     <div className="min-h-screen bg-[#FFF8F0] flex">
       <AdminSidebar />
-      <div className="flex-1 ml-64 pt-20">
+      <div className="flex-1 ml-64 pt-10">
         <div className="px-8 py-8">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-            <span className="text-[#DC0218] font-semibold text-sm uppercase tracking-[0.2em]">Admin Panel</span>
+            <span className="text-brand font-semibold text-sm uppercase tracking-[0.2em]">Admin Panel</span>
             <h1 className="text-3xl font-bold text-[#1A1A1A] mt-1">Dashboard</h1>
           </motion.div>
 
@@ -81,14 +81,14 @@ export default function AdminDashboard() {
                 variants={fadeUp}
                 transition={{ duration: 0.4 }}
                 whileHover={{ y: -4, boxShadow: "0 12px 35px rgba(0,0,0,0.08)" }}
-                className="bg-white p-6 border border-[rgba(220,2,24,0.08)] transition-all duration-300 cursor-default"
+                className="bg-white p-6 border border-brand/8 transition-all duration-300 cursor-default"
               >
                 <div className="flex items-center justify-between mb-4">
                   <motion.div
                     whileHover={{ scale: 1.1, rotate: 3 }}
-                    className="w-12 h-12 bg-[#DC0218]/5 flex items-center justify-center"
+                    className="w-12 h-12 bg-brand/5 flex items-center justify-center"
                   >
-                    <stat.icon className="h-6 w-6 text-[#DC0218]" />
+                    <stat.icon className="h-6 w-6 text-brand" />
                   </motion.div>
                   {stat.change && (
                     <span className={`flex items-center gap-1 text-xs font-medium ${stat.up ? "text-green-600" : "text-red-600"}`}>
@@ -107,13 +107,13 @@ export default function AdminDashboard() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
-              className="lg:col-span-2 bg-white p-6 border border-[rgba(220,2,24,0.08)]"
+              className="lg:col-span-2 bg-white p-6 border border-brand/8"
             >
               <h3 className="font-bold text-lg text-[#1A1A1A] mb-4">Recent Orders</h3>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-[rgba(220,2,24,0.08)] text-left text-[#444444]">
+                    <tr className="border-b border-brand/8 text-left text-[#444444]">
                       <th className="pb-3 font-medium">Order</th>
                       <th className="pb-3 font-medium">Customer</th>
                       <th className="pb-3 font-medium">Items</th>
@@ -126,13 +126,13 @@ export default function AdminDashboard() {
                     {recentOrders.map((order) => (
                       <motion.tr
                         key={order.id}
-                        whileHover={{ backgroundColor: "rgba(220,2,24,0.03)" }}
-                        className="border-b border-[rgba(220,2,24,0.06)] last:border-0 transition-colors cursor-default"
+                        whileHover={{ backgroundColor: "rgba(31,85,199,0.03)" }}
+                        className="border-b border-brand/6 last:border-0 transition-colors cursor-default"
                       >
                         <td className="py-3 font-medium text-[#1A1A1A]">{order.id}</td>
                         <td className="py-3 text-[#444444]">{order.customer}</td>
                         <td className="py-3 text-[#444444]">{order.items}</td>
-                        <td className="py-3 text-[#DC0218] font-medium">₹{order.total}</td>
+                        <td className="py-3 text-brand font-medium">₹{order.total}</td>
                         <td className="py-3"><span className={`px-2.5 py-1 text-xs font-medium ${statusColors[order.status]}`}>{order.status.charAt(0).toUpperCase() + order.status.slice(1)}</span></td>
                         <td className="py-3 text-[#444444]">{order.date}</td>
                       </motion.tr>
@@ -146,7 +146,7 @@ export default function AdminDashboard() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
-              className="bg-white p-6 border border-[rgba(220,2,24,0.08)]"
+              className="bg-white p-6 border border-brand/8"
             >
               <h3 className="font-bold text-lg text-[#1A1A1A] mb-4">Quick Stats</h3>
               <div className="space-y-4">

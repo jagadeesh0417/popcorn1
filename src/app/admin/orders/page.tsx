@@ -14,12 +14,14 @@ interface OrderItem {
 interface AdminOrder {
   _id: string;
   orderId: string;
-  customerDetails: { firstName: string; lastName: string };
+  customerDetails: { firstName: string; lastName: string; address?: string };
   items: OrderItem[];
   total: number;
   status: string;
   paymentMethod?: string;
   paymentId?: string;
+  fulfillmentMethod?: "pickup" | "delivery";
+  deliveryRegion?: "mysore" | "pan_india";
 }
 
 const statusColors: Record<string, string> = {
@@ -30,6 +32,17 @@ const statusColors: Record<string, string> = {
 };
 
 const statusOptions = ["pending", "confirmed", "packed", "shipped", "delivered", "cancelled", "return-requested"];
+
+/** Falls back to the legacy address marker for orders placed before fulfilment was stored. */
+function fulfilmentLabel(order: AdminOrder): string {
+  if (order.fulfillmentMethod === "pickup") return "Pickup (Mysore)";
+  if (order.fulfillmentMethod === "delivery") {
+    return order.deliveryRegion === "mysore" ? "Delivery (Mysore)" : "Delivery (Pan-India)";
+  }
+  return order.customerDetails.address?.toLowerCase().includes("pickup")
+    ? "Pickup (Mysore)"
+    : "Delivery";
+}
 
 export default function AdminOrdersPage() {
   const [orderList, setOrderList] = useState<AdminOrder[]>([]);
@@ -64,29 +77,30 @@ export default function AdminOrdersPage() {
   return (
     <div className="min-h-screen bg-[#FFF8F0] flex">
       <AdminSidebar />
-      <div className="flex-1 ml-64 pt-20">
+      <div className="flex-1 ml-64 pt-10">
         <div className="px-8 py-8">
           <div className="mb-8">
-            <span className="text-[#DC0218] font-semibold text-sm uppercase tracking-[0.2em]">Admin</span>
+            <span className="text-brand font-semibold text-sm uppercase tracking-[0.2em]">Admin</span>
             <h1 className="text-3xl font-bold text-[#1A1A1A] mt-1">Orders</h1>
           </div>
           {error && <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 text-sm mb-6">{error}</div>}
           {loading ? (
             <div className="flex items-center justify-center py-20">
-              <Loader2 className="h-8 w-8 animate-spin text-[#DC0218]" />
+              <Loader2 className="h-8 w-8 animate-spin text-brand" />
             </div>
           ) : orderList.length === 0 ? (
-            <div className="bg-white rounded-2xl p-12 shadow-sm border border-[rgba(220,2,24,0.08)] text-center">
+            <div className="bg-white rounded-2xl p-12 shadow-sm border border-brand/8 text-center">
               <p className="text-[#444444]">No orders yet. Orders will appear here once customers start checking out.</p>
             </div>
           ) : (
-            <div className="bg-white rounded-2xl p-6 shadow-sm border border-[rgba(220,2,24,0.08)] overflow-x-auto">
+            <div className="bg-white rounded-2xl p-6 shadow-sm border border-brand/8 overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-[rgba(220,2,24,0.08)] text-left text-[#444444]">
+                  <tr className="border-b border-brand/8 text-left text-[#444444]">
                     <th className="pb-3 font-medium">Order ID</th>
                     <th className="pb-3 font-medium">Customer</th>
                     <th className="pb-3 font-medium">Items</th>
+                    <th className="pb-3 font-medium">Fulfilment</th>
                     <th className="pb-3 font-medium">Total</th>
                     <th className="pb-3 font-medium">Status</th>
                     <th className="pb-3 font-medium">Payment</th>
@@ -95,7 +109,7 @@ export default function AdminOrdersPage() {
                 </thead>
                 <tbody>
                   {orderList.map((order) => (
-                    <tr key={order._id} className="border-b border-[rgba(220,2,24,0.06)] last:border-0">
+                    <tr key={order._id} className="border-b border-brand/6 last:border-0">
                       <td className="py-3 font-medium text-[#1A1A1A]">{order.orderId}</td>
                       <td className="py-3 text-[#444444]">{order.customerDetails.firstName} {order.customerDetails.lastName}</td>
                       <td className="py-3 text-[#444444]">
@@ -103,7 +117,7 @@ export default function AdminOrdersPage() {
                           <span>{order.items.reduce((s, i) => s + i.quantity, 0)} items</span>
                           <button
                             onClick={() => setExpandedOrder(expandedOrder === order._id ? null : order._id)}
-                            className="text-[#DC0218] text-xs hover:underline"
+                            className="text-brand text-xs hover:underline"
                           >
                             {expandedOrder === order._id ? "Hide" : "View"}
                           </button>
@@ -120,7 +134,12 @@ export default function AdminOrdersPage() {
                           </div>
                         )}
                       </td>
-                      <td className="py-3 font-medium text-[#DC0218]">₹{order.total}</td>
+                      <td className="py-3">
+                        <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-brand/10 text-brand whitespace-nowrap">
+                          {fulfilmentLabel(order)}
+                        </span>
+                      </td>
+                      <td className="py-3 font-medium text-brand">₹{order.total}</td>
                       <td className="py-3">
                         <select
                           value={order.status}
@@ -134,7 +153,7 @@ export default function AdminOrdersPage() {
                       </td>
                       <td className="py-3 text-[#444444]">{order.paymentId || order.paymentMethod ? "Paid" : "Pending"}</td>
                       <td className="py-3">
-                        <button onClick={() => setSelectedOrderId(order.orderId)} className="text-[#DC0218] text-xs font-medium hover:underline">View</button>
+                        <button onClick={() => setSelectedOrderId(order.orderId)} className="text-brand text-xs font-medium hover:underline">View</button>
                       </td>
                     </tr>
                   ))}

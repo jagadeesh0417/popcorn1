@@ -8,14 +8,14 @@ import { Button } from "@/components/ui/button";
 const steps = [
   { icon: MessageCircle, title: "Contact Us", description: "Reach out within 48 hours of delivery with your order details and issue." },
   { icon: ShieldCheck, title: "We Review", description: "Our team reviews your concern and verifies the details within 24 hours." },
-  { icon: RotateCcw, title: "Resolution", description: "We offer a replacement or full refund — your choice. No hassle, no questions." },
+  { icon: RotateCcw, title: "Resolution", description: "We offer a replacement or full refund â€” your choice. No hassle, no questions." },
   { icon: Clock, title: "Quick Processing", description: "Refunds are processed within 5-7 business days to your original payment method." },
 ];
 
 export default function ReturnsPage() {
   return (
-    <div className="pt-20">
-      <section className="relative py-24 overflow-hidden bg-gradient-to-br from-[#DC0218] via-[#DC0218] to-[#C70015]">
+    <div className="pt-10 md:pt-14">
+      <section className="relative py-24 overflow-hidden bg-gradient-to-br from-brand via-brand to-brand-deep">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight">
@@ -34,8 +34,8 @@ export default function ReturnsPage() {
             <div className="bg-[#FFF8F0] p-8 md:p-10 rounded-[32px] mb-12">
               <h2 className="text-2xl font-bold text-[#1A1A1A] mb-4">Our Promise</h2>
               <p className="text-[#444444] leading-relaxed">
-                Poprika is committed to delivering the freshest, highest-quality popcorn. If you receive a damaged,
-                expired, or unsatisfactory product, we will replace it or issue a full refund — no questions asked.
+                Blue Dino is committed to delivering the freshest, highest-quality popcorn. If you receive a damaged,
+                expired, or unsatisfactory product, we will replace it or issue a full refund â€” no questions asked.
               </p>
             </div>
           </motion.div>
@@ -50,8 +50,8 @@ export default function ReturnsPage() {
                   transition={{ delay: i * 0.08 }}
                   className="text-center p-6"
                 >
-                  <div className="w-16 h-16 mx-auto rounded-2xl bg-[#DC0218]/5 flex items-center justify-center mb-4">
-                    <s.icon className="h-8 w-8 text-[#DC0218]" />
+                  <div className="w-16 h-16 mx-auto rounded-2xl bg-brand/5 flex items-center justify-center mb-4">
+                    <s.icon className="h-8 w-8 text-brand" />
                   </div>
                   <h3 className="font-bold text-[#1A1A1A] mb-2">{s.title}</h3>
                   <p className="text-[#444444] text-sm leading-relaxed">{s.description}</p>
@@ -62,12 +62,12 @@ export default function ReturnsPage() {
 
           <motion.div
             initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
-            className="mt-12 text-center p-8 rounded-2xl border border-[rgba(220,2,24,0.08)]"
+            className="mt-12 text-center p-8 rounded-2xl border border-brand/8"
           >
             <h3 className="font-bold text-lg text-[#1A1A1A] mb-2">Need to initiate a return?</h3>
-            <p className="text-[#444444] text-sm mb-6">Email us at poprika.official@gmail.com with your order ID and we&apos;ll take it from there.</p>
+            <p className="text-[#444444] text-sm mb-6">Email us at bluedino.snacks@gmail.com with your order ID and we&apos;ll take it from there.</p>
             <Link href="/contact">
-              <Button className="bg-[#DC0218] hover:bg-[#C70015] text-white rounded-xl shadow-lg shadow-[#DC0218]/20">
+              <Button className="bg-brand hover:bg-brand-deep text-white rounded-xl shadow-lg shadow-brand/20">
                 Contact Us
               </Button>
             </Link>

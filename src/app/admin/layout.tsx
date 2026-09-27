@@ -24,7 +24,7 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
   if (status === "loading") {
     return (
       <div className="min-h-screen bg-[#FFF8F0] flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-[#DC0218]" />
+        <Loader2 className="h-8 w-8 animate-spin text-brand" />
       </div>
     );
   }

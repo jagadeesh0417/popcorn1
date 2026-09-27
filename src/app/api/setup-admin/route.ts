@@ -8,6 +8,15 @@ export async function GET() {
     return NextResponse.json({ success: false, error: "Admin setup is disabled" }, { status: 403 });
   }
 
+  const adminEmail = process.env.ADMIN_EMAIL;
+  const adminPassword = process.env.ADMIN_PASSWORD;
+  if (!adminEmail || !adminPassword) {
+    return NextResponse.json(
+      { success: false, error: "ADMIN_EMAIL / ADMIN_PASSWORD is not configured" },
+      { status: 500 }
+    );
+  }
+
   const steps: { step: string; ok: boolean; detail: string }[] = [];
 
   try {
@@ -22,14 +31,14 @@ export async function GET() {
     steps[steps.length - 1].detail = `Registered models: ${modelNames.join(", ")}`;
 
     steps.push({ step: "Find existing", ok: false, detail: "Looking up admin..." });
-    const emailRegex = new RegExp("^Poprikaofficial@gmail\\.com$", "i");
+    const emailRegex = new RegExp(`^${adminEmail.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`, "i");
     const existing = await User.findOne({ email: emailRegex });
     if (existing) {
       steps[steps.length - 1].ok = true;
       steps[steps.length - 1].detail = `User found: ${existing.email}, role: ${existing.role}, hash starts with: ${existing.password.substring(0, 15)}...`;
 
       steps.push({ step: "Test password match", ok: false, detail: "Testing bcrypt..." });
-      const testMatch = await existing.comparePassword("Newbusinesspop@098");
+      const testMatch = await existing.comparePassword(adminPassword);
       steps[steps.length - 1].ok = testMatch;
       steps[steps.length - 1].detail = testMatch ? "Password MATCHES" : "Password DOES NOT MATCH";
 
@@ -39,8 +48,8 @@ export async function GET() {
     steps[steps.length - 1].detail = "No admin user found — creating now";
     await User.create({
       name: "Admin",
-      email: "Poprikaofficial@gmail.com",
-      password: "Newbusinesspop@098",
+      email: adminEmail,
+      password: adminPassword,
       role: "admin",
     });
 
@@ -54,7 +63,7 @@ export async function GET() {
     steps[steps.length - 1].detail = `Created: ${created.email}, role: ${created.role}, hash: ${created.password.substring(0, 15)}...`;
 
     steps.push({ step: "Test password match", ok: false, detail: "Testing bcrypt..." });
-    const testMatch = await created.comparePassword("Newbusinesspop@098");
+    const testMatch = await created.comparePassword(adminPassword);
     steps[steps.length - 1].ok = testMatch;
     steps[steps.length - 1].detail = testMatch ? "Password MATCHES" : "Password DOES NOT MATCH";
 

@@ -87,9 +87,9 @@ export function ProductGrid() {
                 viewport={{ once: true, margin: "-50px" }}
                 transition={{ delay: index * 0.1 }}
                 whileHover={{ y: -6 }}
-                className="bg-white border border-[rgba(220,2,24,0.08)] shadow-[0_2px_15px_rgba(220,2,24,0.04)] hover:shadow-[0_12px_35px_rgba(0,0,0,0.08)] transition-all duration-300"
+                className="bg-white border border-brand/8 shadow-[0_2px_15px_rgba(31,85,199,0.04)] hover:shadow-[0_12px_35px_rgba(0,0,0,0.08)] transition-all duration-300"
               >
-                <div className="aspect-[4/3] bg-[#FFF8F0] border-b border-[rgba(220,2,24,0.08)] relative overflow-hidden group">
+                <div className="aspect-[4/3] bg-[#FFF8F0] border-b border-brand/8 relative overflow-hidden group">
                   {product.images?.[0] ? (
                     <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-105" />
                   ) : (
@@ -101,7 +101,7 @@ export function ProductGrid() {
                   <h3 className="text-xl text-[#1A1A1A]" style={{ fontFamily: "var(--font-playfair)" }}>
                     {product.name}
                   </h3>
-                  <p className="text-[#DC0218] text-xs italic mt-1">{product.tagline}</p>
+                  <p className="text-brand text-xs italic mt-1">{product.tagline}</p>
                   <p className="text-[#444444] text-xs mt-3 leading-relaxed">{product.description}</p>
 
                   <div className="flex gap-2 mt-5">
@@ -113,8 +113,8 @@ export function ProductGrid() {
                           onClick={() => handleSizeSelect(product.id, size.label)}
                           className={`px-4 py-2 text-xs uppercase tracking-[0.06em] font-medium border transition-all duration-200 ${
                             isSelected
-                              ? "bg-[#DC0218] text-white border-[#DC0218]"
-                              : "bg-white text-[#1A1A1A] border-[rgba(220,2,24,0.2)] hover:border-[#DC0218]"
+                              ? "bg-brand text-white border-brand"
+                              : "bg-white text-[#1A1A1A] border-brand/20 hover:border-brand"
                           }`}
                         >
                           {size.label}
@@ -124,7 +124,7 @@ export function ProductGrid() {
                   </div>
 
                   <div className="mt-3 h-5">
-                    <p className="text-sm font-semibold text-[#DC0218]">₹{displayPrice}</p>
+                    <p className="text-sm font-semibold text-brand">₹{displayPrice}</p>
                   </div>
 
                   <motion.div whileTap={{ scale: 0.97 }}>
@@ -133,7 +133,7 @@ export function ProductGrid() {
                       className={`w-full mt-4 btn-small-caps h-11 rounded-xl transition-all duration-200 ${
                         addedFeedback[product.id]
                           ? "bg-green-600 text-white shadow-lg shadow-green-600/20"
-                          : "bg-[#DC0218] hover:bg-[#C70015] text-white shadow-lg shadow-[#DC0218]/20 hover:shadow-[#DC0218]/30"
+                          : "bg-brand hover:bg-brand-deep text-white shadow-lg shadow-brand/20 hover:shadow-brand/30"
                       }`}
                     >
                       {addedFeedback[product.id] ? (
