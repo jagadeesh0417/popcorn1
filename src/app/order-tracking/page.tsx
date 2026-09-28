@@ -89,7 +89,7 @@ export default function OrderTrackingPage() {
 
         {trackedOrder && (
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-            <div className="bg-white rounded-2xl p-6 sm:p-8 mb-6">
+            <div className="bg-white border border-brand/8 rounded-2xl p-6 sm:p-8 mb-6">
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
                 <div>
                   <h3 className="font-bold text-xl text-[#1A1A1A]">{trackedOrder.id}</h3>

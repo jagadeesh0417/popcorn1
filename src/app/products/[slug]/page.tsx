@@ -281,7 +281,7 @@ export default function ProductDetailPage() {
                 { icon: Shield, text: "Freshness guaranteed" },
                 { icon: RotateCcw, text: "No Cancellation / Returns" },
               ].map(({ icon: Icon, text }) => (
-                <div key={text} className="flex flex-col items-center text-center p-3 bg-white">
+                <div key={text} className="flex flex-col items-center text-center p-3 bg-white border border-brand/8">
                   <Icon className="h-5 w-5 text-brand mb-1" />
                   <span className="text-xs text-[#444444]">{text}</span>
                 </div>
@@ -370,7 +370,7 @@ export default function ProductDetailPage() {
                     <p className="text-[#444444]">No reviews yet. Be the first to review this product!</p>
                   ) : (
                     revs.map((review) => (
-                      <div key={review.id || review._id} className="p-5 bg-white">
+                      <div key={review.id || review._id} className="p-5 bg-white border border-brand/8">
                         <div className="flex items-center gap-3 mb-2">
                           <div className="w-10 h-10 bg-brand/10 flex items-center justify-center text-brand font-bold text-sm">
                             {safeStr(review.name, "A").split(" ").map((n) => n[0]).join("").slice(0, 2)}

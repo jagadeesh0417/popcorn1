@@ -29,9 +29,9 @@ export default function AccountPage() {
           <div className="space-y-3">
             {menuItems.map((item) => (
               <Link key={item.label} href={item.href}>
-                <div className="flex items-center justify-between p-4 bg-white rounded-xl hover:shadow-sm transition-all group">
+                <div className="flex items-center justify-between p-4 bg-white border border-brand/8 rounded-xl hover:shadow-sm transition-all group">
                   <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center">
+                    <div className="w-10 h-10 rounded-xl bg-brand-mist flex items-center justify-center">
                       <item.icon className="h-5 w-5 text-brand" />
                     </div>
                     <div>
@@ -45,7 +45,7 @@ export default function AccountPage() {
             ))}
           </div>
 
-          <div className="mt-8 p-4 bg-white rounded-xl">
+          <div className="mt-8 p-4 bg-white border border-brand/8 rounded-xl">
             <h3 className="font-bold text-sm text-[#1A1A1A] mb-4">Profile Details</h3>
             <div className="grid grid-cols-2 gap-4">
               {[

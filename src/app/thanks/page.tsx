@@ -280,7 +280,7 @@ function ThankYouContent() {
 
         {order && (
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="space-y-4">
-            <div className="bg-white p-5 flex items-center gap-3 flex-wrap">
+            <div className="bg-white border border-brand/8 p-5 flex items-center gap-3 flex-wrap">
               <Package className="h-5 w-5 text-brand" />
               <div>
                 <p className="text-xs text-[#444444] uppercase tracking-[0.06em]">Order ID</p>

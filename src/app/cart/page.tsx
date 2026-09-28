@@ -193,7 +193,7 @@ export default function CartPage() {
           </div>
 
           <div>
-            <div className="bg-white rounded-2xl p-6 sticky top-28">
+            <div className="bg-white border border-brand/8 rounded-2xl p-6 sticky top-28">
               <h3 className="font-bold text-lg text-[#1A1A1A] mb-4">Order Summary</h3>
               <div className="space-y-3 text-sm">
                 <div className="flex justify-between">
