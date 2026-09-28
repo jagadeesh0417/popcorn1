@@ -129,7 +129,7 @@ export default function CartPage() {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.05 }}
-                  className={`flex gap-4 p-4 bg-white rounded-2xl border shadow-sm ${unavailable ? "border-red-200 bg-red-50/40" : "border-brand/8"}`}
+                  className={`flex gap-4 p-4 bg-white rounded-2xl border shadow-sm ${unavailable ? "border-red-200" : "border-brand/8"}`}
                 >
                   <Link href={linkHref}>
                     <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-xl overflow-hidden bg-background shrink-0">

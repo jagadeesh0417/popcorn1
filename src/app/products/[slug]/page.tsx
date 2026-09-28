@@ -179,10 +179,10 @@ export default function ProductDetailPage() {
                 </Badge>
               )}
               {productOut && (
-                <Badge className="bg-red-100 text-red-700 border-0">Out of Stock</Badge>
+                <Badge className="bg-white text-red-700 border border-red-200">Out of Stock</Badge>
               )}
               {!productOut && currentVariant && (currentVariant.inStock === false) && (
-                <Badge className="bg-red-100 text-red-700 border-0">Out of Stock</Badge>
+                <Badge className="bg-white text-red-700 border border-red-200">Out of Stock</Badge>
               )}
             </div>
 
@@ -435,7 +435,7 @@ export default function ProductDetailPage() {
                       <div className="flex items-center justify-between mt-3 pt-3 border-t border-brand/8">
                         <span className="font-semibold text-sm text-[#1A1A1A]">From ₹{minPrice}</span>
                         {pOut ? (
-                          <span className="text-[10px] font-semibold uppercase tracking-wide text-brand bg-red-50 px-2 py-1">Out of Stock</span>
+                          <span className="text-[10px] font-semibold uppercase tracking-wide text-brand bg-white border border-brand/12 px-2 py-1">Out of Stock</span>
                         ) : (
                           <Button size="sm" className="bg-brand hover:bg-brand-deep text-white h-8 px-3 text-xs" onClick={() => addItem(p, pDefault)}>Add</Button>
                         )}

@@ -162,7 +162,7 @@ export function FeaturedProducts() {
                         Add to Cart
                       </Button>
                     ) : (
-                      <span className="text-[10px] font-semibold uppercase tracking-wide text-brand bg-red-50 px-2.5 py-1.5 rounded-full">Out of Stock</span>
+                      <span className="text-[10px] font-semibold uppercase tracking-wide text-brand bg-white border border-brand/12 px-2.5 py-1.5 rounded-full">Out of Stock</span>
                     )}
                   </div>
                 </div>
