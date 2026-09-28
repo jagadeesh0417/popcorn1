@@ -112,7 +112,7 @@
   * { @apply border-border outline-ring/50; }
   body {
     @apply text-foreground font-sans;
-    background: linear-gradient(180deg, #FFFFFF, #FFFDF9);
+    background: var(--background);
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
     font-size: 17px;
     line-height: 1.7;

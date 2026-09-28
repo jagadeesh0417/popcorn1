@@ -26,7 +26,7 @@ export default function FarmPage() {
         </div>
       </section>
 
-      <section className="py-24 bg-white">
+      <section className="py-24 bg-background">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
             className="max-w-3xl mx-auto text-center mb-20">
@@ -44,7 +44,7 @@ export default function FarmPage() {
               <motion.div key={item.title} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }} transition={{ delay: i * 0.1 }}
                 whileHover={{ y: -4 }}
-                className="bg-[#FFF8F0] p-8 border border-brand/6">
+                className="bg-white p-8 border border-brand/6">
                 <div className="w-12 h-12 rounded-xl bg-brand/5 flex items-center justify-center mb-4">
                   <item.icon className="h-6 w-6 text-brand" />
                 </div>

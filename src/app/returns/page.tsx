@@ -28,10 +28,10 @@ export default function ReturnsPage() {
         </div>
       </section>
 
-      <section className="py-24 bg-white">
+      <section className="py-24 bg-background">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
-            <div className="bg-[#FFF8F0] p-8 md:p-10 rounded-[32px] mb-12">
+            <div className="bg-white p-8 md:p-10 rounded-[32px] mb-12">
               <h2 className="text-2xl font-bold text-[#1A1A1A] mb-4">Our Promise</h2>
               <p className="text-[#444444] leading-relaxed">
                 Blue Dino is committed to delivering the freshest, highest-quality popcorn. If you receive a damaged,

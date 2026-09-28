@@ -213,7 +213,7 @@ export function BundleCard() {
   const prevImage = () => setCurrentImage((prev) => (prev - 1 + bundleImages.length) % bundleImages.length);
 
   return (
-    <section id="bundles" className="py-24 bg-[#FFF8F0]">
+    <section id="bundles" className="py-24 bg-background">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-center mb-8">
           <div className="gold-rule" />
@@ -223,11 +223,11 @@ export function BundleCard() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-100px" }}
           whileHover={{ y: -4 }}
-          className="bg-[#FFFDF9] border border-[rgba(0,0,0,0.05)] shadow-[0_12px_40px_rgba(0,0,0,0.06)] hover:shadow-[0_20px_50px_rgba(0,0,0,0.1)] transition-all duration-300 overflow-hidden"
+          className="bg-white border border-[rgba(0,0,0,0.05)] shadow-[0_12px_40px_rgba(0,0,0,0.06)] hover:shadow-[0_20px_50px_rgba(0,0,0,0.1)] transition-all duration-300 overflow-hidden"
         >
           <div className="flex flex-col md:flex-row">
             {/* Image side */}
-            <div className="md:w-1/2 relative aspect-[4/3] md:aspect-auto md:min-h-[420px] bg-[#FFF8F0] overflow-hidden group">
+            <div className="md:w-1/2 relative aspect-[4/3] md:aspect-auto md:min-h-[420px] bg-background overflow-hidden group">
               <AnimatePresence mode="wait">
                 <motion.div
                   key={currentImage}

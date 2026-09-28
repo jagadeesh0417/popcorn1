@@ -329,7 +329,7 @@ export default function CheckoutPage() {
 
   if (state.items.length === 0) {
     return (
-      <div className="min-h-screen pt-10 md:pt-14 flex items-center justify-center bg-white">
+      <div className="min-h-screen pt-10 md:pt-14 flex items-center justify-center bg-background">
         <div className="text-center px-4">
           <ShoppingBag className="h-16 w-16 text-[#444444] mx-auto mb-4" />
           <h2 className="text-2xl font-bold text-[#1A1A1A] mb-2">Nothing to checkout</h2>
@@ -345,7 +345,7 @@ export default function CheckoutPage() {
   const shipping = shippingCtx.getShippingCost(getSubtotal(), shippingMethod);
 
   return (
-    <div className="min-h-screen pt-10 md:pt-14 bg-gradient-to-b from-white to-[#FFFDF9]">
+    <div className="min-h-screen pt-10 md:pt-14 bg-background">
       {verifying && (
         <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/50 backdrop-blur-sm">
           <div className="bg-white px-8 py-7 max-w-sm mx-4 text-center border border-brand/10 shadow-2xl">
@@ -367,7 +367,7 @@ export default function CheckoutPage() {
         <div className="grid lg:grid-cols-5 gap-10">
           <div className="lg:col-span-3 space-y-6">
             {/* Fulfilment method */}
-            <div className="bg-[#FFFDF9] p-6 border border-[rgba(0,0,0,0.05)] shadow-sm">
+            <div className="bg-white p-6 border border-[rgba(0,0,0,0.05)] shadow-sm">
               <div className="flex items-center gap-2 mb-5">
                 <Store className="h-5 w-5 text-brand" />
                 <h2 className="font-bold text-lg text-[#1A1A1A]">How would you like your order?</h2>
@@ -401,7 +401,7 @@ export default function CheckoutPage() {
             </div>
 
             {/* Customer Details */}
-            <div className="bg-[#FFFDF9] p-6 border border-[rgba(0,0,0,0.05)] shadow-sm">
+            <div className="bg-white p-6 border border-[rgba(0,0,0,0.05)] shadow-sm">
               <div className="flex items-center gap-2 mb-5">
                 <User className="h-5 w-5 text-brand" />
                 <h2 className="font-bold text-lg text-[#1A1A1A]">Contact information</h2>
@@ -428,7 +428,7 @@ export default function CheckoutPage() {
 
             {/* Shipping Address */}
             {isDelivery(shippingMethod) && (
-              <div className="bg-[#FFFDF9] p-6 border border-[rgba(0,0,0,0.05)] shadow-sm">
+              <div className="bg-white p-6 border border-[rgba(0,0,0,0.05)] shadow-sm">
                 <div className="flex items-center gap-2 mb-5">
                   <MapPin className="h-5 w-5 text-brand" />
                   <h2 className="font-bold text-lg text-[#1A1A1A]">{shippingMethod === "local" ? "Local delivery address" : "Delivery address"}</h2>
@@ -510,7 +510,7 @@ export default function CheckoutPage() {
 
             {/* Pickup info */}
             {isPickup(shippingMethod) && (
-              <div className="bg-[#FFFDF9] p-6 border border-[rgba(0,0,0,0.05)] shadow-sm">
+              <div className="bg-white p-6 border border-[rgba(0,0,0,0.05)] shadow-sm">
                 <div className="flex items-center gap-2 mb-5">
                   <MapPin className="h-5 w-5 text-brand" />
                   <h2 className="font-bold text-lg text-[#1A1A1A]">Pickup location</h2>
@@ -534,7 +534,7 @@ export default function CheckoutPage() {
             )}
 
             {/* Order notes */}
-            <div className="bg-[#FFFDF9] p-6 border border-[rgba(0,0,0,0.05)] shadow-sm">
+            <div className="bg-white p-6 border border-[rgba(0,0,0,0.05)] shadow-sm">
               <div className="flex items-center gap-2 mb-5">
                 <ShoppingBag className="h-5 w-5 text-brand" />
                 <h2 className="font-bold text-lg text-[#1A1A1A]">Order notes</h2>
@@ -543,7 +543,7 @@ export default function CheckoutPage() {
             </div>
 
             {/* Payment method */}
-            <div className="bg-[#FFFDF9] p-6 border border-[rgba(0,0,0,0.05)] shadow-sm">
+            <div className="bg-white p-6 border border-[rgba(0,0,0,0.05)] shadow-sm">
               <div className="flex items-center gap-2 mb-5">
                 <CreditCard className="h-5 w-5 text-brand" />
                 <h2 className="font-bold text-lg text-[#1A1A1A]">Payment method</h2>
@@ -579,7 +579,7 @@ export default function CheckoutPage() {
                     onClick={() => setPaymentMethod("cod")}
                     className={`w-full flex items-center gap-4 p-4 border text-left transition-all ${
                       paymentMethod === "cod"
-                        ? "border-brand bg-[#FFF8F0]"
+                        ? "border-brand bg-[#f8faff]"
                         : "border-[rgba(0,0,0,0.08)] bg-white"
                     }`}
                   >
@@ -612,7 +612,7 @@ export default function CheckoutPage() {
 
           {/* Order Summary */}
           <div className="lg:col-span-2">
-            <div className="bg-[#FFFDF9] p-6 border border-[rgba(0,0,0,0.05)] shadow-sm sticky top-24">
+            <div className="bg-white p-6 border border-[rgba(0,0,0,0.05)] shadow-sm sticky top-24">
               <h3 className="font-bold text-lg text-[#1A1A1A] mb-4">Order summary</h3>
               <div className="space-y-3 max-h-60 overflow-y-auto mb-4">
                 {state.items.map((item) => {
@@ -620,7 +620,7 @@ export default function CheckoutPage() {
                   const isBundle = item.type === "bundle";
                   return (
                     <div key={item.cartId} className="flex items-center gap-3 bg-white p-3 border border-brand/6">
-                      <div className="w-12 h-12 bg-[#FFF8F0] shrink-0 flex items-center justify-center text-xs font-bold text-[#444444]">x{item.quantity}</div>
+                      <div className="w-12 h-12 bg-brand-mist shrink-0 flex items-center justify-center text-xs font-bold text-[#444444]">x{item.quantity}</div>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-[#1A1A1A] truncate">{isBundle ? itemName(item) : item.product?.name}</p>
                         <p className="text-xs text-[#444444]">

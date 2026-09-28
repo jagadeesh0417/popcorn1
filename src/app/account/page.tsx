@@ -13,7 +13,7 @@ const menuItems = [
 
 export default function AccountPage() {
   return (
-    <div className="min-h-screen pt-10 md:pt-14 bg-white">
+    <div className="min-h-screen pt-10 md:pt-14 bg-background">
       <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
           <div className="flex items-center gap-4 mb-8">
@@ -29,7 +29,7 @@ export default function AccountPage() {
           <div className="space-y-3">
             {menuItems.map((item) => (
               <Link key={item.label} href={item.href}>
-                <div className="flex items-center justify-between p-4 bg-[#FFF8F0] rounded-xl hover:shadow-sm transition-all group">
+                <div className="flex items-center justify-between p-4 bg-white rounded-xl hover:shadow-sm transition-all group">
                   <div className="flex items-center gap-4">
                     <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center">
                       <item.icon className="h-5 w-5 text-brand" />
@@ -45,7 +45,7 @@ export default function AccountPage() {
             ))}
           </div>
 
-          <div className="mt-8 p-4 bg-[#FFF8F0] rounded-xl">
+          <div className="mt-8 p-4 bg-white rounded-xl">
             <h3 className="font-bold text-sm text-[#1A1A1A] mb-4">Profile Details</h3>
             <div className="grid grid-cols-2 gap-4">
               {[

@@ -62,7 +62,7 @@ export default function CartPage() {
 
   if (state.items.length === 0) {
     return (
-      <div className="min-h-screen pt-10 md:pt-14 flex items-center justify-center bg-white">
+      <div className="min-h-screen pt-10 md:pt-14 flex items-center justify-center bg-background">
         <div className="text-center px-4">
           <ShoppingBag className="h-16 w-16 text-[#444444] mx-auto mb-4" />
           <h2 className="text-2xl font-bold text-[#1A1A1A] mb-2">Your cart is empty</h2>
@@ -76,7 +76,7 @@ export default function CartPage() {
   }
 
   return (
-    <div className="min-h-screen pt-10 md:pt-14 bg-white">
+    <div className="min-h-screen pt-10 md:pt-14 bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex items-center justify-between mb-8">
           <div>
@@ -94,7 +94,7 @@ export default function CartPage() {
         <div className={`mb-6 p-4 text-sm font-medium flex items-center gap-2.5 border ${
           isFree
             ? "bg-green-50 border-green-200 text-green-700"
-            : "bg-[#FFF8F0] border-brand/12 text-[#1A1A1A]"
+            : "bg-white border-brand/12 text-[#1A1A1A]"
         }`}>
           {isFree ? (
             <span>🎉 Congratulations! Your order qualifies for FREE delivery.</span>
@@ -132,7 +132,7 @@ export default function CartPage() {
                   className={`flex gap-4 p-4 bg-white rounded-2xl border shadow-sm ${unavailable ? "border-red-200 bg-red-50/40" : "border-brand/8"}`}
                 >
                   <Link href={linkHref}>
-                    <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-xl overflow-hidden bg-[#FFF8F0] shrink-0">
+                    <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-xl overflow-hidden bg-background shrink-0">
                       {image ? (
                         <Image src={image} alt={alt} fill className="object-cover" sizes="112px" />
                       ) : (
@@ -193,7 +193,7 @@ export default function CartPage() {
           </div>
 
           <div>
-            <div className="bg-[#FFF8F0] rounded-2xl p-6 sticky top-28">
+            <div className="bg-white rounded-2xl p-6 sticky top-28">
               <h3 className="font-bold text-lg text-[#1A1A1A] mb-4">Order Summary</h3>
               <div className="space-y-3 text-sm">
                 <div className="flex justify-between">

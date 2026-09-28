@@ -58,7 +58,7 @@ export default function OrderTrackingPage() {
   };
 
   return (
-    <div className="min-h-screen pt-10 md:pt-14 bg-white">
+    <div className="min-h-screen pt-10 md:pt-14 bg-background">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-10">
           <span className="text-brand font-semibold text-sm uppercase tracking-[0.2em]">Track Your Order</span>
@@ -89,7 +89,7 @@ export default function OrderTrackingPage() {
 
         {trackedOrder && (
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-            <div className="bg-[#FFF8F0] rounded-2xl p-6 sm:p-8 mb-6">
+            <div className="bg-white rounded-2xl p-6 sm:p-8 mb-6">
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
                 <div>
                   <h3 className="font-bold text-xl text-[#1A1A1A]">{trackedOrder.id}</h3>
@@ -153,7 +153,7 @@ export default function OrderTrackingPage() {
                 {trackedOrder.items.map((item, i) => (
                   <div key={i} className="flex items-center justify-between py-2 border-b border-brand/6 last:border-0">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-lg bg-[#FFF8F0] flex items-center justify-center text-sm font-bold text-brand">
+                      <div className="w-10 h-10 rounded-lg bg-brand-mist flex items-center justify-center text-sm font-bold text-brand">
                         x{item.quantity}
                       </div>
                       <span className="font-medium text-sm text-[#1A1A1A]">{item.name}{item.variant?.label ? ` (${item.variant.label})` : ""}</span>

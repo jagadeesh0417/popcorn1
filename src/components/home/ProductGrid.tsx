@@ -53,7 +53,7 @@ export function ProductGrid() {
   };
 
   return (
-    <section id="shop" className="py-24 bg-white">
+    <section id="shop" className="py-24 bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -91,7 +91,7 @@ export function ProductGrid() {
                 whileHover={{ y: -6 }}
                 className="bg-white border border-brand/8 shadow-[0_2px_15px_rgba(31,85,199,0.04)] hover:shadow-[0_12px_35px_rgba(0,0,0,0.08)] transition-all duration-300"
               >
-                <div className="aspect-[4/3] bg-[#FFF8F0] border-b border-brand/8 relative overflow-hidden group">
+                <div className="aspect-[4/3] bg-background border-b border-brand/8 relative overflow-hidden group">
                   {getProductImage(product) ? (
                     <img src={optimizeImageUrl(getProductImage(product), 480) || ""} alt={product.name} className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-105" />
                   ) : (

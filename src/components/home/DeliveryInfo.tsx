@@ -8,7 +8,7 @@ export function DeliveryInfo() {
   const { settings } = useShipping();
 
   return (
-    <section className="py-24 bg-[#FFF8F0]">
+    <section className="py-24 bg-background">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <div className="flex justify-center mb-4">

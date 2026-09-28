@@ -42,7 +42,7 @@ export default function PrivacyPage() {
         </div>
       </section>
 
-      <section className="py-24 bg-white">
+      <section className="py-24 bg-background">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
@@ -60,7 +60,7 @@ export default function PrivacyPage() {
                 key={s.title}
                 initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
                 transition={{ delay: i * 0.08 }}
-                className="bg-[#FFF8F0] p-8 rounded-2xl border border-brand/8"
+                className="bg-white p-8 rounded-2xl border border-brand/8"
               >
                 <div className="flex items-start gap-4">
                   <div className="w-12 h-12 rounded-xl bg-brand/5 flex items-center justify-center shrink-0">

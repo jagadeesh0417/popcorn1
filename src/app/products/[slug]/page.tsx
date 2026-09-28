@@ -83,7 +83,7 @@ export default function ProductDetailPage() {
     return () => { cancelled = true; };
   }, [slug]);
 
-  if (loading) return <div className="min-h-screen pt-10 md:pt-14 bg-white" />;
+  if (loading) return <div className="min-h-screen pt-10 md:pt-14 bg-background" />;
   if (!product) notFound();
 
   const currentVariant = variants.find((s) => s.label === selectedSize);
@@ -111,7 +111,7 @@ export default function ProductDetailPage() {
   };
 
   return (
-    <div className="min-h-screen pt-10 md:pt-14 bg-white">
+    <div className="min-h-screen pt-10 md:pt-14 bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <nav className="text-sm text-[#444444] mb-8">
           <Link href="/" className="hover:text-brand transition-colors">Home</Link>
@@ -128,7 +128,7 @@ export default function ProductDetailPage() {
               const current = imgs[activeImage] || imgs[0];
               return (
                 <div>
-                  <div className="relative h-80 sm:h-96 lg:h-[500px] overflow-hidden bg-[#FFF8F0]">
+                  <div className="relative h-80 sm:h-96 lg:h-[500px] overflow-hidden bg-background">
                     {current ? (
                       <Image
                         key={current}
@@ -281,7 +281,7 @@ export default function ProductDetailPage() {
                 { icon: Shield, text: "Freshness guaranteed" },
                 { icon: RotateCcw, text: "No Cancellation / Returns" },
               ].map(({ icon: Icon, text }) => (
-                <div key={text} className="flex flex-col items-center text-center p-3 bg-[#FFF8F0]">
+                <div key={text} className="flex flex-col items-center text-center p-3 bg-white">
                   <Icon className="h-5 w-5 text-brand mb-1" />
                   <span className="text-xs text-[#444444]">{text}</span>
                 </div>
@@ -338,7 +338,7 @@ export default function ProductDetailPage() {
               <div className="max-w-md">
                 <p className="text-sm text-[#444444] mb-4">Serving Size: {safeStr(product.nutritionInfo?.servingSize, "28g (1 cup)")}</p>
                 <div className="border border-brand/8 overflow-hidden">
-                  <div className="bg-[#FFF8F0] px-4 py-2 flex justify-between font-semibold text-sm text-[#1A1A1A]">
+                  <div className="bg-gray-100 px-4 py-2 flex justify-between font-semibold text-sm text-[#1A1A1A]">
                     <span>Nutrient</span>
                     <span>Amount per serving</span>
                   </div>
@@ -354,7 +354,7 @@ export default function ProductDetailPage() {
                     { label: "Sugar", value: safeStr(product.nutritionInfo?.sugar, "0g") },
                     { label: "Protein", value: safeStr(product.nutritionInfo?.protein, "0g") },
                   ].map((row, i) => (
-                    <div key={row.label} className={`px-4 py-2 flex justify-between text-sm ${i % 2 === 0 ? "bg-white" : "bg-[#FFF8F0]/50"}`}>
+                    <div key={row.label} className={`px-4 py-2 flex justify-between text-sm ${i % 2 === 0 ? "bg-white" : "bg-gray-50"}`}>
                       <span className="text-[#444444]">{row.label}</span>
                       <span className="font-medium text-[#1A1A1A]">{row.value}</span>
                     </div>
@@ -370,7 +370,7 @@ export default function ProductDetailPage() {
                     <p className="text-[#444444]">No reviews yet. Be the first to review this product!</p>
                   ) : (
                     revs.map((review) => (
-                      <div key={review.id || review._id} className="p-5 bg-[#FFF8F0]">
+                      <div key={review.id || review._id} className="p-5 bg-white">
                         <div className="flex items-center gap-3 mb-2">
                           <div className="w-10 h-10 bg-brand/10 flex items-center justify-center text-brand font-bold text-sm">
                             {safeStr(review.name, "A").split(" ").map((n) => n[0]).join("").slice(0, 2)}
@@ -419,7 +419,7 @@ export default function ProductDetailPage() {
                     className="group border border-brand/8 bg-white overflow-hidden hover:border-brand/20 transition-colors"
                   >
                     <Link href={`/products/${p.slug}`}>
-                      <div className="relative h-40 overflow-hidden bg-[#FFF8F0]">
+                      <div className="relative h-40 overflow-hidden bg-background">
                         {imgSrc ? (
                           <Image src={optimizeImageUrl(imgSrc, 400) || ""} alt={safeStr(p.name)} fill className="object-cover group-hover:scale-105 transition-transform duration-500" sizes="(max-width: 640px) 100vw, 25vw" />
                         ) : (

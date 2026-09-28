@@ -177,7 +177,7 @@ function ThankYouContent() {
 
   if (isInvalidId) {
     return (
-      <div className="min-h-screen pt-10 md:pt-14 flex items-center justify-center bg-white">
+      <div className="min-h-screen pt-10 md:pt-14 flex items-center justify-center bg-background">
         <div className="text-center px-4">
           <Package className="h-16 w-16 text-[#444444] mx-auto mb-4" />
           <h2 className="text-xl font-bold text-[#1A1A1A] mb-2">Order reference</h2>
@@ -190,7 +190,7 @@ function ThankYouContent() {
 
   if (loading) {
     return (
-      <div className="min-h-screen pt-10 md:pt-14 flex items-center justify-center bg-white">
+      <div className="min-h-screen pt-10 md:pt-14 flex items-center justify-center bg-background">
         <div className="animate-spin h-8 w-8 border-4 border-brand border-t-transparent rounded-full" />
       </div>
     );
@@ -209,7 +209,7 @@ function ThankYouContent() {
   const mrpSavings = order ? Math.max(0, totalMrp - order.subtotal) : 0;
 
   return (
-    <div className="min-h-screen pt-10 md:pt-14 bg-white">
+    <div className="min-h-screen pt-10 md:pt-14 bg-background">
       <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", stiffness: 200, damping: 15 }} className="text-center mb-8">
           {isFailed ? (
@@ -280,7 +280,7 @@ function ThankYouContent() {
 
         {order && (
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="space-y-4">
-            <div className="bg-[#FFF8F0] p-5 flex items-center gap-3 flex-wrap">
+            <div className="bg-white p-5 flex items-center gap-3 flex-wrap">
               <Package className="h-5 w-5 text-brand" />
               <div>
                 <p className="text-xs text-[#444444] uppercase tracking-[0.06em]">Order ID</p>

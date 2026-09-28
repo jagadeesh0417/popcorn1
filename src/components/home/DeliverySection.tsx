@@ -5,7 +5,7 @@ import { MapPin, Truck } from "lucide-react";
 
 export function DeliverySection() {
   return (
-    <section className="py-24 bg-[#FFF8F0] relative overflow-hidden">
+    <section className="py-24 bg-background relative overflow-hidden">
       <motion.div
         className="absolute -right-20 -top-20 w-64 h-64 text-brand/5"
         animate={{ rotate: 360 }}

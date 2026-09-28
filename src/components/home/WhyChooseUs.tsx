@@ -14,7 +14,7 @@ const points = [
 
 export function WhyChooseUs() {
   return (
-    <section className="py-24 bg-brand-mist relative overflow-hidden">
+    <section className="py-24 bg-background relative overflow-hidden">
       <div
         className="absolute inset-0 opacity-[0.04] pointer-events-none"
         style={{

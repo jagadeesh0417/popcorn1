@@ -55,7 +55,7 @@ export default function ShopPage() {
   };
 
   return (
-    <div className="min-h-screen pt-10 md:pt-14 bg-white">
+    <div className="min-h-screen pt-10 md:pt-14 bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
           <div className="text-center mb-2">
@@ -76,7 +76,7 @@ export default function ShopPage() {
             placeholder="Search flavours..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 text-sm bg-[#FFF8F0] border border-brand/12 focus:outline-none focus:border-brand transition-colors placeholder:text-[#999999]"
+            className="w-full pl-10 pr-4 py-2.5 text-sm bg-white border border-brand/12 focus:outline-none focus:border-brand transition-colors placeholder:text-[#999999]"
           />
         </div>
 
@@ -126,7 +126,7 @@ export default function ShopPage() {
                 className="group border border-brand/8 bg-white overflow-hidden hover:border-brand/20 transition-colors"
               >
                 <Link href={`/products/${product.slug}`}>
-                  <div className="relative h-48 bg-[#FFF8F0]">
+                  <div className="relative h-48 bg-background">
                     {getProductImage(product) ? (
                       <Image src={optimizeImageUrl(getProductImage(product), 600) || ""} alt={product.name} fill className="object-cover group-hover:scale-105 transition-transform duration-700" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" />
                     ) : (

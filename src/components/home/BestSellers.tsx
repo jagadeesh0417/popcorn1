@@ -71,7 +71,7 @@ export function BestSellers() {
   }, [products.length]);
 
   return (
-    <section id="best-sellers" className="py-24 bg-[#FFF8F0]" ref={ref}>
+    <section id="best-sellers" className="py-24 bg-background" ref={ref}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -125,7 +125,7 @@ export function BestSellers() {
               >
                 <div className="bg-white rounded-[24px] overflow-hidden shadow-[0_2px_20px_rgba(31,85,199,0.06)] hover:shadow-[0_8px_40px_rgba(31,85,199,0.12)] transition-all duration-500 border border-brand/8 group h-full">
                   <Link href={`/products/${product.slug}`}>
-                    <div className="relative h-56 overflow-hidden bg-[#FFF8F0]">
+                    <div className="relative h-56 overflow-hidden bg-background">
                       {getProductImage(product) ? (
                         <Image
                           src={getProductImage(product) as string}

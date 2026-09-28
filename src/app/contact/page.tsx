@@ -32,7 +32,7 @@ export default function ContactPage() {
         </div>
       </section>
 
-      <section className="py-24 bg-white">
+      <section className="py-24 bg-background">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-16">
             <motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
@@ -58,7 +58,7 @@ export default function ContactPage() {
 
             <motion.div initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
               {submitted ? (
-                <div className="bg-[#FFF8F0] rounded-[32px] p-12 text-center h-full flex flex-col items-center justify-center">
+                <div className="bg-white rounded-[32px] p-12 text-center h-full flex flex-col items-center justify-center">
                   <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mb-6">
                     <Send className="h-10 w-10 text-green-600" />
                   </div>
@@ -76,7 +76,7 @@ export default function ContactPage() {
                       if (res.ok) { setSubmitted(true); }
                     } catch { setSubmitted(true); }
                   }}
-                  className="bg-[#FFF8F0] rounded-[32px] p-8 md:p-10 space-y-5"
+                  className="bg-white rounded-[32px] p-8 md:p-10 space-y-5"
                 >
                   <div className="grid sm:grid-cols-2 gap-5">
                     <div className="space-y-2">

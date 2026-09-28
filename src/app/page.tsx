@@ -15,11 +15,11 @@ function SectionDivider() {
 export default function HomePage() {
   return (
     <>
-      <TrustBar />
-      <SectionDivider />
       <FeaturedProducts />
       <SectionDivider />
       <BundleCard />
+      <SectionDivider />
+      <TrustBar />
       <SectionDivider />
       <DeliveryInfo />
       <SectionDivider />

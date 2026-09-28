@@ -60,7 +60,7 @@ export function FeaturedProducts() {
   const displayProducts = products.slice(0, 8);
 
   return (
-    <section className="py-24 bg-white">
+    <section className="py-24 bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -114,7 +114,7 @@ export function FeaturedProducts() {
                 className="group bg-white rounded-[28px] overflow-hidden shadow-[0_2px_20px_rgba(0,0,0,0.04)] hover:shadow-[0_10px_40px_rgba(0,0,0,0.06)] transition-all duration-500 border border-brand/8"
               >
                 <Link href={`/products/${product.slug}`}>
-                  <div className="relative h-56 overflow-hidden bg-[#FFF8F0]">
+                  <div className="relative h-56 overflow-hidden bg-background">
                     {getProductImage(product) ? (
                       <Image
                         src={optimizeImageUrl(getProductImage(product), 500) || ""}
