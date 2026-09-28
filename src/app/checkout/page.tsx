@@ -373,7 +373,7 @@ export default function CheckoutPage() {
                 <h2 className="font-bold text-lg text-[#1A1A1A]">How would you like your order?</h2>
               </div>
               <Select value={shippingMethod} onValueChange={(v) => v && setShippingMethod(v as ShippingMethod)}>
-                <SelectTrigger className="w-full bg-white border-brand/12">
+                <SelectTrigger className="w-full bg-white border-brand/12 data-placeholder:text-[#9CA3AF]">
                   <SelectValue placeholder="Select delivery or pickup" />
                 </SelectTrigger>
                 <SelectContent>
@@ -409,19 +409,19 @@ export default function CheckoutPage() {
               <div className="grid sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="firstName" className="text-[#1A1A1A]">First name *</Label>
-                  <Input id="firstName" value={form.firstName} onChange={(e) => updateField("firstName", e.target.value)} placeholder="John" className="bg-white border-brand/12" />
+                  <Input id="firstName" value={form.firstName} onChange={(e) => updateField("firstName", e.target.value)} placeholder="Enter first name" className="bg-white border-brand/12 placeholder:text-[#9CA3AF]" />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="lastName" className="text-[#1A1A1A]">Last name</Label>
-                  <Input id="lastName" value={form.lastName} onChange={(e) => updateField("lastName", e.target.value)} placeholder="Doe" className="bg-white border-brand/12" />
+                  <Input id="lastName" value={form.lastName} onChange={(e) => updateField("lastName", e.target.value)} placeholder="Enter last name" className="bg-white border-brand/12 placeholder:text-[#9CA3AF]" />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="phone" className="text-[#1A1A1A]">Phone number *</Label>
-                  <Input id="phone" type="tel" value={form.phone} onChange={(e) => updateField("phone", e.target.value)} placeholder="+91 8197175807" className="bg-white border-brand/12" />
+                  <Input id="phone" type="tel" value={form.phone} onChange={(e) => updateField("phone", e.target.value)} placeholder="Enter phone number" className="bg-white border-brand/12 placeholder:text-[#9CA3AF]" />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="email" className="text-[#1A1A1A]">Email *</Label>
-                  <Input id="email" type="email" value={form.email} onChange={(e) => updateField("email", e.target.value)} placeholder="john@example.com" className="bg-white border-brand/12" />
+                  <Input id="email" type="email" value={form.email} onChange={(e) => updateField("email", e.target.value)} placeholder="Enter email address" className="bg-white border-brand/12 placeholder:text-[#9CA3AF]" />
                 </div>
               </div>
             </div>
@@ -438,34 +438,34 @@ export default function CheckoutPage() {
                   <div className="grid sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="addressLine1" className="text-[#1A1A1A]">Address line 1 *</Label>
-                      <Input id="addressLine1" value={form.addressLine1} onChange={(e) => updateField("addressLine1", e.target.value)} placeholder="Street number, building" className="bg-white border-brand/12" />
+                      <Input id="addressLine1" value={form.addressLine1} onChange={(e) => updateField("addressLine1", e.target.value)} placeholder="Enter address" className="bg-white border-brand/12 placeholder:text-[#9CA3AF]" />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="addressLine2" className="text-[#1A1A1A]">Address line 2</Label>
-                      <Input id="addressLine2" value={form.addressLine2} onChange={(e) => updateField("addressLine2", e.target.value)} placeholder="Apartment / unit" className="bg-white border-brand/12" />
+                      <Input id="addressLine2" value={form.addressLine2} onChange={(e) => updateField("addressLine2", e.target.value)} placeholder="Enter apartment / unit" className="bg-white border-brand/12 placeholder:text-[#9CA3AF]" />
                     </div>
                   </div>
 
                   <div className="grid sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="area" className="text-[#1A1A1A]">Area / Locality</Label>
-                      <Input id="area" value={form.area} onChange={(e) => updateField("area", e.target.value)} placeholder="e.g. Indiranagar" className="bg-white border-brand/12" />
+                      <Input id="area" value={form.area} onChange={(e) => updateField("area", e.target.value)} placeholder="Enter area / locality" className="bg-white border-brand/12 placeholder:text-[#9CA3AF]" />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="landmark" className="text-[#1A1A1A]">Landmark</Label>
-                      <Input id="landmark" value={form.landmark} onChange={(e) => updateField("landmark", e.target.value)} placeholder="Near..." className="bg-white border-brand/12" />
+                      <Input id="landmark" value={form.landmark} onChange={(e) => updateField("landmark", e.target.value)} placeholder="Enter landmark" className="bg-white border-brand/12 placeholder:text-[#9CA3AF]" />
                     </div>
                   </div>
 
                   <div className="grid sm:grid-cols-3 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="city" className="text-[#1A1A1A]">City *</Label>
-                      <Input id="city" value={form.city} onChange={(e) => updateField("city", e.target.value)} placeholder="Mumbai" className="bg-white border-brand/12" />
+                      <Input id="city" value={form.city} onChange={(e) => updateField("city", e.target.value)} placeholder="Enter city" className="bg-white border-brand/12 placeholder:text-[#9CA3AF]" />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="state" className="text-[#1A1A1A]">State *</Label>
                       <Select value={form.state} onValueChange={(v) => v && updateField("state", v)}>
-                        <SelectTrigger className="w-full bg-white border-brand/12">
+                        <SelectTrigger className="w-full bg-white border-brand/12 data-placeholder:text-[#9CA3AF]">
                           <SelectValue placeholder="Select state" />
                         </SelectTrigger>
                         <SelectContent>
@@ -477,7 +477,7 @@ export default function CheckoutPage() {
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="pincode" className="text-[#1A1A1A]">Pincode *</Label>
-                      <Input id="pincode" value={form.pincode} onChange={(e) => updateField("pincode", e.target.value)} placeholder="400001" className="bg-white border-brand/12" />
+                      <Input id="pincode" value={form.pincode} onChange={(e) => updateField("pincode", e.target.value)} placeholder="Enter pincode" className="bg-white border-brand/12 placeholder:text-[#9CA3AF]" />
                     </div>
                   </div>
 
@@ -539,7 +539,7 @@ export default function CheckoutPage() {
                 <ShoppingBag className="h-5 w-5 text-brand" />
                 <h2 className="font-bold text-lg text-[#1A1A1A]">Order notes</h2>
               </div>
-              <Textarea value={form.deliveryInstructions} onChange={(e) => updateField("deliveryInstructions", e.target.value)} placeholder={isPickup(shippingMethod) ? "Preferred pickup time, anything we should know..." : shippingMethod === "local" ? "Delivery instructions, landmark..." : "Gate code, landmark, delivery instructions..."} className="bg-white border-brand/12 min-h-[80px]" />
+              <Textarea value={form.deliveryInstructions} onChange={(e) => updateField("deliveryInstructions", e.target.value)} placeholder={isPickup(shippingMethod) ? "Preferred pickup time, anything we should know..." : shippingMethod === "local" ? "Delivery instructions, landmark..." : "Gate code, landmark, delivery instructions..."} className="bg-white border-brand/12 min-h-[80px] placeholder:text-[#9CA3AF]" />
             </div>
 
             {/* Payment method */}
@@ -660,7 +660,7 @@ export default function CheckoutPage() {
                         onChange={(e) => setCouponInput(e.target.value)}
                         onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleApplyCoupon(); } }}
                         placeholder="Enter coupon code"
-                        className="bg-white border-brand/15 uppercase"
+                        className="bg-white border-brand/15 uppercase placeholder:normal-case placeholder:text-[#9CA3AF]"
                         disabled={couponLoading}
                       />
                       <Button
