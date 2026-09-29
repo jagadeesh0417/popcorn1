@@ -1,0 +1,76 @@
+
+> popcorn@0.1.0 dev
+> next dev
+
+   ▲ Next.js 15.5.20
+   - Local:        http://localhost:3000
+   - Network:      http://192.168.1.60:3000
+   - Environments: .env.local
+
+ ✓ Starting...
+ ✓ Ready in 3s
+ ○ Compiling / ...
+ ✓ Compiled / in 10.4s (1660 modules)
+ GET / 200 in 6516ms
+ GET / 200 in 213ms
+ GET / 200 in 361ms
+ ○ Compiling /api/settings ...
+ ✓ Compiled /api/settings in 3.2s (1969 modules)
+ GET / 200 in 1340ms
+ GET /api/settings?key=bundle&fresh=1 200 in 5016ms
+ GET /api/settings?key=shipping 200 in 5067ms
+ GET /api/products?homepage=true 200 in 5109ms
+ GET /api/products?slugs=mysore-coffee&fresh=1 200 in 159ms
+ ○ Compiling /shop ...
+ ✓ Compiled /shop in 594ms (1980 modules)
+ GET /shop 200 in 1151ms
+ GET /api/settings?key=shipping 200 in 52ms
+ GET /api/products 200 in 229ms
+ ○ Compiling /products/[slug] ...
+ ✓ Compiled /products/[slug] in 776ms (2009 modules)
+ GET /products/ghee-salt 200 in 2472ms
+ GET /api/products 200 in 40ms
+ GET /api/products?slug=ghee-salt 200 in 190ms
+ GET /api/settings?key=shipping 200 in 84ms
+ ○ Compiling /cart ...
+ ✓ Compiled /cart in 1863ms (2148 modules)
+ GET /cart 200 in 2429ms
+ ○ Compiling /api/coupons ...
+ ✓ Compiled /api/coupons in 933ms (2151 modules)
+ GET /api/coupons 200 in 1168ms
+ ✓ Compiled in 1301ms (833 modules)
+ ✓ Compiled in 414ms (833 modules)
+ ✓ Compiled in 446ms (833 modules)
+ ✓ Compiled in 462ms (833 modules)
+ ✓ Compiled in 442ms (833 modules)
+ ✓ Compiled in 360ms (833 modules)
+ ✓ Compiled in 399ms (833 modules)
+ ✓ Compiled in 416ms (833 modules)
+ ✓ Compiled in 549ms (833 modules)
+ ✓ Compiled in 499ms (833 modules)
+ ✓ Compiled in 354ms (833 modules)
+ ✓ Compiled in 324ms (833 modules)
+ ✓ Compiled in 391ms (833 modules)
+ ✓ Compiled in 437ms (833 modules)
+ ○ Compiling /checkout ...
+ ✓ Compiled /checkout in 4.2s (2059 modules)
+ GET /checkout 200 in 5098ms
+ ○ Compiling /api/settings ...
+ ✓ Compiled /api/settings in 730ms (1454 modules)
+ GET /api/settings?key=shipping 200 in 1187ms
+ GET /shop 200 in 436ms
+ ✓ Compiled /api/products in 425ms (1456 modules)
+ GET /api/settings?key=shipping 200 in 963ms
+ GET /api/products 200 in 1038ms
+ GET /checkout 200 in 400ms
+ GET /api/settings?key=shipping 200 in 45ms
+ GET /shop 200 in 138ms
+ GET /api/products 200 in 36ms
+ GET /api/settings?key=shipping 200 in 75ms
+ GET /checkout 200 in 74ms
+ GET /api/settings?key=shipping 200 in 59ms
+ GET /shop 200 in 96ms
+ GET /api/settings?key=shipping 200 in 68ms
+ GET /api/products 200 in 87ms
+ GET /checkout 200 in 196ms
+ GET /api/settings?key=shipping 200 in 44ms
