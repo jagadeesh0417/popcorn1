@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { Camera, MessageCircle, Mail, MapPin, Phone, Clock } from "lucide-react";
+import { MessageCircle, Mail, MapPin, Phone, Clock } from "lucide-react";
 import { BrandLogo } from "@/components/brand/BrandLogo";
+import { InstagramIcon } from "@/components/brand/InstagramIcon";
 import {
   BRAND,
   BRAND_EMAIL,
@@ -39,7 +40,7 @@ export function Footer({ logoSrc }: { logoSrc?: string | null }) {
                   aria-label="Instagram"
                   className={socialButton}
                 >
-                  <Camera className="h-4 w-4" />
+                  <InstagramIcon className="h-4 w-4" />
                 </a>
               )}
               {SOCIAL.youtube && (

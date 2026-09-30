@@ -5,10 +5,11 @@
  * social links, domain, fulfilment copy) now resolves from here, so a
  * rebrand or a domain change is a single-file edit.
  *
- * Values that are NOT supplied yet (domain, Instagram, logo files) deliberately
- * have no invented default. They fall back to `null` / a local dev origin and
- * the UI degrades gracefully instead of rendering a fake URL or a broken
- * image. See `src/lib/brand-assets.server.ts` for the asset drop-in slots.
+ * Values that are NOT supplied yet (domain, logo files) deliberately have no
+ * invented default. They fall back to `null` / a local dev origin and the UI
+ * degrades gracefully instead of rendering a fake URL or a broken image. See
+ * `src/lib/brand-assets.server.ts` for the asset drop-in slots. The Instagram
+ * profile has since been supplied and does ship with a real default.
  */
 
 export const BRAND = {
@@ -42,12 +43,24 @@ export const SITE_URL = (
   process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
 ).replace(/\/$/, "");
 
+/**
+ * The live Blue Dino Instagram account, as supplied. It ships as the default
+ * (rather than a `null` placeholder) so the Instagram section, the footer icon
+ * and the schema.org `sameAs` entry all resolve to the real profile in every
+ * environment, including deployments where the optional env var is unset. The
+ * `igsh` / `utm_source` parameters are part of the supplied link and are kept
+ * verbatim. Override with NEXT_PUBLIC_INSTAGRAM_URL only if the account moves.
+ */
+const INSTAGRAM_URL =
+  "https://www.instagram.com/poprika_official?igsh=MzU1cmV4cnBnaXRs&utm_source=qr";
+
 export const SOCIAL = {
+  instagram: process.env.NEXT_PUBLIC_INSTAGRAM_URL || INSTAGRAM_URL,
   /**
-   * Supplied per-project. No default: the icon is not rendered until a real
-   * handle exists, so the site never links to a wrong or invented profile.
+   * Legacy. The Instagram heading now shows the brand name ("Blue Dino on
+   * Instagram") instead of an @handle, so the old "Poprika" handle is no
+   * longer rendered anywhere. Retained only for backwards compatibility.
    */
-  instagram: process.env.NEXT_PUBLIC_INSTAGRAM_URL || null,
   instagramHandle: process.env.NEXT_PUBLIC_INSTAGRAM_HANDLE || null,
   youtube: process.env.NEXT_PUBLIC_YOUTUBE_URL || null,
   whatsappNumber: process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "918197175807",
